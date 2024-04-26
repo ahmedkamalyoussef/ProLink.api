@@ -1,0 +1,6 @@
+@ProLink.api_HostAddress = http://localhost:5292
+
+GET {{ProLink.api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
