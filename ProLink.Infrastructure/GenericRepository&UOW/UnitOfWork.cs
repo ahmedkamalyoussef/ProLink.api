@@ -12,7 +12,7 @@ using ProLink.Data.Entities;
 
 namespace ProLink.Infrastructure.GenericRepository_UOW
 {
-    public class UnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private IDbContextTransaction transaction;
 
@@ -24,7 +24,10 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
-            
+            User = new GenericRepository<User>(_context);
+            FriendRequest = new GenericRepository<FriendRequest>(_context);
+            JopRequest = new GenericRepository<JobRequest>(_context);
+            Comment = new GenericRepository<Comment>(_context);
         }
 
         public void CreateTransaction()

@@ -17,11 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ProLink.Core\ProLink.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\ProLink.Data\ProLink.Data.csproj" />
+    <ProjectReference Include="..\ProLink.Infrastructure\ProLink.Infrastructure.csproj" />
+    <ProjectReference Include="..\ProLink.Services\ProLink.Application.csproj" />
   </ItemGroup>
 
 </Project>

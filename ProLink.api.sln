@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProLink.api", "ProLink.api\ProLink.api.csproj", "{5730F390-B750-49E1-BCFE-8964EED18D81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProLink.api", "ProLink.api\ProLink.api.csproj", "{5730F390-B750-49E1-BCFE-8964EED18D81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProLink.Infrastructure", "ProLink.Infrastructure\ProLink.Infrastructure.csproj", "{00F94A5D-DA5E-4E89-AA7B-29A40F849DF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProLink.Infrastructure", "ProLink.Infrastructure\ProLink.Infrastructure.csproj", "{00F94A5D-DA5E-4E89-AA7B-29A40F849DF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProLink.Core", "ProLink.Core\ProLink.Core.csproj", "{0CCCBE48-E596-4F53-8FE6-535062D0B321}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProLink.Application", "ProLink.Services\ProLink.Application.csproj", "{7569A585-CF41-448E-B805-59FC10E3BEF4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProLink.Services", "ProLink.Services\ProLink.Services.csproj", "{7569A585-CF41-448E-B805-59FC10E3BEF4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProLink.Data", "ProLink.Data\ProLink.Data.csproj", "{D211E1BC-5F86-4940-9D92-ED3A6A19E87E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProLink.Data", "ProLink.Data\ProLink.Data.csproj", "{D211E1BC-5F86-4940-9D92-ED3A6A19E87E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +25,6 @@ Global
 		{00F94A5D-DA5E-4E89-AA7B-29A40F849DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F94A5D-DA5E-4E89-AA7B-29A40F849DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F94A5D-DA5E-4E89-AA7B-29A40F849DF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0CCCBE48-E596-4F53-8FE6-535062D0B321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CCCBE48-E596-4F53-8FE6-535062D0B321}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0CCCBE48-E596-4F53-8FE6-535062D0B321}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0CCCBE48-E596-4F53-8FE6-535062D0B321}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7569A585-CF41-448E-B805-59FC10E3BEF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7569A585-CF41-448E-B805-59FC10E3BEF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7569A585-CF41-448E-B805-59FC10E3BEF4}.Release|Any CPU.ActiveCfg = Release|Any CPU

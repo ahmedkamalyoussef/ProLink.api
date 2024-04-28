@@ -69,13 +69,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1e52ef0e-40e8-4802-8851-fcc4cbee419a",
+                            Id = "acd862e2-d646-4870-9e99-6ebf62a06430",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "d55d4b00-1738-4e0c-8ae2-a7e22b6ec550",
+                            Id = "08688d9c-044b-4fe6-9d3d-8b80b7930667",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });

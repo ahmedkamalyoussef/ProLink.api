@@ -10,7 +10,10 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
 {
     public interface IUnitOfWork
     {
-        
+        public IGenericRepository<User> User { get; set; }
+        public IGenericRepository<FriendRequest> FriendRequest { get; set; }
+        public IGenericRepository<JobRequest> JopRequest { get; set; }
+        public IGenericRepository<Comment> Comment { get; set; }
 
         void CreateTransaction();
         void Commit();

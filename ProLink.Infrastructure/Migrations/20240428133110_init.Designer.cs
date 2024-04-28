@@ -12,7 +12,7 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240426165702_init")]
+    [Migration("20240428133110_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -27,6 +27,21 @@ namespace ProLink.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("JobRequestUser", b =>
+                {
+                    b.Property<string>("ReceivedJobRequestsId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RecipientsId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ReceivedJobRequestsId", "RecipientsId");
+
+                    b.HasIndex("RecipientsId");
+
+                    b.ToTable("JobRequestUser");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -57,15 +72,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "caf15d26-071b-45aa-b874-724428f7403f",
-                            ConcurrencyStamp = "0",
+                            Id = "acd862e2-d646-4870-9e99-6ebf62a06430",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "dc287709-054d-42cb-91d2-80215f8aac50",
-                            ConcurrencyStamp = "1",
+                            Id = "08688d9c-044b-4fe6-9d3d-8b80b7930667",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });
@@ -358,7 +371,12 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -405,9 +423,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("JobRequestId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("JopTitle")
                         .HasColumnType("nvarchar(max)");
 
@@ -452,8 +467,6 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JobRequestId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -493,6 +506,21 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasIndex("SkillId");
 
                     b.ToTable("UserSkills");
+                });
+
+            modelBuilder.Entity("JobRequestUser", b =>
+                {
+                    b.HasOne("ProLink.Data.Entities.JobRequest", null)
+                        .WithMany()
+                        .HasForeignKey("ReceivedJobRequestsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProLink.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecipientsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -555,7 +583,7 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -587,7 +615,7 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.JobRequest", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", "Creator")
-                        .WithMany()
+                        .WithMany("SentJobRequests")
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -604,7 +632,7 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Likes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -617,13 +645,13 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.Message", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", "Receiver")
-                        .WithMany()
+                        .WithMany("ReceivedMessages")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "Sender")
-                        .WithMany()
+                        .WithMany("SentMessages")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -652,11 +680,11 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.User", b =>
+            modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
                 {
-                    b.HasOne("ProLink.Data.Entities.JobRequest", null)
-                        .WithMany("Recipients")
-                        .HasForeignKey("JobRequestId");
+                    b.HasOne("ProLink.Data.Entities.User", null)
+                        .WithMany("PostedJobs")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.UserFriend", b =>
@@ -697,11 +725,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.JobRequest", b =>
-                {
-                    b.Navigation("Recipients");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
                 {
                     b.Navigation("Comments");
@@ -711,9 +734,21 @@ namespace ProLink.Infrastructure.Migrations
 
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+
+                    b.Navigation("PostedJobs");
+
                     b.Navigation("ReceivedFriendRequests");
 
+                    b.Navigation("ReceivedMessages");
+
                     b.Navigation("SentFriendRequests");
+
+                    b.Navigation("SentJobRequests");
+
+                    b.Navigation("SentMessages");
 
                     b.Navigation("UserSkills");
                 });
