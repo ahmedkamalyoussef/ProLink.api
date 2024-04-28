@@ -17,10 +17,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 #endregion
+
 #region Dependency Injection
 builder.Services.AddInfrastructureServices().
     AddReposetoriesServices();
 #endregion
+
 #region swagger
 builder.Services.AddSwaggerGen(c =>
 {
