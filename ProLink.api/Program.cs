@@ -3,6 +3,11 @@ using Microsoft.OpenApi.Models;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure;
 using ProLink.Application;
+    using Microsoft.AspNetCore.Identity;
+using ProLink.Data.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +23,39 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 #endregion
 
+#region Identity
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(10));
+
+#endregion
+
+#region Add Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+}
+    ).AddJwtBearer(o =>
+    {
+        o.IncludeErrorDetails = true;
+        o.RequireHttpsMetadata = false;
+        o.SaveToken = false;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+            ValidAudience = builder.Configuration["JWT:ValidAudience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+        };
+    });
+#endregion
 #region Dependency Injection
 builder.Services.AddInfrastructureServices().
     AddReposetoriesServices();
@@ -62,6 +100,18 @@ builder.Services.AddSwaggerGen(swagger =>
                     new string[] {}
                     }
                 });
+});
+#endregion
+#region Cors policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+
+    });
 });
 #endregion
 var app = builder.Build();

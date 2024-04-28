@@ -11,10 +11,10 @@ namespace ProLink.Data.Entities
 {
     public class User : IdentityUser
     {
-        public string? FirstName { get; set; }
-
-        public string? LastName { get; set; }
-
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
         public string? JopTitle { get; set; }
 
         public string? Description { get; set; }

@@ -4,6 +4,8 @@ using ProLink.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using ProLink.Application.Authentication;
+using System.Security.Claims;
 
 namespace ProLink.Application.Helpers
 {
@@ -37,7 +39,13 @@ namespace ProLink.Application.Helpers
             var currentUser = _contextAccessor.HttpContext.User;
             return await _userManager.GetUserAsync(currentUser);
         }
+
+        public Task<Login> GenerateJwtTokenAsync(IEnumerable<Claim> claims)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
+
         #region file handling
         public async Task<string> AddImage(IFormFile file)
         {

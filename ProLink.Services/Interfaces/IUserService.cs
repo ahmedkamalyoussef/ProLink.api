@@ -1,4 +1,6 @@
 ﻿using Castle.Core.Resource;
+using Microsoft.AspNetCore.Identity;
+using ProLink.Application.Authentication;
 using ProLink.Application.DTOs;
 using ProLink.Data.Entities;
 using System;
@@ -12,6 +14,7 @@ namespace ProLink.Application.Interfaces
 {
     public interface IUserService
     {
-        //Task<bool> UpdateUserInfo(UserDto userDto);
+        Task<bool> UpdateUserInfo(UserDto userDto);
+        Task<IdentityResult> Register(RegisterUser registerUser);
     }
 }
