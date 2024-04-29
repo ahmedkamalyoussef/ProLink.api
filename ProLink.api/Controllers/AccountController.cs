@@ -165,6 +165,20 @@ namespace ProLink.api.Controllers
         #endregion
 
 
+        [Authorize]
+        [HttpGet("get-Current-user")]
+        public async Task<IActionResult> GetCurrentUserInfoAsync()
+        {
+            var result = await _userService.GetCurrentUserInfoAsync();
+
+            if (result!=null)
+            {
+                return Ok(result);
+            }
+            return BadRequest("Failed to update user information.");
+
+        }
+
 
         [Authorize]
         [HttpPut("update-user-info")]

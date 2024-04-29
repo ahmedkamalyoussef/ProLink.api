@@ -22,6 +22,7 @@ namespace ProLink.Application.Interfaces
         Task<bool> ForgetPasswordAsync(string email);
         Task<IdentityResult> ResetPasswordAsync(ResetPassword resetPassword);
         Task<IdentityResult> ChangePasswordAsync(ChangePassword changePassword);
+        Task<UserDto> GetCurrentUserInfoAsync();
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
         Task<bool> DeleteAccountAsync();
         Task<bool> AddUserPictureAsync(IFormFile file);

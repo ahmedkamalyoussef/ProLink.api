@@ -30,8 +30,7 @@ namespace ProLink.Application.Services
 
         #region ctor
         public UserService(IUnitOfWork unitOfWork,
-            UserManager<User> userManager,
-            IConfiguration config, IMapper mapper,
+            UserManager<User> userManager, IMapper mapper,
             IHttpContextAccessor contextAccessor,
             IUserHelpers userHelpers,
             SignInManager<User> signInManager,
@@ -198,6 +197,16 @@ namespace ProLink.Application.Services
         #endregion
 
         #region methods
+
+        public async Task<UserDto> GetCurrentUserInfoAsync()
+        {
+            var currentUser= await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null)
+                throw new Exception("User not found.");
+            var user =_mapper.Map<UserDto>(currentUser);
+            return user;
+        }
+
         public async Task<bool> UpdateUserInfoAsync(UserDto userDto)
         {   
             var currentUser = await _userHelpers.GetCurrentUserAsync();
@@ -227,15 +236,18 @@ namespace ProLink.Application.Services
             return result.Succeeded;
         }
 
+
+        #endregion
+        #region file handlling
         public async Task<bool> AddUserPictureAsync(IFormFile file)
         {
-            var user=await _userHelpers.GetCurrentUserAsync();
+            var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var picture=await _userHelpers.AddImageAsync(file);
+            var picture = await _userHelpers.AddImageAsync(file);
             if (picture != null)
                 user.ProfilePicture = picture;
             _unitOfWork.User.Update(user);
-            if(_unitOfWork.Save()>0)return true;
+            if (_unitOfWork.Save() > 0) return true;
             return false;
         }
 
@@ -243,10 +255,10 @@ namespace ProLink.Application.Services
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var oldPicture=user.ProfilePicture;
+            var oldPicture = user.ProfilePicture;
             user.ProfilePicture = null;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save()>0)
+            if (_unitOfWork.Save() > 0)
                 return await _userHelpers.DeleteImageAsync(oldPicture);
             return false;
         }
@@ -256,10 +268,10 @@ namespace ProLink.Application.Services
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
             var newPicture = await _userHelpers.AddImageAsync(file);
-            var oldPicture=user.ProfilePicture;
+            var oldPicture = user.ProfilePicture;
             user.ProfilePicture = newPicture;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0&& !oldPicture.IsNullOrEmpty())
+            if (_unitOfWork.Save() > 0 && !oldPicture.IsNullOrEmpty())
             {
                 return await _userHelpers.DeleteImageAsync(oldPicture);
             }
@@ -270,7 +282,7 @@ namespace ProLink.Application.Services
         public async Task<string> GetUserPictureAsync()
         {
             var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null|| user.ProfilePicture.IsNullOrEmpty())
+            if (user == null || user.ProfilePicture.IsNullOrEmpty())
                 throw new Exception("User not found");
             return user.ProfilePicture;
         }

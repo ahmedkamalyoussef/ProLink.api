@@ -14,7 +14,8 @@ namespace ProLink.Application.Mapper
             CreateMap<RegisterUser, User>()
                    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => new MailAddress(src.Email).User));
             CreateMap<UserDto, User>();
-            
+            CreateMap<User,UserDto>();
+
 
         }
     }
