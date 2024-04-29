@@ -1,13 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using ProLink.Application.Authentication;
+using ProLink.Application.DTOs;
 using ProLink.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProLink.Application.Mapper
 {
@@ -17,6 +13,9 @@ namespace ProLink.Application.Mapper
         {
             CreateMap<RegisterUser, User>()
                    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => new MailAddress(src.Email).User));
+            CreateMap<UserDto, User>();
+            
+
         }
     }
 }

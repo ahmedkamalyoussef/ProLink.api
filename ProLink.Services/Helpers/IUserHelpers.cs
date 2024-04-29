@@ -12,9 +12,9 @@ namespace ProLink.Application.Helpers
 {
     public interface IUserHelpers
     {
-        Task<Login> GenerateJwtTokenAsync(IEnumerable<Claim> claims);
+        Task<LoginResult> GenerateJwtTokenAsync(IEnumerable<Claim> claims);
         Task<User> GetCurrentUserAsync();
-        Task<string> AddImage(IFormFile file);
-        Task DeleteImageAsync(string imagePath);
+        Task<string> AddImageAsync(IFormFile file);
+        Task<bool> DeleteImageAsync(string imagePath);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProLink.Application.Authentication
 {
-    public class Login
+    public class LogoutResult
     {
         public bool Success { get; set; }
         public string Message { get; set; }

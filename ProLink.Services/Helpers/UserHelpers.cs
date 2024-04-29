@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using ProLink.Application.Authentication;
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace ProLink.Application.Helpers
 {
@@ -40,14 +43,33 @@ namespace ProLink.Application.Helpers
             return await _userManager.GetUserAsync(currentUser);
         }
 
-        public Task<Login> GenerateJwtTokenAsync(IEnumerable<Claim> claims)
+        public async Task<LoginResult> GenerateJwtTokenAsync(IEnumerable<Claim> claims)
         {
-            throw new NotImplementedException();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Secret"]));
+            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var tokenExpiration = DateTime.Now.AddDays(1);
+            var token = new JwtSecurityToken(
+                issuer: _config["JWT:ValidIssuer"],
+                audience: _config["JWT:ValidAudience"],
+                claims: claims,
+                expires: tokenExpiration,
+                signingCredentials: signingCredentials
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return new LoginResult
+            {
+                Success = true,
+                Token = tokenString,
+                Expiration = token.ValidTo
+            };
         }
         #endregion
 
         #region file handling
-        public async Task<string> AddImage(IFormFile file)
+        public async Task<string> AddImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -74,7 +96,7 @@ namespace ProLink.Application.Helpers
             return $"/Images/{userName}/{fileName}";
         }
 
-        public async Task DeleteImageAsync(string imagePath)
+        public async Task<bool> DeleteImageAsync(string imagePath)
         {
             if (string.IsNullOrEmpty(imagePath))
             {
@@ -96,11 +118,13 @@ namespace ProLink.Application.Helpers
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
+                return true;
             }
             else
             {
                 throw new FileNotFoundException("File not found.", filePath);
             }
+            
         }
         #endregion
     }

@@ -22,4 +22,8 @@
     <ProjectReference Include="..\ProLink.Services\ProLink.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwRoot\Images\" />
+  </ItemGroup>
+
 </Project>

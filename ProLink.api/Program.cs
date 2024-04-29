@@ -8,6 +8,7 @@ using ProLink.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ProLink.Application.Mail;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,15 +23,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 #endregion
-
 #region Identity
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(10));
+//reset password
+builder.Services.Configure<DataProtectionTokenProviderOptions>
+    (options => options.TokenLifespan = TimeSpan.FromHours(1));
 
 #endregion
-
 #region Add Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -60,7 +61,10 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddInfrastructureServices().
     AddReposetoriesServices();
 #endregion
-
+#region mailing
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Mailing"));
+builder.Services.Configure<IdentityOptions>(opts=>opts.SignIn.RequireConfirmedEmail=true);
+#endregion
 #region swagger
 builder.Services.AddSwaggerGen(c =>
 {
