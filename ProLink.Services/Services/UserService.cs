@@ -275,15 +275,17 @@ namespace ProLink.Application.Services
             {
                 return await _userHelpers.DeleteImageAsync(oldPicture);
             }
-            return await _userHelpers.DeleteImageAsync(newPicture);
-
+             await _userHelpers.DeleteImageAsync(newPicture);
+            return false;
         }
 
         public async Task<string> GetUserPictureAsync()
         {
             var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null || user.ProfilePicture.IsNullOrEmpty())
+            if (user == null)
                 throw new Exception("User not found");
+            else if (user.ProfilePicture.IsNullOrEmpty())
+                throw new Exception("User dont have profile picture");
             return user.ProfilePicture;
         }
         #endregion

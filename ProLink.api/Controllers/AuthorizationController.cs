@@ -1,25 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ProLink.Application.DTOs;
-using ProLink.Application.Interfaces;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using ProLink.Application.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using ProLink.Application.Interfaces;
 
 namespace ProLink.api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AuthorizationController : ControllerBase
     {
         #region fields
         private readonly IUserService _userService;
         #endregion
         #region ctor
-        public AccountController(IUserService userService)
+        public AuthorizationController(IUserService userService)
         {
             _userService = userService;
         }
         #endregion
-
         #region registration
         [HttpPost("register")]
         public async Task<ActionResult> RegisterAsync([FromBody] RegisterUser user)
@@ -118,7 +117,7 @@ namespace ProLink.api.Controllers
         {
             var model = new ResetPassword { Token = token, Email = email };
 
-            return Ok(new {model});
+            return Ok(new { model });
         }
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPassword resetPassword)
@@ -161,77 +160,6 @@ namespace ProLink.api.Controllers
             }
 
             return Ok("Password changed successfully");
-        }
-        #endregion
-
-
-        [Authorize]
-        [HttpGet("get-Current-user")]
-        public async Task<IActionResult> GetCurrentUserInfoAsync()
-        {
-            var result = await _userService.GetCurrentUserInfoAsync();
-
-            if (result!=null)
-            {
-                return Ok(result);
-            }
-            return BadRequest("Failed to update user information.");
-
-        }
-
-
-        [Authorize]
-        [HttpPut("update-user-info")]
-        public async Task<IActionResult> UpdateUserInfoAsync(UserDto userDto)
-        {
-            var success = await _userService.UpdateUserInfoAsync(userDto);
-
-            if (!success)
-            {
-                return BadRequest("Failed to update user information.");
-            }
-
-            return Ok("user information updated successfully.");
-        }
-
-        [HttpDelete("delete-account")]
-        public async Task<IActionResult> DeleteAccountAsync()
-        {
-            var success = await _userService.DeleteAccountAsync();
-
-            if (!success)
-            {
-                return NotFound();
-            }
-
-            return Ok();
-        }
-
-        #region file handling
-        [HttpGet("get-user-picture")]
-        public async Task<IActionResult> GetUserPictureAsync()
-        {
-            var result = await _userService.GetUserPictureAsync();
-            return result!=string.Empty? Ok(result):BadRequest("there is not picture.");
-        }
-
-        [HttpPost("add-user-picture")]
-        public async Task<IActionResult> AddUserPictureAsync(IFormFile? file)
-        {
-            var result =await _userService.AddUserPictureAsync(file);
-            return result?Ok("picture has been added successfully."):BadRequest("failed to add picture");
-        }
-        [HttpPut("Update-user-picture")]
-        public async Task<IActionResult> UpdateUserPictureAsync(IFormFile? file)
-        {
-            var result = await _userService.UpdateUserPictureAsync(file);
-            return result ? Ok("picture has been added successfully.") : BadRequest("failed to add picture");
-        }
-        [HttpDelete("delete-user-picture")]
-        public async Task<IActionResult> DeleteUserPictureAsync()
-        {
-            var result = await _userService.DeleteUserPictureAsync();
-            return result ? Ok("picture has been deleted successfully.") : BadRequest("failed to delete picture");
         }
         #endregion
     }
