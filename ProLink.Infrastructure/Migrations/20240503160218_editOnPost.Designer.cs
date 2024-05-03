@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProLink.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240503160218_editOnPost")]
+    partial class editOnPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,13 +57,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "a2ef10c1-84c3-4a80-b9b0-6dee708cd9c0",
+                            Id = "68916333-1589-4646-904c-fbc14f151631",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "f911bab8-016c-4dc3-91d5-ccef36bb4d18",
+                            Id = "61346974-7ec3-43f2-92af-58607329b7a0",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });
@@ -594,7 +597,7 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", "User")
-                        .WithMany("Skills")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -619,8 +622,6 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Navigation("Friends");
-
-                    b.Navigation("Skills");
                 });
 #pragma warning restore 612, 618
         }

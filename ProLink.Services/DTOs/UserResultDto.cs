@@ -1,0 +1,15 @@
+﻿namespace ProLink.Application.DTOs
+{
+    public class UserResultDto
+    {
+        public string Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? JopTitle { get; set; }
+
+        public string? Description { get; set; }
+
+        public string? ProfilePicture { get; set; }
+        public List<SkillDto> Skills { get; set; }
+    }
+}

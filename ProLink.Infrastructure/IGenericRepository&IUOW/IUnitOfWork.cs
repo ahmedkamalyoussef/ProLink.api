@@ -1,10 +1,4 @@
-﻿using Castle.Core.Resource;
-using ProLink.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ProLink.Data.Entities;
 
 namespace ProLink.Infrastructure.IGenericRepository_IUOW
 {
@@ -12,7 +6,8 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
     {
         public IGenericRepository<User> User { get; set; }
         public IGenericRepository<Post> Post { get; set; }
-
+        public IGenericRepository<Like> Like { get; set; }
+        public IGenericRepository<Skill> Skill { get; set; }
         public IGenericRepository<FriendRequest> FriendRequest { get; set; }
         public IGenericRepository<JobRequest> JopRequest { get; set; }
         public IGenericRepository<Comment> Comment { get; set; }

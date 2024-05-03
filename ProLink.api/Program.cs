@@ -23,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 #endregion
+
 #region Identity
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
@@ -32,6 +33,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>
     (options => options.TokenLifespan = TimeSpan.FromHours(1));
 
 #endregion
+
 #region Add Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -57,10 +59,12 @@ builder.Services.AddAuthentication(options =>
         };
     });
 #endregion
+
 #region Dependency Injection
 builder.Services.AddInfrastructureServices().
     AddReposetoriesServices();
 #endregion
+
 #region mailing
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Mailing"));
 builder.Services.Configure<IdentityOptions>(opts=>opts.SignIn.RequireConfirmedEmail=true);

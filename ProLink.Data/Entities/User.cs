@@ -16,5 +16,6 @@ namespace ProLink.Data.Entities
         public string? ProfilePicture { get; set; }
 
         public virtual ICollection<User>? Friends { get; set; }
+        public virtual ICollection<Skill>? Skills { get; set; }
     }
 }
