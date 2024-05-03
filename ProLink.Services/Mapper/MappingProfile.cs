@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using ProLink.Application.Authentication;
 using ProLink.Application.DTOs;
 using ProLink.Data.Entities;
@@ -15,8 +14,9 @@ namespace ProLink.Application.Mapper
                    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => new MailAddress(src.Email).User));
             CreateMap<UserDto, User>();
             CreateMap<User,UserDto>();
-
-
+            CreateMap<PostDto, Post>()
+               .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
+            CreateMap<Post, PostResult>();
         }
     }
 }

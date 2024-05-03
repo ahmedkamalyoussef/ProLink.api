@@ -15,6 +15,7 @@ namespace ProLink.Application
             service.AddAutoMapper(typeof(MappingProfile));
             service.AddTransient<IUserService,UserService >();
             service.AddTransient<IPostService, PostService>();
+            service.AddTransient<IAuthService, AuthService>();
             service.AddTransient<IUserHelpers, UserHelpers >();
             service.AddScoped<IMailingService, MailingService>();
             service.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

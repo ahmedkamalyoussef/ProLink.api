@@ -54,13 +54,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5e2aaab1-2667-4a15-bf7f-b0d7edc71293",
+                            Id = "34b0b17b-5f8c-482c-92b3-ed3916a37556",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "3519df6f-044b-46a3-aa5f-1d2ef1f56a71",
+                            Id = "0b27b409-4995-4faa-9162-53a81c361362",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });
@@ -326,6 +326,9 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")

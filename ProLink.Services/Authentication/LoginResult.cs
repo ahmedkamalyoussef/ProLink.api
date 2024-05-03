@@ -17,6 +17,7 @@ namespace ProLink.Application.Authentication
     public enum LoginErrorType
     {
         InvalidPassword,
-        UserNotFound
+        UserNotFound,
+        EmailNotComfirmed
     }
 }

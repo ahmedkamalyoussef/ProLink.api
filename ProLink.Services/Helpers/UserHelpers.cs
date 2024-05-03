@@ -69,7 +69,7 @@ namespace ProLink.Application.Helpers
         #endregion
 
         #region file handling
-        public async Task<string> AddImageAsync(IFormFile file)
+        public async Task<string> AddImageAsync(IFormFile file, string folderName)
         {
             if (file == null || file.Length == 0)
             {
@@ -79,7 +79,7 @@ namespace ProLink.Application.Helpers
             string rootPath = _webHostEnvironment.WebRootPath;
             var user = await GetCurrentUserAsync();
             string userName = user.UserName;
-            string profileFolderPath = Path.Combine(rootPath, "Images", userName);
+            string profileFolderPath = Path.Combine(rootPath, "Images", userName,folderName);
             if (!Directory.Exists(profileFolderPath))
             {
                 Directory.CreateDirectory(profileFolderPath);
@@ -93,10 +93,10 @@ namespace ProLink.Application.Helpers
                 await file.CopyToAsync(fileStream);
             }
 
-            return $"/Images/{userName}/{fileName}";
+            return $"/Images/{userName}/{folderName}/{fileName}";
         }
 
-        public async Task<bool> DeleteImageAsync(string imagePath)
+        public async Task<bool> DeleteImageAsync(string imagePath, string folderName)
         {
             if (string.IsNullOrEmpty(imagePath))
             {
@@ -108,7 +108,7 @@ namespace ProLink.Application.Helpers
             string userName = user.UserName;
 
 
-            if (!imagePath.StartsWith($"/Images/{userName}/"))
+            if (!imagePath.StartsWith($"/Images/{userName}/{folderName}/"))
             {
                 throw new ArgumentException("Invalid image path.", nameof(imagePath));
             }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProLink.Application.Authentication;
 using ProLink.Application.Interfaces;
@@ -11,14 +10,16 @@ namespace ProLink.api.Controllers
     public class AuthorizationController : ControllerBase
     {
         #region fields
-        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
         #endregion
+
         #region ctor
-        public AuthorizationController(IUserService userService)
+        public AuthorizationController(IAuthService authService)
         {
-            _userService = userService;
+            _authService = authService;
         }
         #endregion
+
         #region registration
         [HttpPost("register")]
         public async Task<ActionResult> RegisterAsync([FromBody] RegisterUser user)
@@ -27,7 +28,7 @@ namespace ProLink.api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _userService.RegisterAsync(user);
+            var result = await _authService.RegisterAsync(user);
             if (result.Succeeded)
             {
                 return Ok("Registration succeeded.");
@@ -39,7 +40,7 @@ namespace ProLink.api.Controllers
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmailAsync([FromQuery] string email, [FromQuery] string token)
         {
-            var success = await _userService.ConfirmEmailAsync(email, token);
+            var success = await _authService.ConfirmEmailAsync(email, token);
             if (success)
                 return Ok("Email confirmed successfully.");
 
@@ -54,7 +55,7 @@ namespace ProLink.api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _userService.LoginAsync(loginUser);
+            var result = await _authService.LoginAsync(loginUser);
             if (result.Success)
                 return Ok(result);
 
@@ -67,6 +68,10 @@ namespace ProLink.api.Controllers
             {
                 errorMessage = "Incorrect password.";
             }
+            else if (result.ErrorType == LoginErrorType.EmailNotComfirmed)
+            {
+                errorMessage = "Email Not Comfirmed.";
+            }
             else
             {
                 errorMessage = "Invalid login attempt.";
@@ -75,11 +80,11 @@ namespace ProLink.api.Controllers
             ModelState.AddModelError(string.Empty, errorMessage);
             return Unauthorized(ModelState);
         }
-
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            var result = await _userService.LogoutAsync();
+            var result = await _authService.LogoutAsync();
 
             if (result.Success)
             {
@@ -101,7 +106,7 @@ namespace ProLink.api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var isSent = await _userService.ForgetPasswordAsync(email);
+            var isSent = await _authService.ForgetPasswordAsync(email);
             if (isSent)
             {
                 return Ok("Reset password email sent successfully.");
@@ -127,7 +132,7 @@ namespace ProLink.api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var resetPasswordResult = await _userService.ResetPasswordAsync(resetPassword);
+            var resetPasswordResult = await _authService.ResetPasswordAsync(resetPassword);
             if (!resetPasswordResult.Succeeded)
             {
                 foreach (var error in resetPasswordResult.Errors)
@@ -148,7 +153,7 @@ namespace ProLink.api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var changePasswordResult = await _userService.ChangePasswordAsync(changePassword);
+            var changePasswordResult = await _authService.ChangePasswordAsync(changePassword);
             if (!changePasswordResult.Succeeded)
             {
                 foreach (var error in changePasswordResult.Errors)

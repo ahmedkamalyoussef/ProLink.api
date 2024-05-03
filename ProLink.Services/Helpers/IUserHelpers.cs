@@ -14,7 +14,7 @@ namespace ProLink.Application.Helpers
     {
         Task<LoginResult> GenerateJwtTokenAsync(IEnumerable<Claim> claims);
         Task<User> GetCurrentUserAsync();
-        Task<string> AddImageAsync(IFormFile file);
-        Task<bool> DeleteImageAsync(string imagePath);
+        Task<string> AddImageAsync(IFormFile file, string folderName);
+        Task<bool> DeleteImageAsync(string imagePath, string folderName);
     }
 }

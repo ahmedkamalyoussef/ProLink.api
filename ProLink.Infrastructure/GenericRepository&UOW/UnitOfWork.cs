@@ -1,11 +1,4 @@
-﻿using Castle.Core.Resource;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using ProLink.Data.Entities;
@@ -18,6 +11,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
 
         private AppDbContext _context;
         public virtual IGenericRepository<User> User { get; set; }
+        public virtual IGenericRepository<Post> Post { get; set; }
         public virtual IGenericRepository<FriendRequest> FriendRequest { get; set; }
         public virtual IGenericRepository<JobRequest> JopRequest { get; set; }
         public virtual IGenericRepository<Comment> Comment { get; set; }
@@ -28,6 +22,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             FriendRequest = new GenericRepository<FriendRequest>(_context);
             JopRequest = new GenericRepository<JobRequest>(_context);
             Comment = new GenericRepository<Comment>(_context);
+            Post= new GenericRepository<Post>(_context);
         }
 
         public void CreateTransaction()

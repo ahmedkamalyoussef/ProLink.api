@@ -2,12 +2,7 @@
 using ProLink.Data.Specification;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProLink.Infrastructure.GenericRepository_UOW
 {

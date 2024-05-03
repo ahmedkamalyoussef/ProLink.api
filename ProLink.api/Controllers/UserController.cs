@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProLink.Application.DTOs;
 using ProLink.Application.Interfaces;
-using ProLink.Application.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ProLink.api.Controllers
@@ -28,13 +27,7 @@ namespace ProLink.api.Controllers
         public async Task<IActionResult> GetCurrentUserInfoAsync()
         {
             var result = await _userService.GetCurrentUserInfoAsync();
-
-            if (result!=null)
-            {
-                return Ok(result);
-            }
-            return BadRequest("Failed to update user information.");
-
+                return result != null ? Ok(result) : BadRequest("Failed to update user information.");
         }
 
 
@@ -42,49 +35,45 @@ namespace ProLink.api.Controllers
         [HttpPut("update-user-info")]
         public async Task<IActionResult> UpdateUserInfoAsync(UserDto userDto)
         {
-            var success = await _userService.UpdateUserInfoAsync(userDto);
-
-            if (!success)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Failed to update user information.");
+                return BadRequest(ModelState);
             }
-
-            return Ok("user information updated successfully.");
+            var success = await _userService.UpdateUserInfoAsync(userDto);
+                return success?Ok("user information updated successfully."):
+                    BadRequest("Failed to update user information.");
         }
 
         [HttpDelete("delete-account")]
         public async Task<IActionResult> DeleteAccountAsync()
         {
             var success = await _userService.DeleteAccountAsync();
-
-            if (!success)
-            {
-                return NotFound();
-            }
-
-            return Ok();
+                return success? Ok():NotFound();
         }
 
         #region file handling
+        [Authorize]
         [HttpGet("get-user-picture")]
         public async Task<IActionResult> GetUserPictureAsync()
         {
             var result = await _userService.GetUserPictureAsync();
             return result!=string.Empty? Ok(result):BadRequest("there is not picture.");
         }
-
+        [Authorize]
         [HttpPost("add-user-picture")]
-        public async Task<IActionResult> AddUserPictureAsync(IFormFile? file)
+        public async Task<IActionResult> AddUserPictureAsync(IFormFile file)
         {
             var result =await _userService.AddUserPictureAsync(file);
             return result?Ok("picture has been added successfully."):BadRequest("failed to add picture");
         }
+        [Authorize]
         [HttpPut("Update-user-picture")]
-        public async Task<IActionResult> UpdateUserPictureAsync(IFormFile? file)
+        public async Task<IActionResult> UpdateUserPictureAsync(IFormFile file)
         {
             var result = await _userService.UpdateUserPictureAsync(file);
             return result ? Ok("picture has been added successfully.") : BadRequest("failed to add picture");
         }
+        [Authorize]
         [HttpDelete("delete-user-picture")]
         public async Task<IActionResult> DeleteUserPictureAsync()
         {
