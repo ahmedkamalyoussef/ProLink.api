@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
-using System.ComponentModel.Design;
 
 namespace ProLink.Application.Services
 {
@@ -53,6 +52,14 @@ namespace ProLink.Application.Services
             var user = _mapper.Map<UserResultDto>(currentUser);
             return user;
         }
+
+        public async Task<List<UserResultDto>> GetUsersByNameAsync(string name)
+        {
+            var users = await _unitOfWork.User.FindAsync(u => u.FirstName.Contains(name)|| u.LastName.Contains(name));
+            var usersResult = users.Select(user => _mapper.Map<UserResultDto>(user));
+            return usersResult.ToList();
+        }
+
         public async Task<bool> UpdateUserInfoAsync(UserDto userDto)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
@@ -82,6 +89,34 @@ namespace ProLink.Application.Services
             return result.Succeeded;
         }
 
+        public async Task<bool> AddRateAsync(string userId, RateDto rateDto)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new UnauthorizedAccessException("unAuthorized");
+            var user=await _userManager.FindByIdAsync(userId);
+            if (user == null) throw new ArgumentNullException("user not found");
+            var rate = await _unitOfWork.Rate.FindFirstAsync(r => r.RaterId == currentUser.Id);
+            if (rate == null)
+                _unitOfWork.Rate.Add(new Rate { RatedId = userId, RaterId = currentUser.Id, RateValue = rateDto.RateValue });
+            else 
+            { 
+                rate.RateValue = rateDto.RateValue;
+                _unitOfWork.Rate.Update(rate);
+            }
+            if(_unitOfWork.Save()>0)return true;
+            return false;
+        }
+
+        public async Task<bool> DeleteRateAsync(string rateId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new UnauthorizedAccessException("unAuthorized");
+            var rate=await _unitOfWork.Rate.FindFirstAsync(f=>f.Id==rateId);
+            if (rate == null) return false;
+            _unitOfWork.Rate.Remove(rate);
+            if (_unitOfWork.Save() > 0) return true;
+            return false;
+        }
 
         #endregion
 
@@ -195,7 +230,6 @@ namespace ProLink.Application.Services
         }
 
         
-
 
         #endregion
     }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProLink.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240504005755_rate")]
+    partial class rate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,13 +57,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3ccbd6e8-8bbb-4a24-a027-de619a1a67f3",
+                            Id = "cc30faed-8ddb-48d7-a460-9c55c68ea07e",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "24d8f2b3-816c-4c7f-8ede-620450ccb340",
+                            Id = "464b990b-cb8c-471a-9425-f5ba72e3d548",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });
@@ -372,11 +375,16 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RatedId");
 
                     b.HasIndex("RaterId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Rate");
                 });
@@ -646,10 +654,14 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "Rater")
-                        .WithMany("Rates")
+                        .WithMany()
                         .HasForeignKey("RaterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ProLink.Data.Entities.User", null)
+                        .WithMany("Rates")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Rated");
 

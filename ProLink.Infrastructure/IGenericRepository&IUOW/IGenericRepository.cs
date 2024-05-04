@@ -1,10 +1,4 @@
-﻿using ProLink.Data.Specification;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace ProLink.Infrastructure.IGenericRepository_IUOW
 {
@@ -19,8 +13,5 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
         void RemoveRange(IEnumerable<T> entities);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression);
         Task<T> FindFirstAsync(Expression<Func<T, bool>> expression);
-        Task<T> GetByIdWithSpecAsync(ISpecification<T> spec);
-        Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec);
-        IQueryable<T> ApplySpecification(ISpecification<T> specification);
     }
 }

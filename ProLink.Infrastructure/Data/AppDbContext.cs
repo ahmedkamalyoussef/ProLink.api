@@ -23,9 +23,17 @@ namespace ProLink.Infrastructure.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
-            //modelBuilder.Entity<UserFriend>().HasKey(u=>new {u.FriendId,u.UserId});
 
+            modelBuilder.Entity<Rate>()
+                .HasOne(r => r.Rater)
+                .WithMany(u => u.Rates)
+                .HasForeignKey(r => r.RaterId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Rate>()
+                .HasOne(r => r.Rated)
+                .WithMany()
+                .HasForeignKey(r => r.RatedId)
+                .OnDelete(DeleteBehavior.Restrict);
             base.OnModelCreating(modelBuilder);
             SeedRoles(modelBuilder);
            

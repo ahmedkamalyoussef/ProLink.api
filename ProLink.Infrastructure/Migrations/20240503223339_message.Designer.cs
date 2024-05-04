@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProLink.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240503223339_message")]
+    partial class message
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,13 +57,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3ccbd6e8-8bbb-4a24-a027-de619a1a67f3",
+                            Id = "12f9cd4e-9ac6-472f-975d-ab4d77955b47",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "24d8f2b3-816c-4c7f-8ede-620450ccb340",
+                            Id = "be54072c-8948-468f-a0fd-421e2d49da3c",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });
@@ -356,31 +359,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Rate", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<double>("RateValue")
-                        .HasColumnType("float");
-
-                    b.Property<string>("RatedId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RaterId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RatedId");
-
-                    b.HasIndex("RaterId");
-
-                    b.ToTable("Rate");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
                 {
                     b.Property<string>("SkillId")
@@ -637,25 +615,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Rate", b =>
-                {
-                    b.HasOne("ProLink.Data.Entities.User", "Rated")
-                        .WithMany()
-                        .HasForeignKey("RatedId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProLink.Data.Entities.User", "Rater")
-                        .WithMany("Rates")
-                        .HasForeignKey("RaterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Rated");
-
-                    b.Navigation("Rater");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", "User")
@@ -684,8 +643,6 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Navigation("Friends");
-
-                    b.Navigation("Rates");
 
                     b.Navigation("Skills");
                 });

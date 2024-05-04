@@ -16,9 +16,12 @@ namespace ProLink.Application.Mapper
             CreateMap<Like,LikeDto >();
             CreateMap<Comment, CommentDto>();
             CreateMap<User,UserDto>();
-            CreateMap<User, UserResultDto>();
+            CreateMap<User, UserResultDto>()
+                .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.Rates.Count()))
+                .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)));
             CreateMap<AddSkillDto, Skill>();
             CreateMap<Skill, SkillDto>();
+            CreateMap<Rate, RateDto>();
             CreateMap<PostDto, Post>()
                .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
             CreateMap<AddCommentDto, Comment>()
@@ -26,6 +29,21 @@ namespace ProLink.Application.Mapper
             CreateMap<Post, PostResultDto>()
                 .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => src.Comments.Count()))
                 .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => src.Likes.Count()));
+        }
+        private double CalculateAverageRate(User user)
+        {
+            if (user.Rates == null || user.Rates.Count == 0)
+            {
+                return 0;
+            }
+
+            double totalRate = 0;
+            foreach (var rate in user.Rates)
+            {
+                totalRate += rate.RateValue;
+            }
+
+            return totalRate / user.Rates.Count;
         }
     }
 }

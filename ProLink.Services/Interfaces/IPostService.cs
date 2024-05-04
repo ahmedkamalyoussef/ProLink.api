@@ -1,5 +1,4 @@
 ﻿using ProLink.Application.DTOs;
-using ProLink.Data.Entities;
 
 namespace ProLink.Application.Interfaces
 {

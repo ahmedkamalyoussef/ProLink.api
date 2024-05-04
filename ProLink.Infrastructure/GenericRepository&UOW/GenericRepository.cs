@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProLink.Data.Specification;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using System.Linq.Expressions;
@@ -54,22 +53,6 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public void RemoveRange(IEnumerable<T> entities)
         {
             context.Set<T>().RemoveRange(entities);
-        }
-
-        public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec)
-        {
-            return await ApplySpecification(spec).ToListAsync();
-        }
-
-        public async Task<T> GetByIdWithSpecAsync(ISpecification<T> spec)
-        {
-            return await ApplySpecification(spec).FirstOrDefaultAsync();
-
-        }
-
-        public IQueryable<T> ApplySpecification(ISpecification<T> specification)
-        {
-            return SpecificationEvaluator<T>.GetQuery(context.Set<T>().AsQueryable(), specification);
         }
     }
 }

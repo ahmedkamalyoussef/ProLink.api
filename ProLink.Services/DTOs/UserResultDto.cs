@@ -8,7 +8,8 @@
         public string? JopTitle { get; set; }
 
         public string? Description { get; set; }
-
+        public double? RateCount { get; set; }
+        public double? Rate { get; set; }
         public string? ProfilePicture { get; set; }
         public List<SkillDto> Skills { get; set; }
     }

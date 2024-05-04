@@ -7,6 +7,7 @@ namespace ProLink.Application.Interfaces
     {
         Task<UserResultDto> GetCurrentUserInfoAsync();
         Task<UserResultDto> GetUserByIdAsync(string id);
+        Task<List<UserResultDto>> GetUsersByNameAsync(string name);
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
         Task<bool> DeleteAccountAsync();
         Task<bool> AddUserPictureAsync(IFormFile file);
@@ -19,5 +20,7 @@ namespace ProLink.Application.Interfaces
         Task<List<SkillDto>> GetUserSkillsByIdAsync(string id);
         Task<bool> UpdateSkillAsync(string skillId, AddSkillDto addSkillDto);
         Task<bool> DeleteSkillAsync(string skillId);
+        Task<bool> AddRateAsync(string userId, RateDto rateDto);
+        Task<bool> DeleteRateAsync(string userId);
     }
 }

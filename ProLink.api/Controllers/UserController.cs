@@ -26,7 +26,7 @@ namespace ProLink.api.Controllers
         public async Task<IActionResult> GetCurrentUserInfoAsync()
         {
             var result = await _userService.GetCurrentUserInfoAsync();
-                return result != null ? Ok(result) : BadRequest("Failed to update user information.");
+                return result != null ? Ok(result) : BadRequest(" user not found.");
         }
 
         [Authorize]
@@ -34,7 +34,14 @@ namespace ProLink.api.Controllers
         public async Task<IActionResult> GetUserByIDAsync(string id)
         {
             var result = await _userService.GetUserByIdAsync(id);
-            return result != null ? Ok(result) : BadRequest("Failed to update user information.");
+            return result != null ? Ok(result) : BadRequest("user not found.");
+        }
+        [Authorize]
+        [HttpGet("get-user-by-name")]
+        public async Task<IActionResult> GetUserNameAsync(string name)
+        {
+            var result = await _userService.GetUsersByNameAsync(name);
+            return Ok(result);
         }
         [Authorize]
         [HttpPut("update-user-info")]
@@ -53,7 +60,7 @@ namespace ProLink.api.Controllers
         public async Task<IActionResult> DeleteAccountAsync()
         {
             var success = await _userService.DeleteAccountAsync();
-                return success? Ok():NotFound();
+                return success? Ok():BadRequest("faild to delete user");
         }
         #endregion
 
@@ -63,7 +70,7 @@ namespace ProLink.api.Controllers
         public async Task<IActionResult> GetUserPictureAsync()
         {
             var result = await _userService.GetUserPictureAsync();
-            return result!=string.Empty? Ok(result):BadRequest("there is not picture.");
+            return Ok(result);
         }
         [Authorize]
         [HttpPost("add-user-picture")]
@@ -142,6 +149,23 @@ namespace ProLink.api.Controllers
         {
             var result = await _userService.DeleteSkillAsync(skillId);
             return result ? Ok("Skill has been deleted successfully") : BadRequest("faild to delete Skill");
+        }
+        #endregion
+        #region
+        [Authorize]
+        [HttpPost("add-rate")]
+        public async Task<IActionResult> AddRateAsync(string userId,RateDto rateDto)
+        {
+            var result = await _userService.AddRateAsync(userId, rateDto);
+            return result ? Ok("rate has been added successfully") : BadRequest("faild to add rate");
+        }
+
+        [Authorize]
+        [HttpDelete("delete-rate")]
+        public async Task<IActionResult> DeleteRateAsync(string rateId)
+        {
+            var result = await _userService.DeleteRateAsync(rateId);
+            return result ? Ok("rate has been deleted successfully") : BadRequest("faild to delete rate");
         }
         #endregion
     }
