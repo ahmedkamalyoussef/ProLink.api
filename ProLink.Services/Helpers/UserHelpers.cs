@@ -9,6 +9,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using ProLink.Application.Consts;
 
 namespace ProLink.Application.Helpers
 {
@@ -69,7 +70,7 @@ namespace ProLink.Application.Helpers
         #endregion
 
         #region file handling
-        public async Task<string> AddImageAsync(IFormFile file, string folderName)
+        public async Task<string> AddFileAsync(IFormFile file, string folderName)
         {
             if (file == null || file.Length == 0)
             {
@@ -79,7 +80,11 @@ namespace ProLink.Application.Helpers
             string rootPath = _webHostEnvironment.WebRootPath;
             var user = await GetCurrentUserAsync();
             string userName = user.UserName;
-            string profileFolderPath = Path.Combine(rootPath, "Images", userName,folderName);
+            string profileFolderPath = "";
+            if (folderName == ConstsFiles.CV)
+                profileFolderPath = Path.Combine(rootPath, "CV", userName);
+            else
+                profileFolderPath = Path.Combine(rootPath, "Images", userName, folderName);
             if (!Directory.Exists(profileFolderPath))
             {
                 Directory.CreateDirectory(profileFolderPath);
@@ -92,39 +97,50 @@ namespace ProLink.Application.Helpers
             {
                 await file.CopyToAsync(fileStream);
             }
-
+            if (folderName == ConstsFiles.CV)
+                return $"/CV/{userName}/{fileName}";
             return $"/Images/{userName}/{folderName}/{fileName}";
+
         }
 
-        public async Task<bool> DeleteImageAsync(string imagePath, string folderName)
+        public async Task<bool> DeleteFileAsync(string filePath, string folderName)
         {
-            if (string.IsNullOrEmpty(imagePath))
+            if (string.IsNullOrEmpty(filePath))
             {
-                throw new ArgumentException("Image path is null or empty.", nameof(imagePath));
+                throw new ArgumentException("file path is null or empty.", nameof(filePath));
             }
 
             string rootPath = _webHostEnvironment.WebRootPath;
             var user = await GetCurrentUserAsync();
             string userName = user.UserName;
 
-
-            if (!imagePath.StartsWith($"/Images/{userName}/{folderName}/"))
+            if (folderName == ConstsFiles.CV)
             {
-                throw new ArgumentException("Invalid image path.", nameof(imagePath));
+                if (!filePath.StartsWith($"/CV/{userName}/"))
+                {
+                    throw new ArgumentException("Invalid file path.", nameof(filePath));
+                }
             }
 
-            string filePath = Path.Combine(rootPath, imagePath.TrimStart('/'));
-
-            if (File.Exists(filePath))
+            else
             {
-                File.Delete(filePath);
+                if (!filePath.StartsWith($"/Images/{userName}/{folderName}/"))
+                {
+                    throw new ArgumentException("Invalid file path.", nameof(filePath));
+                }
+            }
+            string fullFilePath = Path.Combine(rootPath, filePath.TrimStart('/'));
+
+            if (File.Exists(fullFilePath))
+            {
+                File.Delete(fullFilePath);
                 return true;
             }
             else
             {
-                throw new FileNotFoundException("File not found.", filePath);
+                throw new FileNotFoundException("File not found.", fullFilePath);
             }
-            
+
         }
         #endregion
     }

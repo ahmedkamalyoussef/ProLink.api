@@ -93,6 +93,36 @@ namespace ProLink.api.Controllers
             var result = await _userService.DeleteUserPictureAsync();
             return result ? Ok("picture has been deleted successfully.") : BadRequest("failed to delete picture");
         }
+
+
+        [Authorize]
+        [HttpGet("get-user-CV")]
+        public async Task<IActionResult> GetUserCVAsync()
+        {
+            var result = await _userService.GetUserCVAsync();
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("add-user-CV")]
+        public async Task<IActionResult> AddUserCVAsync(IFormFile file)
+        {
+            var result = await _userService.AddUserCVAsync(file);
+            return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
+        }
+        [Authorize]
+        [HttpPut("Update-user-CV")]
+        public async Task<IActionResult> UpdateUserCVAsync(IFormFile file)
+        {
+            var result = await _userService.UpdateUserCVAsync(file);
+            return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
+        }
+        [Authorize]
+        [HttpDelete("delete-user-CV")]
+        public async Task<IActionResult> DeleteUserCVAsync()
+        {
+            var result = await _userService.DeleteUserCVAsync();
+            return result ? Ok("CV has been deleted successfully.") : BadRequest("failed to delete CV");
+        }
         #endregion
 
         #region skill actions

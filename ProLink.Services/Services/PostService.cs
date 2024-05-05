@@ -32,7 +32,7 @@ namespace ProLink.Application.Services
         #region post methods
         public async Task<bool> AddPostAsync(PostDto postDto)
         {
-            var image = await _userHelpers.AddImageAsync(postDto.PostImage, ConstsFiles.Posts);
+            var image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
@@ -45,12 +45,12 @@ namespace ProLink.Application.Services
             }
             catch
             {
-                await _userHelpers.DeleteImageAsync(image, ConstsFiles.Posts);
+                await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
                 return false;
             }
             if (_unitOfWork.Save() > 0)
                 return true;
-            await _userHelpers.DeleteImageAsync(image, ConstsFiles.Posts);
+            await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
         }
 
@@ -65,7 +65,7 @@ namespace ProLink.Application.Services
             if (_unitOfWork.Save() > 0)
             {
                 if (!imagePath.IsNullOrEmpty())
-                    await _userHelpers.DeleteImageAsync(imagePath, ConstsFiles.Posts);
+                    await _userHelpers.DeleteFileAsync(imagePath, ConstsFiles.Posts);
                 return true;
             }
             return false;
@@ -150,17 +150,17 @@ namespace ProLink.Application.Services
             string image = "";
             if (postDto.PostImage != null)
             {
-                image = await _userHelpers.AddImageAsync(postDto.PostImage, ConstsFiles.Posts);
+                image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
                 post.PostImage = image;
             }
             _unitOfWork.Post.Update(post);
             if (_unitOfWork.Save() > 0)
             {
-                await _userHelpers.DeleteImageAsync(oldImage, ConstsFiles.Posts);
+                await _userHelpers.DeleteFileAsync(oldImage, ConstsFiles.Posts);
                 return true;
             }
             if (image.IsNullOrEmpty())
-                await _userHelpers.DeleteImageAsync(image, ConstsFiles.Posts);
+                await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
         }
 

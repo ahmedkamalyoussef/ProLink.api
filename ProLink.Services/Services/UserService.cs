@@ -184,7 +184,7 @@ namespace ProLink.Application.Services
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var picture = await _userHelpers.AddImageAsync(file, ConstsFiles.Profile);
+            var picture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
             if (picture != null)
                 user.ProfilePicture = picture;
             _unitOfWork.User.Update(user);
@@ -200,7 +200,7 @@ namespace ProLink.Application.Services
             user.ProfilePicture = null;
             _unitOfWork.User.Update(user);
             if (_unitOfWork.Save() > 0)
-                return await _userHelpers.DeleteImageAsync(oldPicture, ConstsFiles.Profile);
+                return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
             return false;
         }
 
@@ -208,15 +208,15 @@ namespace ProLink.Application.Services
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var newPicture = await _userHelpers.AddImageAsync(file, ConstsFiles.Profile);
+            var newPicture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
             var oldPicture = user.ProfilePicture;
             user.ProfilePicture = newPicture;
             _unitOfWork.User.Update(user);
             if (_unitOfWork.Save() > 0 && !oldPicture.IsNullOrEmpty())
             {
-                return await _userHelpers.DeleteImageAsync(oldPicture, ConstsFiles.Profile);
+                return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
             }
-            await _userHelpers.DeleteImageAsync(newPicture, ConstsFiles.Profile);
+            await _userHelpers.DeleteFileAsync(newPicture, ConstsFiles.Profile);
             return false;
         }
 
@@ -231,7 +231,56 @@ namespace ProLink.Application.Services
         }
 
 
+        public async Task<bool> AddUserCVAsync(IFormFile file)
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null) return false;
+            var CV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
+            if (CV != null)
+                user.CV = CV;
+            _unitOfWork.User.Update(user);
+            if (_unitOfWork.Save() > 0) return true;
+            await _userHelpers.DeleteFileAsync(CV, ConstsFiles.CV);    
+            return false;
+        }
 
+        public async Task<bool> DeleteUserCVAsync()
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null) return false;
+            var oldCV = user.CV;
+            user.CV = null;
+            _unitOfWork.User.Update(user);
+            if (_unitOfWork.Save() > 0)
+                return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
+            return false;
+        }
+
+        public async Task<bool> UpdateUserCVAsync(IFormFile? file)
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null) return false;
+            var newCV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
+            var oldCV = user.CV;
+            user.CV = newCV;
+            _unitOfWork.User.Update(user);
+            if (_unitOfWork.Save() > 0 && !oldCV.IsNullOrEmpty())
+            {
+                return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
+            }
+            await _userHelpers.DeleteFileAsync(newCV, ConstsFiles.CV);
+            return false;
+        }
+
+        public async Task<string> GetUserCVAsync()
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null)
+                throw new Exception("User not found");
+            else if (user.CV.IsNullOrEmpty())
+                throw new Exception("User dont have CV");
+            return user.CV;
+        }
 
 
         #endregion
@@ -376,6 +425,8 @@ namespace ProLink.Application.Services
             if (_unitOfWork.Save() > 0) return true;
             return false;
         }
+
+        
         #endregion
     }
 }

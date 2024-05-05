@@ -6,7 +6,7 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? JopTitle { get; set; }
-
+        public string? CV { get; set; }
         public string? Description { get; set; }
         public double? RateCount { get; set; }
         public double? Rate { get; set; }
