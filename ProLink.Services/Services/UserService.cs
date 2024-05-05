@@ -9,6 +9,8 @@ using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 using ProLink.Data.Consts;
+using ProLink.Application.Mail;
+using ProLink.Infrastructure.Migrations;
 
 namespace ProLink.Application.Services
 {
@@ -19,19 +21,22 @@ namespace ProLink.Application.Services
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         private readonly IUserHelpers _userHelpers;
+        private readonly IMailingService _mailingService;
 
         #endregion
 
         #region ctor
         public UserService(IUnitOfWork unitOfWork,
             UserManager<User> userManager, IMapper mapper,
-            IUserHelpers userHelpers
+            IUserHelpers userHelpers,
+            IMailingService mailingService
             )
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _userHelpers = userHelpers;
+            _mailingService = mailingService;
         }
         #endregion
 
@@ -180,17 +185,17 @@ namespace ProLink.Application.Services
         #endregion
 
         #region file handlling
-        public async Task<bool> AddUserPictureAsync(IFormFile file)
-        {
-            var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null) return false;
-            var picture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
-            if (picture != null)
-                user.ProfilePicture = picture;
-            _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0) return true;
-            return false;
-        }
+        //public async Task<bool> AddUserPictureAsync(IFormFile file)
+        //{
+        //    var user = await _userHelpers.GetCurrentUserAsync();
+        //    if (user == null) return false;
+        //    var picture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
+        //    if (picture != null)
+        //        user.ProfilePicture = picture;
+        //    _unitOfWork.User.Update(user);
+        //    if (_unitOfWork.Save() > 0) return true;
+        //    return false;
+        //}
 
         public async Task<bool> DeleteUserPictureAsync()
         {
@@ -212,9 +217,12 @@ namespace ProLink.Application.Services
             var oldPicture = user.ProfilePicture;
             user.ProfilePicture = newPicture;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0 && !oldPicture.IsNullOrEmpty())
+            if (_unitOfWork.Save() > 0)
             {
-                return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
+                
+                if(!oldPicture.IsNullOrEmpty())
+                    return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
+                return true;
             }
             await _userHelpers.DeleteFileAsync(newPicture, ConstsFiles.Profile);
             return false;
@@ -231,18 +239,18 @@ namespace ProLink.Application.Services
         }
 
 
-        public async Task<bool> AddUserCVAsync(IFormFile file)
-        {
-            var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null) return false;
-            var CV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
-            if (CV != null)
-                user.CV = CV;
-            _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0) return true;
-            await _userHelpers.DeleteFileAsync(CV, ConstsFiles.CV);    
-            return false;
-        }
+        //public async Task<bool> AddUserCVAsync(IFormFile file)
+        //{
+        //    var user = await _userHelpers.GetCurrentUserAsync();
+        //    if (user == null) return false;
+        //    var CV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
+        //    if (CV != null)
+        //        user.CV = CV;
+        //    _unitOfWork.User.Update(user);
+        //    if (_unitOfWork.Save() > 0) return true;
+        //    await _userHelpers.DeleteFileAsync(CV, ConstsFiles.CV);    
+        //    return false;
+        //}
 
         public async Task<bool> DeleteUserCVAsync()
         {
@@ -264,9 +272,11 @@ namespace ProLink.Application.Services
             var oldCV = user.CV;
             user.CV = newCV;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0 && !oldCV.IsNullOrEmpty())
+            if (_unitOfWork.Save() > 0)
             {
-                return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
+                if(!oldCV.IsNullOrEmpty())
+                    return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
+                return true;
             }
             await _userHelpers.DeleteFileAsync(newCV, ConstsFiles.CV);
             return false;
@@ -281,6 +291,51 @@ namespace ProLink.Application.Services
                 throw new Exception("User dont have CV");
             return user.CV;
         }
+
+
+
+
+        public async Task<bool> DeleteUserBackImageAsync()
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null) return false;
+            var oldBackImage = user.BackImage;
+            user.BackImage = null;
+            _unitOfWork.User.Update(user);
+            if (_unitOfWork.Save() > 0)
+                return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
+            return false;
+        }
+
+        public async Task<bool> UpdateUserBackImageAsync(IFormFile? file)
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null) return false;
+            var newBackImage = await _userHelpers.AddFileAsync(file, ConstsFiles.BackImage);
+            var oldBackImage = user.BackImage;
+            user.BackImage = newBackImage;
+            _unitOfWork.User.Update(user);
+            if (_unitOfWork.Save() > 0)
+            {
+                if (!oldBackImage.IsNullOrEmpty())
+                    return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
+                return true;
+            }
+            await _userHelpers.DeleteFileAsync(newBackImage, ConstsFiles.BackImage);
+            return false;
+        }
+
+        public async Task<string> GetUserBackImageAsync()
+        {
+            var user = await _userHelpers.GetCurrentUserAsync();
+            if (user == null)
+                throw new Exception("User not found");
+            else if (user.BackImage.IsNullOrEmpty())
+                throw new Exception("User dont have BackImage");
+            return user.BackImage;
+        }
+
+
 
 
         #endregion
@@ -304,7 +359,12 @@ namespace ProLink.Application.Services
                 PostId = post.Id
             };
             _unitOfWork.JopRequest.Add(jobRequist);
-            if (_unitOfWork.Save() > 0) return true;
+            if (_unitOfWork.Save() > 0)
+            {
+                var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} sent you jop request");
+                _mailingService.SendMail(message);
+                return true;
+            }
             return false;
         }
 
@@ -341,7 +401,14 @@ namespace ProLink.Application.Services
                 return false;
             job.Status = Status.Declined;
             _unitOfWork.JopRequest.Update(job);
-            if (_unitOfWork.Save() > 0) return true;
+            if (_unitOfWork.Save() > 0)
+            {
+                var user = await _userManager.FindByIdAsync(job.SenderId);
+                var message = new MailMessage(new string[] { user.Email }, "Jop request",
+                    $"{user.FirstName} {user.LastName} declined your jop request");
+                _mailingService.SendMail(message);
+                return true;
+            }
             return false;
         }
 
@@ -385,7 +452,13 @@ namespace ProLink.Application.Services
                 ReceiverId = user.Id,
             };
             _unitOfWork.FriendRequest.Add(friendRequest);
-            if (_unitOfWork.Save() > 0) return true;
+            if (_unitOfWork.Save() > 0)
+            {
+                var message = new MailMessage(new string[] { user.Email }, "friend request",
+                    $"{currentUser.FirstName} {currentUser.LastName} sent you frien request");
+                _mailingService.SendMail(message);
+                return true;
+            }
             return false;
         }
 
@@ -422,7 +495,14 @@ namespace ProLink.Application.Services
                 return false;
             request.Status = Status.Declined;
             _unitOfWork.FriendRequest.Update(request);
-            if (_unitOfWork.Save() > 0) return true;
+            if (_unitOfWork.Save() > 0)
+            {
+                var user = await _userManager.FindByIdAsync(request.SenderId);
+                var message = new MailMessage(new string[] { user.Email }, "friend request",
+                    $"{user.FirstName} {user.LastName} declined your friend request");
+                _mailingService.SendMail(message);
+                return true;
+            }
             return false;
         }
 

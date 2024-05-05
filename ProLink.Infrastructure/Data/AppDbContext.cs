@@ -34,8 +34,8 @@ namespace ProLink.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(r => r.RatedId)
                 .OnDelete(DeleteBehavior.Restrict);
-            base.OnModelCreating(modelBuilder);
             SeedRoles(modelBuilder);
+            base.OnModelCreating(modelBuilder);
            
         }
 

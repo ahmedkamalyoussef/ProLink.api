@@ -123,7 +123,8 @@ namespace ProLink.Application.Services
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-
+            var message = new MailMessage(new string[] { user.Email }, "login","you logged in your account right now");
+            _mailingService.SendMail(message);
             return await _userHelpers.GenerateJwtTokenAsync(claims);
         }
 

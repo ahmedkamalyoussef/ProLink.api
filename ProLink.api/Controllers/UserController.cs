@@ -72,13 +72,13 @@ namespace ProLink.api.Controllers
             var result = await _userService.GetUserPictureAsync();
             return Ok(result);
         }
-        [Authorize]
-        [HttpPost("add-user-picture")]
-        public async Task<IActionResult> AddUserPictureAsync(IFormFile file)
-        {
-            var result =await _userService.AddUserPictureAsync(file);
-            return result?Ok("picture has been added successfully."):BadRequest("failed to add picture");
-        }
+        //[Authorize]
+        //[HttpPost("add-user-picture")]
+        //public async Task<IActionResult> AddUserPictureAsync(IFormFile file)
+        //{
+        //    var result =await _userService.AddUserPictureAsync(file);
+        //    return result?Ok("picture has been added successfully."):BadRequest("failed to add picture");
+        //}
         [Authorize]
         [HttpPut("Update-user-picture")]
         public async Task<IActionResult> UpdateUserPictureAsync(IFormFile file)
@@ -95,19 +95,19 @@ namespace ProLink.api.Controllers
         }
 
 
+        //[Authorize]
+        //[HttpPost("add-user-CV")]
+        //public async Task<IActionResult> AddUserCVAsync(IFormFile file)
+        //{
+        //    var result = await _userService.AddUserCVAsync(file);
+        //    return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
+        //}
         [Authorize]
         [HttpGet("get-user-CV")]
         public async Task<IActionResult> GetUserCVAsync()
         {
             var result = await _userService.GetUserCVAsync();
             return Ok(result);
-        }
-        [Authorize]
-        [HttpPost("add-user-CV")]
-        public async Task<IActionResult> AddUserCVAsync(IFormFile file)
-        {
-            var result = await _userService.AddUserCVAsync(file);
-            return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
         }
         [Authorize]
         [HttpPut("Update-user-CV")]
@@ -122,6 +122,30 @@ namespace ProLink.api.Controllers
         {
             var result = await _userService.DeleteUserCVAsync();
             return result ? Ok("CV has been deleted successfully.") : BadRequest("failed to delete CV");
+        }
+
+
+
+        [Authorize]
+        [HttpGet("get-user-BackImage")]
+        public async Task<IActionResult> GetUserBackImageAsync()
+        {
+            var result = await _userService.GetUserBackImageAsync();
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPut("Update-user-BackImage")]
+        public async Task<IActionResult> UpdateUserBackImageAsync(IFormFile file)
+        {
+            var result = await _userService.UpdateUserBackImageAsync(file);
+            return result ? Ok("BackImage has been added successfully.") : BadRequest("failed to add BackImage");
+        }
+        [Authorize]
+        [HttpDelete("delete-user-BackImage")]
+        public async Task<IActionResult> DeleteUserBackImageAsync()
+        {
+            var result = await _userService.DeleteUserBackImageAsync();
+            return result ? Ok("BackImage has been deleted successfully.") : BadRequest("failed to delete BackImage");
         }
         #endregion
 

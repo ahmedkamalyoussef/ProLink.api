@@ -54,13 +54,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e7f94ded-1cff-44f5-b65b-64858facc2e1",
+                            Id = "228dc1b0-3b77-437f-9fa7-337ae2799980",
                             Name = "User",
                             NormalizedName = "User"
                         },
                         new
                         {
-                            Id = "e5bce0da-1bc5-4ae3-90f3-3b83d4593ec9",
+                            Id = "a1ffcc1d-cd2d-478c-b2bb-6f541bb95edb",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         });
@@ -417,6 +417,9 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("BackImage")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CV")
                         .HasColumnType("nvarchar(max)");

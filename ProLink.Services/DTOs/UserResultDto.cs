@@ -11,6 +11,7 @@
         public double? RateCount { get; set; }
         public double? Rate { get; set; }
         public string? ProfilePicture { get; set; }
+        public string? BackImage { get; set; }
         public List<SkillDto> Skills { get; set; }
     }
 }

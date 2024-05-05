@@ -3,7 +3,7 @@ using Microsoft.OpenApi.Models;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure;
 using ProLink.Application;
-    using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using ProLink.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

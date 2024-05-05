@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwRoot\CV\" />
     <Folder Include="wwwRoot\Images\" />
   </ItemGroup>
 
