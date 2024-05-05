@@ -16,6 +16,8 @@ namespace ProLink.Application.Mapper
             CreateMap<Like,LikeDto >();
             CreateMap<Comment, CommentDto>();
             CreateMap<User,UserDto>();
+            CreateMap<JobRequest, JobRequestDto>();
+            CreateMap<FriendRequest, FriendRequestDto>();
             CreateMap<User, UserResultDto>()
                 .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.Rates.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)));

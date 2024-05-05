@@ -151,7 +151,8 @@ namespace ProLink.api.Controllers
             return result ? Ok("Skill has been deleted successfully") : BadRequest("faild to delete Skill");
         }
         #endregion
-        #region
+
+        #region rate actions
         [Authorize]
         [HttpPost("add-rate")]
         public async Task<IActionResult> AddRateAsync(string userId,RateDto rateDto)
@@ -166,6 +167,74 @@ namespace ProLink.api.Controllers
         {
             var result = await _userService.DeleteRateAsync(rateId);
             return result ? Ok("rate has been deleted successfully") : BadRequest("faild to delete rate");
+        }
+        #endregion
+
+        #region friendRequest actions
+
+        [Authorize]
+        [HttpGet("Get-friendRequests")]
+        public async Task<IActionResult> GetFriendRequestAsync()
+        {
+            var result = await _userService.GetFriendRequistsAsync();
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("add-friendRequest")]
+        public async Task<IActionResult> SendFriendRequestAsync(string userId)
+        {
+            var result = await _userService.SendFriendAsync(userId);
+            return result ? Ok("friendRequest has been sent successfully") : BadRequest("faild to send friendRequest");
+        }
+
+        [Authorize]
+        [HttpDelete("delete-friendRequest")]
+        public async Task<IActionResult> DeleteFriendRequestAsync(string friendId)
+        {
+            var result = await _userService.DeletePendingFriendAsync(friendId);
+            return result ? Ok("friendRequest has been deleted successfully") : BadRequest("faild to delete friendRequest");
+        }
+
+        [Authorize]
+        [HttpPut("decline-friendRequest")]
+        public async Task<IActionResult> DeclinePendingFriendAsync(string friendId)
+        {
+            var result = await _userService.DeclinePendingFriendAsync(friendId);
+            return result ? Ok("friendRequest has been Declined successfully") : BadRequest("faild to Declined friendRequest");
+        }
+        #endregion
+
+        #region jobRequest actions
+
+        [Authorize]
+        [HttpGet("Get-jobRequests")]
+        public async Task<IActionResult> GetjobRequestAsync()
+        {
+            var result = await _userService.GetJobRequistAsync();
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("add-jobRequest")]
+        public async Task<IActionResult> SendjobRequestAsync(string userId, string postId)
+        {
+            var result = await _userService.SendJobRequistAsync(userId, postId);
+            return result ? Ok("jobRequest has been sent successfully") : BadRequest("faild to send jobRequest");
+        }
+
+        [Authorize]
+        [HttpDelete("delete-jobRequest")]
+        public async Task<IActionResult> DeletejobRequestAsync(string rateId)
+        {
+            var result = await _userService.DeletePendingJobRequestAsync(rateId);
+            return result ? Ok("jobRequest has been deleted successfully") : BadRequest("faild to delete jobRequest");
+        }
+
+        [Authorize]
+        [HttpPut("decline-jobRequest")]
+        public async Task<IActionResult> DeclinejobRequestAsync(string rateId)
+        {
+            var result = await _userService.DeclinePendingJobRequestAsync(rateId);
+            return result ? Ok("jobRequest has been Declined successfully") : BadRequest("faild to Declined jobRequest");
         }
         #endregion
     }

@@ -14,7 +14,15 @@ namespace ProLink.Application.Interfaces
         Task<bool> DeleteUserPictureAsync();
         Task<bool> UpdateUserPictureAsync(IFormFile? file);
         Task<string> GetUserPictureAsync();
+        Task<List<JobRequestDto>> GetJobRequistAsync();
+        Task<bool> SendJobRequistAsync(string userId,string postId);
+        Task<bool> DeletePendingJobRequestAsync(string jobId);
+        Task<bool> DeclinePendingJobRequestAsync(string jobId);
 
+        Task<List<FriendRequestDto>> GetFriendRequistsAsync();
+        Task<bool> SendFriendAsync(string userId);
+        Task<bool> DeletePendingFriendAsync(string friendRequestId);
+        Task<bool> DeclinePendingFriendAsync(string friendRequestId);
         Task<bool> AddSkillAsync(AddSkillDto addSkilltDto);
         Task<List<SkillDto>> GetCurrentUserSkillsAsync();
         Task<List<SkillDto>> GetUserSkillsByIdAsync(string id);

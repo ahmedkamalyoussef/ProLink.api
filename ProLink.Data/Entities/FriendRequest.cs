@@ -9,7 +9,7 @@ namespace ProLink.Data.Entities
         [Key]
         public string Id { get; set; }= Guid.NewGuid().ToString();
         public DateTime DateSent { get; set; }
-        public FriendRequestStatus Status { get; set; }
+        public Status Status { get; set; }
         public string SenderId { get; set; }
         [ForeignKey("SenderId")]
         public virtual User Sender { get; set; }

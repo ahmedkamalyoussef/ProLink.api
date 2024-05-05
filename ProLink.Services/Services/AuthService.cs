@@ -40,6 +40,7 @@ namespace ProLink.Application.Services
             _mailingService = mailingService;
         }
         #endregion
+
         #region Registration
         public async Task<IdentityResult> RegisterAsync(RegisterUser registerUser)
         {
