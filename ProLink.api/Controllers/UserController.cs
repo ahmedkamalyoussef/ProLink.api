@@ -2,6 +2,7 @@
 using ProLink.Application.DTOs;
 using ProLink.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using ProLink.Application.Helpers;
 
 namespace ProLink.api.Controllers
 {
@@ -154,10 +155,6 @@ namespace ProLink.api.Controllers
         [HttpGet("get-user-skills")]
         public async Task<IActionResult> GetCurrentUserSkillsAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var result = await _userService.GetCurrentUserSkillsAsync();
             return Ok(result);
         }
@@ -166,10 +163,6 @@ namespace ProLink.api.Controllers
         [HttpGet("get-user-skills-by-Id")]
         public async Task<IActionResult> GetUserSkillsByIdAsync(string id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var result = await _userService.GetUserSkillsByIdAsync(id);
             return Ok(result);
         }
@@ -212,7 +205,7 @@ namespace ProLink.api.Controllers
         }
         #endregion
 
-        #region friendRequest actions
+        #region friend Request actions
 
         [Authorize]
         [HttpGet("Get-friendRequests")]
@@ -222,13 +215,27 @@ namespace ProLink.api.Controllers
             return Ok(result);
         }
         [Authorize]
-        [HttpPost("add-friendRequest")]
+        [HttpPost("send-friendRequest")]
         public async Task<IActionResult> SendFriendRequestAsync(string userId)
         {
             var result = await _userService.SendFriendAsync(userId);
             return result ? Ok("friendRequest has been sent successfully") : BadRequest("faild to send friendRequest");
         }
 
+        [Authorize]
+        [HttpPut("accept-all-friendRequests")]
+        public async Task<IActionResult> AcceptAllFriendsAsync()
+        {
+            var result = await _userService.AcceptAllFriendsAsync();
+            return result ? Ok("friend Requests have been accepted successfully") : BadRequest("faild to accept friend Requests");
+        }
+        [Authorize]
+        [HttpPut("accept-friendRequest")]
+        public async Task<IActionResult> AcceptFriendAsync(string friendRequestId)
+        {
+            var result = await _userService.AcceptFriendAsync(friendRequestId);
+            return result ? Ok("friend Request has been accepted successfully") : BadRequest("faild to accept friend Request");
+        }
         [Authorize]
         [HttpDelete("delete-friendRequest")]
         public async Task<IActionResult> DeleteFriendRequestAsync(string friendId)
@@ -246,7 +253,7 @@ namespace ProLink.api.Controllers
         }
         #endregion
 
-        #region jobRequest actions
+        #region job Request actions
 
         [Authorize]
         [HttpGet("Get-jobRequests")]
@@ -264,18 +271,26 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpDelete("delete-jobRequest")]
-        public async Task<IActionResult> DeletejobRequestAsync(string rateId)
+        [HttpPut("accept-jobRequest")]
+        public async Task<IActionResult> AcceptJobAsync(string jobRequestId)
         {
-            var result = await _userService.DeletePendingJobRequestAsync(rateId);
+            var result = await _userService.AcceptJobAsync(jobRequestId);
+            return result ? Ok("job Request has been accepted successfully") : BadRequest("faild to accept job Request");
+        }
+
+        [Authorize]
+        [HttpDelete("delete-jobRequest")]
+        public async Task<IActionResult> DeletejobRequestAsync(string requestId)
+        {
+            var result = await _userService.DeletePendingJobRequestAsync(requestId);
             return result ? Ok("jobRequest has been deleted successfully") : BadRequest("faild to delete jobRequest");
         }
 
         [Authorize]
         [HttpPut("decline-jobRequest")]
-        public async Task<IActionResult> DeclinejobRequestAsync(string rateId)
+        public async Task<IActionResult> DeclinejobRequestAsync(string requestId)
         {
-            var result = await _userService.DeclinePendingJobRequestAsync(rateId);
+            var result = await _userService.DeclinePendingJobRequestAsync(requestId);
             return result ? Ok("jobRequest has been Declined successfully") : BadRequest("faild to Declined jobRequest");
         }
         #endregion
@@ -301,6 +316,37 @@ namespace ProLink.api.Controllers
         {
             var result = await _userService.DeleteMessageAsync(messageId);
             return result ? Ok("meassge has been deleted successfully.") : BadRequest("failed to delete message");
+        }
+        #endregion
+
+        #region Notification
+        [Authorize]
+        [HttpGet("get-all-notifications")]
+        public async Task<IActionResult> GetCurrentUserNotificationsAsync()
+        {
+            var result = await _userService.GetCurrentUserNotificationsAsync();
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet("get-notification-by-id")]
+        public async Task<IActionResult> GetNotificationByIdAsync(string notificationId)
+        {
+            var result = await _userService.GetNotificationByIdAsync(notificationId);
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpDelete("delete-notification-by-id")]
+        public async Task<IActionResult> DeleteNotificationByIdAsync(string notificationId)
+        {
+            var result = await _userService.DeleteNotificationByIdAsync(notificationId);
+            return result ? Ok("notification has been deleted successfully.") : BadRequest("notification to delete message");
+        }
+        [Authorize]
+        [HttpDelete("delete-all-notifications")]
+        public async Task<IActionResult> DeleteAllNotificationAsync()
+        {
+            var result = await _userService.DeleteAllNotificationAsync();
+            return result ? Ok("notifications have been deleted successfully.") : BadRequest("failed to delete notifications");
         }
         #endregion
     }

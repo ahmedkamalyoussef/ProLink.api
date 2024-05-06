@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 using ProLink.Data.Consts;
 using ProLink.Application.Mail;
+using Microsoft.Extensions.Hosting;
 
 namespace ProLink.Application.Services
 {
@@ -218,8 +219,8 @@ namespace ProLink.Application.Services
             _unitOfWork.User.Update(user);
             if (_unitOfWork.Save() > 0)
             {
-                
-                if(!oldPicture.IsNullOrEmpty())
+
+                if (!oldPicture.IsNullOrEmpty())
                     return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
                 return true;
             }
@@ -273,7 +274,7 @@ namespace ProLink.Application.Services
             _unitOfWork.User.Update(user);
             if (_unitOfWork.Save() > 0)
             {
-                if(!oldCV.IsNullOrEmpty())
+                if (!oldCV.IsNullOrEmpty())
                     return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
                 return true;
             }
@@ -339,7 +340,7 @@ namespace ProLink.Application.Services
 
         #endregion
 
-        #region Send jop request
+        #region  jop request
         public async Task<bool> SendJobRequistAsync(string userId, string postId)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
@@ -358,15 +359,47 @@ namespace ProLink.Application.Services
                 PostId = post.Id
             };
             _unitOfWork.JopRequest.Add(jobRequist);
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {post.Title} post",
+                Timestamp = DateTime.Now,
+                ReceiverId = user.Id
+            };
+            _unitOfWork.Notification.Add(notification);
             if (_unitOfWork.Save() > 0)
             {
-                var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} sent you jop request");
+
+                var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {post.Title} post");
                 _mailingService.SendMail(message);
                 return true;
             }
             return false;
         }
-
+        public async Task<bool> AcceptJobAsync(string jobId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) return false;
+            var request = await _unitOfWork.JopRequest.FindFirstAsync(f => f.Id == jobId);
+            if (request == null || request.RecieverId != currentUser.Id) return false;
+            request.Status = Status.Accepted;
+            var user = await _userManager.FindByIdAsync(request.SenderId);
+            if (user == null) return false;
+            _unitOfWork.JopRequest.Update(request);
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Post.Title} post",
+                Timestamp = DateTime.Now,
+                ReceiverId = user.Id
+            };
+            _unitOfWork.Notification.Add(notification);
+            if (_unitOfWork.Save() > 0)
+            {
+                var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Post.Title} post");
+                _mailingService.SendMail(message);
+                return true;
+            }
+            return false;
+        }
         public async Task<bool> DeletePendingJobRequestAsync(string jobId)
         {
             if (jobId.IsNullOrEmpty())
@@ -392,19 +425,27 @@ namespace ProLink.Application.Services
                 throw new ArgumentException("Invalid jop ID");
 
             var job = _unitOfWork.JopRequest.GetById(jobId);
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
 
-            if (job == null || job.Reciever != await _userHelpers.GetCurrentUserAsync())
+            if (job == null || job.Reciever != currentUser)
                 return false;
 
             if (job.Status != Status.Pending)
                 return false;
             job.Status = Status.Declined;
             _unitOfWork.JopRequest.Update(job);
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {job.Post.Title} post",
+                Timestamp = DateTime.Now,
+                ReceiverId = job.SenderId
+            };
+            _unitOfWork.Notification.Add(notification);
             if (_unitOfWork.Save() > 0)
             {
                 var user = await _userManager.FindByIdAsync(job.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "Jop request",
-                    $"{user.FirstName} {user.LastName} declined your jop request");
+                    $"{user.FirstName} {user.LastName} declined your jop request on {job.Post.Title} post");
                 _mailingService.SendMail(message);
                 return true;
             }
@@ -425,14 +466,14 @@ namespace ProLink.Application.Services
 
         #endregion
 
-        #region send friend request
+        #region  friend request
         public async Task<List<FriendRequestDto>> GetFriendRequistsAsync()
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null)
                 throw new Exception("User not found");
 
-            var requests = await _unitOfWork.FriendRequest.FindAsync(f => f.ReceiverId == user.Id);
+            var requests = await _unitOfWork.FriendRequest.FindAsync(f => f.ReceiverId == user.Id&&f.Status==Status.Pending);
             var result = requests.Select(request => _mapper.Map<FriendRequestDto>(request)).ToList();
             return result;
         }
@@ -451,10 +492,17 @@ namespace ProLink.Application.Services
                 ReceiverId = user.Id,
             };
             _unitOfWork.FriendRequest.Add(friendRequest);
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} sent you friend request",
+                Timestamp = DateTime.Now,
+                ReceiverId = user.Id
+            };
+            _unitOfWork.Notification.Add(notification);
             if (_unitOfWork.Save() > 0)
             {
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
-                    $"{currentUser.FirstName} {currentUser.LastName} sent you frien request");
+                    $"{currentUser.FirstName} {currentUser.LastName} sent you friend request");
                 _mailingService.SendMail(message);
                 return true;
             }
@@ -486,14 +534,21 @@ namespace ProLink.Application.Services
                 throw new ArgumentException("Invalid friend request ID");
 
             var request = _unitOfWork.FriendRequest.GetById(friendRequestId);
-
-            if (request == null || request.Receiver != await _userHelpers.GetCurrentUserAsync())
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (request == null || request.Receiver != currentUser)
                 return false;
 
             if (request.Status != Status.Pending)
                 return false;
             request.Status = Status.Declined;
             _unitOfWork.FriendRequest.Update(request);
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} declined you friend request ",
+                Timestamp = DateTime.Now,
+                ReceiverId = request.SenderId
+            };
+            _unitOfWork.Notification.Add(notification);
             if (_unitOfWork.Save() > 0)
             {
                 var user = await _userManager.FindByIdAsync(request.SenderId);
@@ -505,19 +560,73 @@ namespace ProLink.Application.Services
             return false;
         }
 
+        public async Task<bool> AcceptFriendAsync(string friendRequestId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) return false;
+            var request = await _unitOfWork.FriendRequest.FindFirstAsync(f => f.Id == friendRequestId && f.Status == Status.Pending);
+            if (request == null || request.ReceiverId != currentUser.Id) return false;
+            request.Status = Status.Accepted;
+            var user = await _userManager.FindByIdAsync(request.SenderId);
+            if (user == null) return false;
+            currentUser.Friends.Add(user);
+            _unitOfWork.User.Update(currentUser);
+            _unitOfWork.FriendRequest.Update(request);
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
+                Timestamp = DateTime.Now,
+                ReceiverId = user.Id
+            };
+            _unitOfWork.Notification.Add(notification);
+            if (_unitOfWork.Save() > 0)
+            {
+                var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
+                _mailingService.SendMail(message);
+                return true;
+            }
+            return false;
+        }
 
+        public async Task<bool> AcceptAllFriendsAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) return false;
+            var requests = await _unitOfWork.FriendRequest.FindAsync(r=>r.ReceiverId==currentUser.Id && r.Status == Status.Pending);
+            var users = requests.Select(r => r.Sender);
+            foreach (var user in users)
+            {
+                currentUser.Friends.Add(user);
+                var notification = new Notification
+                {
+                    Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request ",
+                    Timestamp = DateTime.Now,
+                    ReceiverId = user.Id
+                };
+                _unitOfWork.Notification.Add(notification);
+                var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
+                _mailingService.SendMail(message);
+            }
+            foreach (var request in requests)
+            {
+                request.Status = Status.Accepted;
+                _unitOfWork.FriendRequest.Update(request);
+            }
+            _unitOfWork.User.Update(currentUser);
+            if (_unitOfWork.Save() > 0) return true;
+            return false;
+        }
         #endregion
 
-
         #region Message handling
-        public async Task<bool>  SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
+        public async Task<bool> SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
         {
-            var currentUser=await _userHelpers.GetCurrentUserAsync();
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("current user not found");
-            var reciever=await _userManager.FindByIdAsync(recieverId);
+            var reciever = await _userManager.FindByIdAsync(recieverId);
             if (reciever == null) throw new Exception("reciever not found");
             var message = _mapper.Map<Message>(sendMessageDto);
-            message.SenderId=currentUser.Id;
+            message.SenderId = currentUser.Id;
             message.ReceiverId = reciever.Id;
             _unitOfWork.Message.Add(message);
             if (_unitOfWork.Save() > 0) return true;
@@ -527,11 +636,11 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("current user not found");
-            var message=await _unitOfWork.Message.FindFirstAsync(m=>m.Id==messageId);
+            var message = await _unitOfWork.Message.FindFirstAsync(m => m.Id == messageId);
             if (message == null) throw new Exception("message not found");
             _mapper.Map(sendMessageDto, message);
             _unitOfWork.Message.Update(message);
-            if(_unitOfWork.Save() > 0) return true;
+            if (_unitOfWork.Save() > 0) return true;
             return false;
         }
         public async Task<bool> DeleteMessageAsync(string messageId)
@@ -544,6 +653,54 @@ namespace ProLink.Application.Services
             if (_unitOfWork.Save() > 0) return true;
             return false;
         }
+
+
+        #endregion
+
+        #region Notification
+        public async Task<List<NotificationResultDto>> GetCurrentUserNotificationsAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
+            var notifications = await _unitOfWork.Notification.FindAsync(n => n.ReceiverId == currentUser.Id);
+            var notificationResult = notifications.Select(notification => _mapper.Map<NotificationResultDto>(notification)).ToList();
+            return notificationResult;
+        }
+
+        public async Task<NotificationResultDto> GetNotificationByIdAsync(string notificationId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
+            var notification = await _unitOfWork.Notification.FindFirstAsync(n => n.Id == notificationId);
+            if (notification.ReceiverId != currentUser.Id) throw new Exception("cant access");
+            var notificationResult = _mapper.Map<NotificationResultDto>(notification);
+            return notificationResult;
+        }
+
+        public async Task<bool> DeleteNotificationByIdAsync(string notificationId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
+            var notification = await _unitOfWork.Notification.FindFirstAsync(n => n.Id == notificationId);
+            if (notification.ReceiverId != currentUser.Id) throw new Exception("cant access");
+            _unitOfWork.Notification.Remove(notification);
+            if (_unitOfWork.Save() > 0) return true;
+            return false;
+        }
+
+        public async Task<bool> DeleteAllNotificationAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
+            var notifications = await _unitOfWork.Notification.FindAsync(n => n.ReceiverId == currentUser.Id);
+            _unitOfWork.Notification.RemoveRange(notifications);
+            if (_unitOfWork.Save() > 0) return true;
+            return false;
+        }
+
+
+
+
         #endregion
     }
 }

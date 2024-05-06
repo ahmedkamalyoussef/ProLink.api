@@ -12,10 +12,11 @@ namespace ProLink.Application.Mapper
         {
             CreateMap<RegisterUser, User>()
                    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => new MailAddress(src.Email).User));
-            CreateMap<UserDto, User>();
+            CreateMap<UserDto, User>().ReverseMap();
             CreateMap<Like,LikeDto >();
             CreateMap<Comment, CommentDto>();
-            CreateMap<User,UserDto>();
+            CreateMap<Notification, NotificationResultDto>();
+            //CreateMap<User,UserDto>();
             CreateMap<JobRequest, JobRequestDto>();
             CreateMap<FriendRequest, FriendRequestDto>();
             CreateMap<User, UserResultDto>()

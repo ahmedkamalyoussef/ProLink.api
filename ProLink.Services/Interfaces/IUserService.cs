@@ -25,16 +25,25 @@ namespace ProLink.Application.Interfaces
         Task<string> GetUserBackImageAsync();
         Task<List<JobRequestDto>> GetJobRequistAsync();
         Task<bool> SendJobRequistAsync(string userId,string postId);
+        Task<bool> AcceptJobAsync(string jobId);
         Task<bool> DeletePendingJobRequestAsync(string jobId);
         Task<bool> DeclinePendingJobRequestAsync(string jobId);
 
         Task<List<FriendRequestDto>> GetFriendRequistsAsync();
         Task<bool> SendFriendAsync(string userId);
+        Task<bool> AcceptFriendAsync(string friendRequestId);
+        Task<bool> AcceptAllFriendsAsync();
         Task<bool> DeletePendingFriendAsync(string friendRequestId);
         Task<bool> DeclinePendingFriendAsync(string friendRequestId);
         Task<bool> AddSkillAsync(AddSkillDto addSkilltDto);
         Task<List<SkillDto>> GetCurrentUserSkillsAsync();
         Task<List<SkillDto>> GetUserSkillsByIdAsync(string id);
+
+        Task<List<NotificationResultDto>> GetCurrentUserNotificationsAsync();
+        Task<NotificationResultDto> GetNotificationByIdAsync(string notificationId);
+        Task<bool> DeleteAllNotificationAsync();
+        Task<bool> DeleteNotificationByIdAsync(string notificationId);
+
         Task<bool> UpdateSkillAsync(string skillId, AddSkillDto addSkillDto);
         Task<bool> DeleteSkillAsync(string skillId);
         Task<bool> AddRateAsync(string userId, RateDto rateDto);
