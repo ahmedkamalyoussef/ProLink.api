@@ -39,5 +39,9 @@ namespace ProLink.Application.Interfaces
         Task<bool> DeleteSkillAsync(string skillId);
         Task<bool> AddRateAsync(string userId, RateDto rateDto);
         Task<bool> DeleteRateAsync(string userId);
+
+        Task<bool> SendMessageAsync(string senderId,SendMessageDto sendMessageDto);
+        Task<bool> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto);
+        Task<bool> DeleteMessageAsync(string messageId);
     }
 }

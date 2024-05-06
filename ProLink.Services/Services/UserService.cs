@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 using ProLink.Data.Consts;
 using ProLink.Application.Mail;
-using ProLink.Infrastructure.Migrations;
 
 namespace ProLink.Application.Services
 {
@@ -506,7 +505,45 @@ namespace ProLink.Application.Services
             return false;
         }
 
-        
+
+        #endregion
+
+
+        #region Message handling
+        public async Task<bool>  SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
+        {
+            var currentUser=await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("current user not found");
+            var reciever=await _userManager.FindByIdAsync(recieverId);
+            if (reciever == null) throw new Exception("reciever not found");
+            var message = _mapper.Map<Message>(sendMessageDto);
+            message.SenderId=currentUser.Id;
+            message.ReceiverId = reciever.Id;
+            _unitOfWork.Message.Add(message);
+            if (_unitOfWork.Save() > 0) return true;
+            return false;
+        }
+        public async Task<bool> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("current user not found");
+            var message=await _unitOfWork.Message.FindFirstAsync(m=>m.Id==messageId);
+            if (message == null) throw new Exception("message not found");
+            _mapper.Map(sendMessageDto, message);
+            _unitOfWork.Message.Update(message);
+            if(_unitOfWork.Save() > 0) return true;
+            return false;
+        }
+        public async Task<bool> DeleteMessageAsync(string messageId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("current user not found");
+            var message = await _unitOfWork.Message.FindFirstAsync(m => m.Id == messageId);
+            if (message == null) throw new Exception("message not found");
+            _unitOfWork.Message.Remove(message);
+            if (_unitOfWork.Save() > 0) return true;
+            return false;
+        }
         #endregion
     }
 }

@@ -72,13 +72,7 @@ namespace ProLink.api.Controllers
             var result = await _userService.GetUserPictureAsync();
             return Ok(result);
         }
-        //[Authorize]
-        //[HttpPost("add-user-picture")]
-        //public async Task<IActionResult> AddUserPictureAsync(IFormFile file)
-        //{
-        //    var result =await _userService.AddUserPictureAsync(file);
-        //    return result?Ok("picture has been added successfully."):BadRequest("failed to add picture");
-        //}
+
         [Authorize]
         [HttpPut("Update-user-picture")]
         public async Task<IActionResult> UpdateUserPictureAsync(IFormFile file)
@@ -95,13 +89,7 @@ namespace ProLink.api.Controllers
         }
 
 
-        //[Authorize]
-        //[HttpPost("add-user-CV")]
-        //public async Task<IActionResult> AddUserCVAsync(IFormFile file)
-        //{
-        //    var result = await _userService.AddUserCVAsync(file);
-        //    return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
-        //}
+
         [Authorize]
         [HttpGet("get-user-CV")]
         public async Task<IActionResult> GetUserCVAsync()
@@ -289,6 +277,30 @@ namespace ProLink.api.Controllers
         {
             var result = await _userService.DeclinePendingJobRequestAsync(rateId);
             return result ? Ok("jobRequest has been Declined successfully") : BadRequest("faild to Declined jobRequest");
+        }
+        #endregion
+
+        #region messages
+        [Authorize]
+        [HttpPost("send-message")]
+        public async Task<IActionResult> SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
+        {
+            var result = await _userService.SendMessageAsync(recieverId,sendMessageDto);
+            return result ? Ok("meassge has been sent successfully.") : BadRequest("failed to send message");
+        }
+        [Authorize]
+        [HttpPut("update-message")]
+        public async Task<IActionResult> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto)
+        {
+            var result = await _userService.UpdateMessageAsync(messageId,sendMessageDto);
+            return result ? Ok("meassge has been updated successfully.") : BadRequest("failed to update message");
+        }
+        [Authorize]
+        [HttpDelete("delete-message")]
+        public async Task<IActionResult> DeleteMessageAsync(string messageId)
+        {
+            var result = await _userService.DeleteMessageAsync(messageId);
+            return result ? Ok("meassge has been deleted successfully.") : BadRequest("failed to delete message");
         }
         #endregion
     }

@@ -26,6 +26,10 @@ namespace ProLink.Application.Mapper
             CreateMap<Rate, RateDto>();
             CreateMap<PostDto, Post>()
                .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
+
+            CreateMap<SendMessageDto, Message>()
+               .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
+
             CreateMap<AddCommentDto, Comment>()
                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
             CreateMap<Post, PostResultDto>()

@@ -12,6 +12,8 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
         public IGenericRepository<JobRequest> JopRequest { get; set; }
         public IGenericRepository<Comment> Comment { get; set; }
         public IGenericRepository<Rate> Rate { get; set; }
+        public  IGenericRepository<Message> Message { get; set; }
+
         void CreateTransaction();
         void Commit();
         void Rollback();

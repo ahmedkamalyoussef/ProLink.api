@@ -18,6 +18,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public virtual IGenericRepository<Like> Like { get; set; }
         public virtual IGenericRepository<Skill> Skill { get; set; }
         public virtual IGenericRepository<Rate> Rate { get; set; }
+        public virtual IGenericRepository<Message> Message { get; set; }
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -29,6 +30,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             Like = new GenericRepository<Like>(_context);
             Skill = new GenericRepository<Skill>(_context);
             Rate = new GenericRepository<Rate>(_context);
+            Message = new GenericRepository<Message>(_context);
         }
 
         public void CreateTransaction()
