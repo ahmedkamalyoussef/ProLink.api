@@ -52,5 +52,9 @@ namespace ProLink.Application.Interfaces
         Task<bool> SendMessageAsync(string senderId,SendMessageDto sendMessageDto);
         Task<bool> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto);
         Task<bool> DeleteMessageAsync(string messageId);
+
+        Task<List<UserResultDto>> GetFriendsAsync();
+
+        Task<bool> DeleteFriendAsync(string friendId);
     }
 }

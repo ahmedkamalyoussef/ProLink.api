@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 using ProLink.Data.Consts;
 using ProLink.Application.Mail;
-using Microsoft.Extensions.Hosting;
 
 namespace ProLink.Application.Services
 {
@@ -698,9 +697,29 @@ namespace ProLink.Application.Services
             return false;
         }
 
+        #endregion
 
+        #region friends
+        public async Task<List<UserResultDto>> GetFriendsAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
+            var friends =currentUser.Friends;
+            var friendsResult=friends.Select(friend=>_mapper.Map<UserResultDto>(friend)).ToList();
+            return friendsResult;
+        }
 
-
+        public async Task<bool> DeleteFriendAsync(string friendId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
+            var friend =currentUser.Friends.FirstOrDefault(friend => friend.Id == friendId);
+            if (friend == null) throw new Exception("friend not found");
+            currentUser.Friends.Remove(friend);
+            _unitOfWork.User.Update(currentUser);
+            if(_unitOfWork.Save() > 0)return true;
+            return false;
+        }
         #endregion
     }
 }
