@@ -9,7 +9,7 @@ namespace ProLink.Application.Interfaces
         Task<bool> DeletePostAsync(string id);
         Task<PostResultDto> GetPostByIdAsync(string id);
         Task<List<PostResultDto>> GetUserPostsAsync();
-        Task<List<PostResultDto>> GetUserPostsByIdAsync(string id);
+        Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id);
         Task<List<PostResultDto>> GetAllPostsAsync();
         Task<List<PostResultDto>> GetPostsByTitleAsync(string title);
 

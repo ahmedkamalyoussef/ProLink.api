@@ -13,11 +13,14 @@ namespace ProLink.Data.Entities
         public string Description { get; set; }
         public string? PostImage { get; set; }
         public DateTime DateCreated { get; set; }
+        [Required]
         public string UserId { get; set; }
+        [Required]
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
         public virtual ICollection<Like>? Likes { get; set; }
+        public virtual ICollection<JobRequest>? JobRequests { get; set; }
     }
 
 }

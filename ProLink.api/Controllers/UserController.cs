@@ -30,21 +30,21 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpGet("get-user-by-id")]
+        [HttpGet("get-by-id")]
         public async Task<IActionResult> GetUserByIDAsync(string id)
         {
             var result = await _userService.GetUserByIdAsync(id);
             return result != null ? Ok(result) : BadRequest("user not found.");
         }
         [Authorize]
-        [HttpGet("get-user-by-name")]
+        [HttpGet("get-by-name")]
         public async Task<IActionResult> GetUserNameAsync(string name)
         {
             var result = await _userService.GetUsersByNameAsync(name);
             return Ok(result);
         }
         [Authorize]
-        [HttpPut("update-user-info")]
+        [HttpPut("update-info")]
         public async Task<IActionResult> UpdateUserInfoAsync(UserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -66,7 +66,7 @@ namespace ProLink.api.Controllers
 
         #region file handling
         [Authorize]
-        [HttpGet("get-user-picture")]
+        [HttpGet("get-picture")]
         public async Task<IActionResult> GetUserPictureAsync()
         {
             var result = await _userService.GetUserPictureAsync();
@@ -74,14 +74,14 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpPut("Update-user-picture")]
+        [HttpPut("Update-picture")]
         public async Task<IActionResult> UpdateUserPictureAsync(IFormFile file)
         {
             var result = await _userService.UpdateUserPictureAsync(file);
             return result ? Ok("picture has been added successfully.") : BadRequest("failed to add picture");
         }
         [Authorize]
-        [HttpDelete("delete-user-picture")]
+        [HttpDelete("delete-picture")]
         public async Task<IActionResult> DeleteUserPictureAsync()
         {
             var result = await _userService.DeleteUserPictureAsync();
@@ -91,21 +91,21 @@ namespace ProLink.api.Controllers
 
 
         [Authorize]
-        [HttpGet("get-user-CV")]
+        [HttpGet("get-CV")]
         public async Task<IActionResult> GetUserCVAsync()
         {
             var result = await _userService.GetUserCVAsync();
             return Ok(result);
         }
         [Authorize]
-        [HttpPut("Update-user-CV")]
+        [HttpPut("Update-CV")]
         public async Task<IActionResult> UpdateUserCVAsync(IFormFile file)
         {
             var result = await _userService.UpdateUserCVAsync(file);
             return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
         }
         [Authorize]
-        [HttpDelete("delete-user-CV")]
+        [HttpDelete("delete-CV")]
         public async Task<IActionResult> DeleteUserCVAsync()
         {
             var result = await _userService.DeleteUserCVAsync();
@@ -115,21 +115,21 @@ namespace ProLink.api.Controllers
 
 
         [Authorize]
-        [HttpGet("get-user-BackImage")]
+        [HttpGet("get-BackImage")]
         public async Task<IActionResult> GetUserBackImageAsync()
         {
             var result = await _userService.GetUserBackImageAsync();
             return Ok(result);
         }
         [Authorize]
-        [HttpPut("Update-user-BackImage")]
+        [HttpPut("Update-BackImage")]
         public async Task<IActionResult> UpdateUserBackImageAsync(IFormFile file)
         {
             var result = await _userService.UpdateUserBackImageAsync(file);
             return result ? Ok("BackImage has been added successfully.") : BadRequest("failed to add BackImage");
         }
         [Authorize]
-        [HttpDelete("delete-user-BackImage")]
+        [HttpDelete("delete-BackImage")]
         public async Task<IActionResult> DeleteUserBackImageAsync()
         {
             var result = await _userService.DeleteUserBackImageAsync();

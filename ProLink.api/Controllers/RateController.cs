@@ -21,7 +21,7 @@ namespace ProLink.api.Controllers
         #endregion
         #region rate actions
         [Authorize]
-        [HttpPost("add-rate")]
+        [HttpPost("add")]
         public async Task<IActionResult> AddRateAsync(string userId, RateDto rateDto)
         {
             var result = await _userService.AddRateAsync(userId, rateDto);
@@ -29,7 +29,7 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpDelete("delete-rate")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteRateAsync(string rateId)
         {
             var result = await _userService.DeleteRateAsync(rateId);

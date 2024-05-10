@@ -9,10 +9,14 @@ namespace ProLink.Data.Entities
         public string Id { get; set; }= Guid.NewGuid().ToString();
         public DateTime DateLiked { get; set; }
 
+        [Required]
         public string UserId { get; set; }
+        [Required]
         [ForeignKey(nameof(UserId))]
         public virtual User User { get; set; }
+        [Required]
         public string PostId { get; set; }
+        [Required]
         [ForeignKey(nameof(PostId))]
         public virtual Post Post { get; set; }
     }

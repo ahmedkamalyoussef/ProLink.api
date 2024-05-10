@@ -22,7 +22,7 @@ namespace ProLink.api.Controllers
 
         #region skill actions
         [Authorize]
-        [HttpPost("add-skill")]
+        [HttpPost("add")]
         public async Task<IActionResult> AddSkillAsync(AddSkillDto addSkilltDto)
         {
             if (!ModelState.IsValid)
@@ -50,7 +50,7 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpPut("update-skill")]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateSkillAsync(string skillId, AddSkillDto addSkillDto)
         {
             if (!ModelState.IsValid)
@@ -61,7 +61,7 @@ namespace ProLink.api.Controllers
             return result ? Ok("Skill has been updated successfully") : BadRequest("faild to update Skill");
         }
         [Authorize]
-        [HttpDelete("delete-Skill")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteSkillAsync(string skillId)
         {
             var result = await _userService.DeleteSkillAsync(skillId);

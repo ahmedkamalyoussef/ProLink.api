@@ -381,7 +381,7 @@ namespace ProLink.Application.Services
             var request = await _unitOfWork.JopRequest.FindFirstAsync(f => f.Id == jobId);
             if (request == null || request.RecieverId != currentUser.Id) return false;
             request.Status = Status.Accepted;
-            var user = await _userManager.FindByIdAsync(request.SenderId);
+            var user = await _userManager.FindByIdAsync(request.RecieverId);
             if (user == null) return false;
             _unitOfWork.JopRequest.Update(request);
             var notification = new Notification
@@ -426,7 +426,7 @@ namespace ProLink.Application.Services
             var job = _unitOfWork.JopRequest.GetById(jobId);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
 
-            if (job == null || job.Reciever != currentUser)
+            if (job == null || job.Receiver != currentUser)
                 return false;
 
             if (job.Status != Status.Pending)

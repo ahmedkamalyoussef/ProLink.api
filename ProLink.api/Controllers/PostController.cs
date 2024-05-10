@@ -96,15 +96,14 @@ namespace ProLink.api.Controllers
             var result = await _postService.GetPostsByTitleAsync(title);
             return Ok(result);
         }
-        [Authorize]
-        [HttpGet("get-user-posts-By-id")]
+        [HttpGet("get-posts-By-user-id")]
         public async Task<IActionResult> GetUserPostsByIdAsync(string id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = await _postService.GetUserPostsByIdAsync(id);
+            var result = await _postService.GetUserPostsByUserIdAsync(id);
             return Ok(result);
         }
         #endregion

@@ -20,7 +20,7 @@ namespace ProLink.Application.Mapper
             CreateMap<JobRequest, JobRequestDto>();
             CreateMap<FriendRequest, FriendRequestDto>();
             CreateMap<User, UserResultDto>()
-                .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.Rates.Count()))
+                .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.ReceivedRates.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)));
             CreateMap<AddSkillDto, Skill>();
             CreateMap<Skill, SkillDto>();
@@ -39,18 +39,18 @@ namespace ProLink.Application.Mapper
         }
         private double CalculateAverageRate(User user)
         {
-            if (user.Rates == null || user.Rates.Count == 0)
+            if (user.ReceivedRates == null || user.ReceivedRates.Count == 0)
             {
                 return 0;
             }
 
             double totalRate = 0;
-            foreach (var rate in user.Rates)
+            foreach (var rate in user.ReceivedRates)
             {
                 totalRate += rate.RateValue;
             }
 
-            return totalRate / user.Rates.Count;
+            return totalRate / user.ReceivedRates.Count;
         }
     }
 }

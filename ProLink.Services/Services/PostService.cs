@@ -129,7 +129,7 @@ namespace ProLink.Application.Services
             return postResults.ToList();
         }
 
-        public async Task<List<PostResultDto>> GetUserPostsByIdAsync(string id)
+        public async Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id)
         {
             var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id);
             var postResults = posts.Select(post => _mapper.Map<PostResultDto>(post));
