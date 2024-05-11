@@ -12,7 +12,7 @@ namespace ProLink.Data.Configuration
                .HasMany(r => r.Friends)
                .WithOne()
                .HasForeignKey(r => r.FriendId)
-               .OnDelete(DeleteBehavior.SetNull);
+               .OnDelete(DeleteBehavior.NoAction);
 
             builder
                .HasMany(r => r.SentJobRequests)

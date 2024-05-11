@@ -12,7 +12,7 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240511175715_init")]
+    [Migration("20240511223522_init")]
     partial class init
     {
         /// <inheritdoc />

@@ -198,7 +198,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.FriendRequest", b =>
@@ -226,7 +226,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("FriendRequests", (string)null);
+                    b.ToTable("FriendRequests");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.JobRequest", b =>
@@ -263,7 +263,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("JobRequests", (string)null);
+                    b.ToTable("JobRequests");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Like", b =>
@@ -288,7 +288,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Message", b =>
@@ -317,7 +317,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Notification", b =>
@@ -340,7 +340,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("ReceiverId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
@@ -370,7 +370,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Rate", b =>
@@ -395,7 +395,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("RaterId");
 
-                    b.ToTable("Rate", (string)null);
+                    b.ToTable("Rate");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
@@ -415,7 +415,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Skills", (string)null);
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
@@ -722,7 +722,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", null)
                         .WithMany("Friends")
                         .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
