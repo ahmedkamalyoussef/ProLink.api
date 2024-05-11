@@ -10,13 +10,13 @@ namespace ProLink.api.Controllers
     public class SkillController : ControllerBase
     {
         #region fields
-        private readonly IUserService _userService;
+        private readonly ISkillService _skillService;
         #endregion
 
         #region ctor
-        public SkillController(IUserService userService)
+        public SkillController(ISkillService skillService)
         {
-            _userService = userService;
+            _skillService = skillService;
         }
         #endregion
 
@@ -29,7 +29,7 @@ namespace ProLink.api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _userService.AddSkillAsync(addSkilltDto);
+            var result = await _skillService.AddSkillAsync(addSkilltDto);
             return result ? Ok("Skill has been added successfully") : BadRequest("faild to add Skill");
         }
 
@@ -37,7 +37,7 @@ namespace ProLink.api.Controllers
         [HttpGet("get-user-skills")]
         public async Task<IActionResult> GetCurrentUserSkillsAsync()
         {
-            var result = await _userService.GetCurrentUserSkillsAsync();
+            var result = await _skillService.GetCurrentUserSkillsAsync();
             return Ok(result);
         }
 
@@ -45,7 +45,7 @@ namespace ProLink.api.Controllers
         [HttpGet("get-user-skills-by-Id")]
         public async Task<IActionResult> GetUserSkillsByIdAsync(string id)
         {
-            var result = await _userService.GetUserSkillsByIdAsync(id);
+            var result = await _skillService.GetUserSkillsByIdAsync(id);
             return Ok(result);
         }
 
@@ -57,14 +57,14 @@ namespace ProLink.api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _userService.UpdateSkillAsync(skillId, addSkillDto);
+            var result = await _skillService.UpdateSkillAsync(skillId, addSkillDto);
             return result ? Ok("Skill has been updated successfully") : BadRequest("faild to update Skill");
         }
         [Authorize]
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteSkillAsync(string skillId)
         {
-            var result = await _userService.DeleteSkillAsync(skillId);
+            var result = await _skillService.DeleteSkillAsync(skillId);
             return result ? Ok("Skill has been deleted successfully") : BadRequest("faild to delete Skill");
         }
         #endregion

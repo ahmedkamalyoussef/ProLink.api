@@ -9,13 +9,13 @@ namespace ProLink.api.Controllers
     public class JobRequesController : ControllerBase
     {
         #region fields
-        private readonly IUserService _userService;
+        private readonly IJobRequestService _jobRequestService;
         #endregion
 
         #region ctor
-        public JobRequesController(IUserService userService)
+        public JobRequesController(IJobRequestService jobRequestService)
         {
-            _userService = userService;
+            _jobRequestService = jobRequestService;
         }
         #endregion
 
@@ -25,14 +25,14 @@ namespace ProLink.api.Controllers
         [HttpGet("Get-jobRequests")]
         public async Task<IActionResult> GetjobRequestAsync()
         {
-            var result = await _userService.GetJobRequistAsync();
+            var result = await _jobRequestService.GetJobRequistAsync();
             return Ok(result);
         }
         [Authorize]
         [HttpPost("add-jobRequest")]
         public async Task<IActionResult> SendjobRequestAsync(string userId, string postId)
         {
-            var result = await _userService.SendJobRequistAsync(userId, postId);
+            var result = await _jobRequestService.SendJobRequistAsync(userId, postId);
             return result ? Ok("jobRequest has been sent successfully") : BadRequest("faild to send jobRequest");
         }
 
@@ -40,7 +40,7 @@ namespace ProLink.api.Controllers
         [HttpPut("accept-jobRequest")]
         public async Task<IActionResult> AcceptJobAsync(string jobRequestId)
         {
-            var result = await _userService.AcceptJobAsync(jobRequestId);
+            var result = await _jobRequestService.AcceptJobAsync(jobRequestId);
             return result ? Ok("job Request has been accepted successfully") : BadRequest("faild to accept job Request");
         }
 
@@ -48,7 +48,7 @@ namespace ProLink.api.Controllers
         [HttpDelete("delete-jobRequest")]
         public async Task<IActionResult> DeletejobRequestAsync(string requestId)
         {
-            var result = await _userService.DeletePendingJobRequestAsync(requestId);
+            var result = await _jobRequestService.DeletePendingJobRequestAsync(requestId);
             return result ? Ok("jobRequest has been deleted successfully") : BadRequest("faild to delete jobRequest");
         }
 
@@ -56,7 +56,7 @@ namespace ProLink.api.Controllers
         [HttpPut("decline-jobRequest")]
         public async Task<IActionResult> DeclinejobRequestAsync(string requestId)
         {
-            var result = await _userService.DeclinePendingJobRequestAsync(requestId);
+            var result = await _jobRequestService.DeclinePendingJobRequestAsync(requestId);
             return result ? Ok("jobRequest has been Declined successfully") : BadRequest("faild to Declined jobRequest");
         }
         #endregion

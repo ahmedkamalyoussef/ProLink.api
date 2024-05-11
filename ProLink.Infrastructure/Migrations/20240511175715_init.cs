@@ -325,7 +325,8 @@ namespace ProLink.Infrastructure.Migrations
                         name: "FK_Comments_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -381,7 +382,8 @@ namespace ProLink.Infrastructure.Migrations
                         name: "FK_Likes_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(

@@ -10,13 +10,13 @@ namespace ProLink.api.Controllers
     public class MessageController : ControllerBase
     {
         #region fields
-        private readonly IUserService _userService;
+        private readonly IMessageService _messageService;
         #endregion
 
         #region ctor
-        public MessageController(IUserService userService)
+        public MessageController(IMessageService messageService)
         {
-            _userService = userService;
+            _messageService = messageService;
         }
         #endregion
 
@@ -25,21 +25,21 @@ namespace ProLink.api.Controllers
         [HttpPost("send-message")]
         public async Task<IActionResult> SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
         {
-            var result = await _userService.SendMessageAsync(recieverId, sendMessageDto);
+            var result = await _messageService.SendMessageAsync(recieverId, sendMessageDto);
             return result ? Ok("meassge has been sent successfully.") : BadRequest("failed to send message");
         }
         [Authorize]
         [HttpPut("update-message")]
         public async Task<IActionResult> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto)
         {
-            var result = await _userService.UpdateMessageAsync(messageId, sendMessageDto);
+            var result = await _messageService.UpdateMessageAsync(messageId, sendMessageDto);
             return result ? Ok("meassge has been updated successfully.") : BadRequest("failed to update message");
         }
         [Authorize]
         [HttpDelete("delete-message")]
         public async Task<IActionResult> DeleteMessageAsync(string messageId)
         {
-            var result = await _userService.DeleteMessageAsync(messageId);
+            var result = await _messageService.DeleteMessageAsync(messageId);
             return result ? Ok("meassge has been deleted successfully.") : BadRequest("failed to delete message");
         }
         #endregion

@@ -12,7 +12,7 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240510155413_init")]
+    [Migration("20240511175715_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -570,7 +570,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "User")
@@ -635,7 +635,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.Post", "Post")
                         .WithMany("Likes")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "User")

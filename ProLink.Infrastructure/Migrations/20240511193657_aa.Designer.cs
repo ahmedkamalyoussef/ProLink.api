@@ -12,8 +12,8 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240510172825_update44")]
-    partial class update44
+    [Migration("20240511193657_aa")]
+    partial class aa
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -576,7 +576,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -595,7 +595,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", "Sender")
                         .WithMany("SentFriendRequests")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Receiver");
@@ -608,7 +608,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.Post", "Post")
                         .WithMany("JobRequests")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "Receiver")
@@ -641,7 +641,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", "User")
                         .WithMany("Likes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -725,7 +725,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", null)
                         .WithMany("Friends")
                         .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>

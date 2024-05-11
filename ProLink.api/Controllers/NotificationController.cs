@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProLink.Application.Interfaces;
+using ProLink.Application.Services;
 
 namespace ProLink.api.Controllers
 {
@@ -9,13 +10,13 @@ namespace ProLink.api.Controllers
     public class NotificationController : ControllerBase
     {
         #region fields
-        private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
         #endregion
 
         #region ctor
-        public NotificationController(IUserService userService)
+        public NotificationController(INotificationService notificationService)
         {
-            _userService = userService;
+            _notificationService = notificationService;
         }
         #endregion
 
@@ -24,28 +25,28 @@ namespace ProLink.api.Controllers
         [HttpGet("get-all-notifications")]
         public async Task<IActionResult> GetCurrentUserNotificationsAsync()
         {
-            var result = await _userService.GetCurrentUserNotificationsAsync();
+            var result = await _notificationService.GetCurrentUserNotificationsAsync();
             return Ok(result);
         }
         [Authorize]
         [HttpGet("get-notification-by-id")]
         public async Task<IActionResult> GetNotificationByIdAsync(string notificationId)
         {
-            var result = await _userService.GetNotificationByIdAsync(notificationId);
+            var result = await _notificationService.GetNotificationByIdAsync(notificationId);
             return Ok(result);
         }
         [Authorize]
         [HttpDelete("delete-notification-by-id")]
         public async Task<IActionResult> DeleteNotificationByIdAsync(string notificationId)
         {
-            var result = await _userService.DeleteNotificationByIdAsync(notificationId);
+            var result = await _notificationService.DeleteNotificationByIdAsync(notificationId);
             return result ? Ok("notification has been deleted successfully.") : BadRequest("notification to delete message");
         }
         [Authorize]
         [HttpDelete("delete-all-notifications")]
         public async Task<IActionResult> DeleteAllNotificationAsync()
         {
-            var result = await _userService.DeleteAllNotificationAsync();
+            var result = await _notificationService.DeleteAllNotificationAsync();
             return result ? Ok("notifications have been deleted successfully.") : BadRequest("failed to delete notifications");
         }
         #endregion

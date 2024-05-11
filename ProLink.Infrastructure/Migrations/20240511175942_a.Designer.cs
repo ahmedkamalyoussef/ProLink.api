@@ -12,8 +12,8 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240510163518_update2")]
-    partial class update2
+    [Migration("20240511175942_a")]
+    partial class a
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -635,7 +635,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.Post", "Post")
                         .WithMany("Likes")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "User")
@@ -725,7 +725,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", null)
                         .WithMany("Friends")
                         .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>

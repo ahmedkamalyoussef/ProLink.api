@@ -10,13 +10,13 @@ namespace ProLink.api.Controllers
     public class RateController : ControllerBase
     {
         #region fields
-        private readonly IUserService _userService;
+        private readonly IRateService _rateService;
         #endregion
 
         #region ctor
-        public RateController(IUserService userService)
+        public RateController(IRateService rateService)
         {
-            _userService = userService;
+            _rateService = rateService;
         }
         #endregion
         #region rate actions
@@ -24,7 +24,7 @@ namespace ProLink.api.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddRateAsync(string userId, RateDto rateDto)
         {
-            var result = await _userService.AddRateAsync(userId, rateDto);
+            var result = await _rateService.AddRateAsync(userId, rateDto);
             return result ? Ok("rate has been added successfully") : BadRequest("faild to add rate");
         }
 
@@ -32,7 +32,7 @@ namespace ProLink.api.Controllers
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteRateAsync(string rateId)
         {
-            var result = await _userService.DeleteRateAsync(rateId);
+            var result = await _rateService.DeleteRateAsync(rateId);
             return result ? Ok("rate has been deleted successfully") : BadRequest("faild to delete rate");
         }
         #endregion
