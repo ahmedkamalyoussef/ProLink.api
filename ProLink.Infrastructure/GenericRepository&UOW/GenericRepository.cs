@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProLink.Data.Consts;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using System.Linq.Expressions;
@@ -20,10 +21,17 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         {
             context.Set<T>().AddRange(entities);
         }
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
-
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression, Expression<Func<T, object>>? orderBy = null, string? direction = null)
         {
-            return context.Set<T>().Where(expression);
+            IQueryable<T> query=context.Set<T>().Where(expression);
+            if (orderBy != null)
+            {
+                if(direction==OrderDirection.Ascending)
+                    query = query.OrderBy(orderBy);
+                else
+                    query = query.OrderByDescending(orderBy);
+            }
+            return query.ToList();
         }
 
         public async Task<T> FindFirstAsync(Expression<Func<T, bool>> expression)

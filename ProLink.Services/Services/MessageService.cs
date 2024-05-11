@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
@@ -33,6 +34,19 @@ namespace ProLink.Application.Services
         #endregion
 
         #region Message handling
+        public async Task<List<MessageResultDto>> GetMessagesAsync(string recieverId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("current user not found");
+            var reciever = await _userManager.FindByIdAsync(recieverId);
+            if (reciever == null) throw new Exception("reciever not found");
+            var messages=await _unitOfWork.Message.FindAsync(m=>(m.ReceiverId == recieverId&&m.SenderId==currentUser.Id)
+            || (m.ReceiverId == currentUser.Id && m.SenderId == recieverId),m=>m.Timestamp,OrderDirection.Ascending);
+            var messageResult=messages.Select(message=>_mapper.Map<MessageResultDto>(message)).ToList();
+            return messageResult;
+        }
+
+
         public async Task<bool> SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();

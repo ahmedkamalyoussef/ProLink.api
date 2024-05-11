@@ -22,21 +22,29 @@ namespace ProLink.api.Controllers
 
         #region messages
         [Authorize]
-        [HttpPost("send-message")]
+        [HttpGet("get")]
+        public async Task<IActionResult> GetMessageAsync(string recieverId)
+        {
+            var result = await _messageService.GetMessagesAsync(recieverId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("send")]
         public async Task<IActionResult> SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
         {
             var result = await _messageService.SendMessageAsync(recieverId, sendMessageDto);
             return result ? Ok("meassge has been sent successfully.") : BadRequest("failed to send message");
         }
         [Authorize]
-        [HttpPut("update-message")]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto)
         {
             var result = await _messageService.UpdateMessageAsync(messageId, sendMessageDto);
             return result ? Ok("meassge has been updated successfully.") : BadRequest("failed to update message");
         }
         [Authorize]
-        [HttpDelete("delete-message")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteMessageAsync(string messageId)
         {
             var result = await _messageService.DeleteMessageAsync(messageId);

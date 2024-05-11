@@ -74,7 +74,7 @@ namespace ProLink.Application.Helpers
         {
             if (file == null || file.Length == 0)
             {
-                throw new ArgumentException("File is null or empty.", nameof(file));
+                return string.Empty;
             }
 
             string rootPath = _webHostEnvironment.WebRootPath;
