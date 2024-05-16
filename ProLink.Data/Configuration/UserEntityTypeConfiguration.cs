@@ -15,6 +15,12 @@ namespace ProLink.Data.Configuration
                .OnDelete(DeleteBehavior.NoAction);
 
             builder
+               .HasMany(r => r.Followers)
+               .WithOne()
+               .HasForeignKey(r => r.FollowerId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+            builder
                .HasMany(r => r.SentJobRequests)
                .WithOne(p => p.Sender)
                .HasForeignKey(r => r.SenderId)

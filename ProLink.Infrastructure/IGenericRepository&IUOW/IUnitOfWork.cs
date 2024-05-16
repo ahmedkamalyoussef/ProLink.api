@@ -17,7 +17,9 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
 
         void CreateTransaction();
         void Commit();
+        void CreateSavePoint(string point);
         void Rollback();
+        void RollbackToSavePoint(string point);
         int Save();
     }
 }

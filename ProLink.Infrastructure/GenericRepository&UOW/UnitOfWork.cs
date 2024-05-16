@@ -45,9 +45,19 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             transaction.Commit();
         }
 
+        public void CreateSavePoint(string point)
+        {
+            transaction.CreateSavepoint(point);
+        }
         public void Rollback()
         {
             transaction.Rollback();
+
+        }
+
+        public void RollbackToSavePoint(string point)
+        {
+            transaction.RollbackToSavepoint(point);
 
         }
 
@@ -56,5 +66,6 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         {
             return _context.SaveChanges();
         }
+
     }
 }

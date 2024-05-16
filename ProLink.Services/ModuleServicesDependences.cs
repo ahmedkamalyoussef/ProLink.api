@@ -17,6 +17,7 @@ namespace ProLink.Application
             service.AddTransient<IPostService, PostService>();
             service.AddTransient<IAuthService, AuthService>();
             service.AddTransient<IFriendService, FriendService>();
+            service.AddTransient<IFollowerService, FollowerService>();
             service.AddTransient<IFriendRequestService, FriendRequestService>();
             service.AddTransient<IRateService, RateService>();
             service.AddTransient<IMessageService, MessageService>();

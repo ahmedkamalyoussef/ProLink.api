@@ -38,6 +38,7 @@ namespace ProLink.Infrastructure.Migrations
                     BackImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FriendId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    FollowerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CV = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -58,6 +59,11 @@ namespace ProLink.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_AspNetUsers_FollowerId",
+                        column: x => x.FollowerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AspNetUsers_AspNetUsers_FriendId",
                         column: x => x.FriendId,
@@ -426,6 +432,11 @@ namespace ProLink.Infrastructure.Migrations
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_FollowerId",
+                table: "AspNetUsers",
+                column: "FollowerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_FriendId",

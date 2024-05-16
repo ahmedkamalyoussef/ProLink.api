@@ -19,9 +19,9 @@ namespace ProLink.api.Controllers
         }
         #endregion
 
-        #region friend
+        #region actions
         [Authorize]
-        [HttpGet("Get-friends")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetFriendsAsync()
         {
             var result = await _friendService.GetFriendsAsync();
@@ -29,7 +29,7 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpPut("delete-friend")]
+        [HttpPut("delete")]
         public async Task<IActionResult> DeleteFriendAsync(string friendId)
         {
             var result = await _friendService.DeleteFriendAsync(friendId);

@@ -12,7 +12,7 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240511223522_init")]
+    [Migration("20240516055534_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -453,6 +453,9 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FollowerId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("FriendId")
                         .HasColumnType("nvarchar(450)");
 
@@ -500,6 +503,8 @@ namespace ProLink.Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FollowerId");
 
                     b.HasIndex("FriendId");
 
@@ -723,6 +728,11 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", null)
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ProLink.Data.Entities.User", null)
                         .WithMany("Friends")
                         .HasForeignKey("FriendId")
                         .OnDelete(DeleteBehavior.NoAction);
@@ -740,6 +750,8 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Followers");
 
                     b.Navigation("Friends");
 
