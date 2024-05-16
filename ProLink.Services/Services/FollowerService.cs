@@ -53,14 +53,9 @@ namespace ProLink.Application.Services
             try
             {
                 user.Followers.Add(currentUser);
-                if (_unitOfWork.Save() <= 0)
-                {
-                    throw new Exception("Failed to save follower.");
-                }
+                _unitOfWork.Save();
 
-                var message = new MailMessage(new string[] { user.Email }, "followers",
-                    $"{currentUser.FirstName} {currentUser.LastName} just started following you");
-                _mailingService.SendMail(message);
+
 
                 _unitOfWork.CreateSavePoint("addfollower");
 
@@ -78,8 +73,14 @@ namespace ProLink.Application.Services
             catch
             {
                 _unitOfWork.RollbackToSavePoint("addfollower");
+                _unitOfWork.Commit();
             }
-                return true;
+            if (_unitOfWork.Save() <= 0) return false;
+            var message = new MailMessage(new string[] { user.Email }, "followers",
+                $"{currentUser.FirstName} {currentUser.LastName} just started following you");
+            _mailingService.SendMail(message);
+
+            return true;
         }
 
 

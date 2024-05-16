@@ -11,7 +11,7 @@ using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
 {
-    public class FriendRequestService:IFriendRequestService
+    public class FriendRequestService : IFriendRequestService
     {
         #region fields
         private readonly IUnitOfWork _unitOfWork;
@@ -55,29 +55,37 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
-            var friendRequest = new FriendRequest
+            _unitOfWork.CreateTransaction();
+            try
             {
-                Status = Status.Pending,
-                DateSent = DateTime.Now,
-                SenderId = currentUser.Id,
-                ReceiverId = user.Id,
-            };
-            _unitOfWork.FriendRequest.Add(friendRequest);
-            var notification = new Notification
-            {
-                Content = $"{currentUser.FirstName} {currentUser.LastName} sent you friend request",
-                Timestamp = DateTime.Now,
-                ReceiverId = user.Id
-            };
-            _unitOfWork.Notification.Add(notification);
-            if (_unitOfWork.Save() > 0)
-            {
+                var friendRequest = new FriendRequest
+                {
+                    Status = Status.Pending,
+                    DateSent = DateTime.Now,
+                    SenderId = currentUser.Id,
+                    ReceiverId = user.Id,
+                };
+                _unitOfWork.FriendRequest.Add(friendRequest);
+                if (_unitOfWork.Save() <= 0) return false;
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
                     $"{currentUser.FirstName} {currentUser.LastName} sent you friend request");
                 _mailingService.SendMail(message);
-                return true;
+                _unitOfWork.CreateSavePoint("sendrequest");
+                var notification = new Notification
+                {
+                    Content = $"{currentUser.FirstName} {currentUser.LastName} sent you friend request",
+                    Timestamp = DateTime.Now,
+                    ReceiverId = user.Id
+                };
+                _unitOfWork.Notification.Add(notification);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
             }
-            return false;
+            catch
+            {
+                _unitOfWork.RollbackToSavePoint("sendrequest");
+            }
+            return true;
         }
 
         public async Task<bool> DeletePendingFriendAsync(string friendRequestId)
@@ -111,24 +119,34 @@ namespace ProLink.Application.Services
 
             if (request.Status != Status.Pending)
                 return false;
-            request.Status = Status.Declined;
-            _unitOfWork.FriendRequest.Update(request);
-            var notification = new Notification
+            _unitOfWork.CreateTransaction();
+            try
             {
-                Content = $"{currentUser.FirstName} {currentUser.LastName} declined you friend request ",
-                Timestamp = DateTime.Now,
-                ReceiverId = request.SenderId
-            };
-            _unitOfWork.Notification.Add(notification);
-            if (_unitOfWork.Save() > 0)
-            {
+                request.Status = Status.Declined;
+                _unitOfWork.FriendRequest.Update(request);
+                if (_unitOfWork.Save() <= 0) return false;
                 var user = await _userManager.FindByIdAsync(request.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
                     $"{user.FirstName} {user.LastName} declined your friend request");
                 _mailingService.SendMail(message);
-                return true;
+
+                _unitOfWork.CreateSavePoint("decline");
+
+                var notification = new Notification
+                {
+                    Content = $"{currentUser.FirstName} {currentUser.LastName} declined you friend request ",
+                    Timestamp = DateTime.Now,
+                    ReceiverId = request.SenderId
+                };
+                _unitOfWork.Notification.Add(notification);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
             }
-            return false;
+            catch
+            {
+                _unitOfWork.RollbackToSavePoint("decline");
+            }
+            return true;
         }
 
         public async Task<bool> AcceptFriendAsync(string friendRequestId)
@@ -137,28 +155,45 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var request = await _unitOfWork.FriendRequest.FindFirstAsync(f => f.Id == friendRequestId && f.Status == Status.Pending);
             if (request == null || request.ReceiverId != currentUser.Id) return false;
-            request.Status = Status.Accepted;
             var user = await _userManager.FindByIdAsync(request.SenderId);
             if (user == null) return false;
-            currentUser.Friends.Add(user);
-            _unitOfWork.User.Update(currentUser);
-            user.Friends.Add(currentUser);
-            _unitOfWork.User.Update(user);
-            _unitOfWork.FriendRequest.Update(request);
-            var notification = new Notification
+            request.Status = Status.Accepted;
+            _unitOfWork.CreateTransaction();
+            try
             {
-                Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
-                Timestamp = DateTime.Now,
-                ReceiverId = user.Id
-            };
-            _unitOfWork.Notification.Add(notification);
-            if (_unitOfWork.Save() > 0)
-            {
-                var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
-                _mailingService.SendMail(message);
-                return true;
+                currentUser.Friends.Add(user);
+                _unitOfWork.User.Update(currentUser);
+                _unitOfWork.Save();
+                user.Friends.Add(currentUser);
+                _unitOfWork.User.Update(user);
+                _unitOfWork.Save();
+                _unitOfWork.FriendRequest.Update(request);
+                _unitOfWork.Save();
+                
+
+                _unitOfWork.CreateSavePoint("addfriend");
+
+                var notification = new Notification
+                {
+                    Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
+                    Timestamp = DateTime.Now,
+                    ReceiverId = user.Id
+                };
+                _unitOfWork.Notification.Add(notification);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
             }
-            return false;
+            catch
+            {
+                _unitOfWork.RollbackToSavePoint("addfriend");
+                _unitOfWork.Commit();
+            }
+
+            if (_unitOfWork.Save() <= 0) return false;
+            var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
+            _mailingService.SendMail(message);
+
+            return true;
         }
 
         public async Task<bool> AcceptAllFriendsAsync()
