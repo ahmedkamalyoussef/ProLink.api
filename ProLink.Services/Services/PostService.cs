@@ -187,12 +187,18 @@ namespace ProLink.Application.Services
             if (user == null) throw new Exception("user not found");
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) throw new Exception("post doesnt exist");
-            Like like = new Like();
-            like.User = user;
-            like.Post = post;
-            like.DateLiked = DateTime.Now;
-            _unitOfWork.Like.Add(like);
-            if (_unitOfWork.Save() > 0) return true;
+            var likeExist=await _unitOfWork.Like.FindFirstAsync(l=>l.UserId == user.Id&&l.PostId==post.Id);
+            if(likeExist == null)
+            {
+                Like like = new Like();
+                like.User = user;
+                like.Post = post;
+                like.DateLiked = DateTime.Now;
+                _unitOfWork.Like.Add(like);
+                if (_unitOfWork.Save() > 0) return true;
+                return false;
+            }
+            
             return false;
         }
         public async Task<bool> DeleteLikeAsync(string LikeId)

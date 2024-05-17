@@ -8,7 +8,7 @@ namespace ProLink.Data.Entities
         [Key]
         public string Id { get; set; }= Guid.NewGuid().ToString();
         public DateTime DateLiked { get; set; }
-
+        
         [Required]
         public string UserId { get; set; }
         [Required]
