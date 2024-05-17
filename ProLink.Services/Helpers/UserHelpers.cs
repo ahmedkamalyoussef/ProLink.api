@@ -20,20 +20,17 @@ namespace ProLink.Application.Helpers
         private readonly IConfiguration _config;
         private readonly UserManager<User> _userManager;
         private readonly IHttpContextAccessor _contextAccessor;
-        private readonly AppDbContext _context;
         #endregion
 
         #region ctor
         public UserHelpers(IConfiguration config, UserManager<User> userManager
             , IHttpContextAccessor contextAccessor
-            , IWebHostEnvironment webHostEnvironment
-            , AppDbContext context)
+            , IWebHostEnvironment webHostEnvironment)
         {
             _config = config;
             _userManager = userManager;
             _contextAccessor = contextAccessor;
             _webHostEnvironment = webHostEnvironment;
-            _context = context;
         }
         #endregion
 

@@ -87,7 +87,7 @@ namespace ProLink.api.Controllers
         }
         [Authorize]
         [HttpGet("get-posts-By-Title")]
-        public async Task<IActionResult> GetAllPostsAsync(string title)
+        public async Task<IActionResult> GetPostsByTitleAsync(string title)
         {
             if (!ModelState.IsValid)
             {
@@ -144,10 +144,7 @@ namespace ProLink.api.Controllers
         [HttpPost("add-like")]
         public async Task<IActionResult> AddLikeAsync(string Postid)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
             var result = await _postService.AddLikeAsync(Postid);
             return result ? Ok("Like has been added successfully") : BadRequest("faild to add like");
         }

@@ -5,7 +5,7 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
     public interface IGenericRepository<T> where T : class
     {
         T GetById(string id);
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, object>>? orderBy = null, string? direction = null);
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
         void Remove(T entity);

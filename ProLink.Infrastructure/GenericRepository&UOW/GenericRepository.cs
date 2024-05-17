@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using ProLink.Data.Consts;
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
@@ -40,9 +41,17 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
 
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, object>>? orderBy = null, string? direction = null)
         {
-            return context.Set<T>().ToList();
+            IQueryable<T> query = context.Set<T>();
+            if (orderBy != null)
+            {
+                if (direction == OrderDirection.Ascending)
+                    query = query.OrderBy(orderBy);
+                else
+                    query = query.OrderByDescending(orderBy);
+            }
+            return query.ToList();
         }
         public T GetById(string id)
         {

@@ -4,6 +4,7 @@ using ProLink.Application.Consts;
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
@@ -73,38 +74,12 @@ namespace ProLink.Application.Services
 
         public async Task<List<PostResultDto>> GetAllPostsAsync()
         {
-            var posts = await _unitOfWork.Post.GetAllAsync();
+            var posts = await _unitOfWork.Post.GetAllAsync(p=>p.DateCreated,OrderDirection.Ascending);
             var postResults = posts.Select(post => _mapper.Map<PostResultDto>(post));
             return postResults.ToList();
         }
 
-        //public async Task<List<PostResult>> GetAllPostsAsync()
-        //{
-        //    var posts = await _unitOfWork.Post.GetAllAsync();
 
-        //    var tasks = posts.Select(async post =>
-        //    {
-        //        var postResult = _mapper.Map<PostResult>(post);
-
-        //        var likesTask = _unitOfWork.Like.FindAsync(l => l.PostId == post.Id);
-        //        var commentsTask = _unitOfWork.Comment.FindAsync(c => c.PostId == post.Id);
-
-        //        await Task.WhenAll(likesTask, commentsTask);
-
-        //        var likes = await likesTask;
-        //        var comments = await commentsTask;
-        //        postResult.LikesCount = likes.Count();
-        //        postResult.CommentsCount = comments.Count();
-        //        postResult.Likes = likes.Select(like => _mapper.Map<LikeDto>(like)).ToList();
-        //        postResult.Comments = comments.Select(comment => _mapper.Map<CommentDto>(comment)).ToList();
-
-        //        return postResult;
-        //    });
-
-        //    var results = await Task.WhenAll(tasks);
-
-        //    return results.ToList();
-        //}
 
         public async Task<PostResultDto> GetPostByIdAsync(string id)
         {
