@@ -13,6 +13,6 @@ namespace ProLink.Application.DTOs
         public DateTime DateCreated { get; set; }
         public List<CommentDto> Comments { get; set; }=new List<CommentDto>();
         public List<LikeDto> Likes { get; set; } = new List<LikeDto>();
-        public User User { get; set; }
+        public UserResultDto User { get; set; }
     }
 }
