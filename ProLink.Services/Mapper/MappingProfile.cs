@@ -13,6 +13,7 @@ namespace ProLink.Application.Mapper
             CreateMap<RegisterUser, User>()
                    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => new MailAddress(src.Email).User));
             CreateMap<UserDto, User>().ReverseMap();
+                
             CreateMap<MessageResultDto, Message>().ReverseMap();
             CreateMap<Like,LikeDto >();
             CreateMap<Comment, CommentDto>();
@@ -22,7 +23,8 @@ namespace ProLink.Application.Mapper
             CreateMap<FriendRequest, FriendRequestDto>();
             CreateMap<User, UserResultDto>()
                 .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.ReceivedRates.Count()))
-                .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)));
+                .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))
+                .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()));
             CreateMap<AddSkillDto, Skill>();
             CreateMap<Skill, SkillDto>();
             CreateMap<Rate, RateDto>();
