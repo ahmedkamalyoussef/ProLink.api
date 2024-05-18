@@ -366,9 +366,14 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Posts");
                 });
@@ -689,6 +694,10 @@ namespace ProLink.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("ProLink.Data.Entities.User", null)
+                        .WithMany("LikedPosts")
+                        .HasForeignKey("UserId1");
+
                     b.Navigation("User");
                 });
 
@@ -751,6 +760,8 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Followers");
 
                     b.Navigation("Friends");
+
+                    b.Navigation("LikedPosts");
 
                     b.Navigation("Likes");
 

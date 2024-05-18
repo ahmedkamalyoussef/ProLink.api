@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 using ProLink.Application.DTOs;
@@ -7,6 +8,7 @@ using ProLink.Application.Interfaces;
 using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
+using System.Linq;
 
 namespace ProLink.Application.Services
 {
@@ -74,8 +76,19 @@ namespace ProLink.Application.Services
 
         public async Task<List<PostResultDto>> GetAllPostsAsync()
         {
-            var posts = await _unitOfWork.Post.GetAllAsync(p=>p.DateCreated,OrderDirection.Ascending);
-            var postResults = posts.Select(post => _mapper.Map<PostResultDto>(post));
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var posts = await _unitOfWork.Post.GetAllAsync(p => p.DateCreated, OrderDirection.Ascending);
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
             return postResults.ToList();
         }
 
@@ -83,31 +96,72 @@ namespace ProLink.Application.Services
 
         public async Task<PostResultDto> GetPostByIdAsync(string id)
         {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
             if (post == null) throw new Exception("post not found");
             var postResult = _mapper.Map<PostResultDto>(post);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+
+            if (likedPostIds.Contains(post.Id))
+            {
+                postResult.IsLiked = true;
+                var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                postResult.LikeId = Like.Id;
+            }
             return postResult;
         }
 
         public async Task<List<PostResultDto>> GetPostsByTitleAsync(string title)
         {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
             var posts = await _unitOfWork.Post.FindAsync(p => p.Title.Contains(title));
-            var postResults = posts.Select(post => _mapper.Map<PostResultDto>(post));
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
             return postResults.ToList();
         }
 
         public async Task<List<PostResultDto>> GetUserPostsAsync()
         {
-            var user = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == user.Id);
-            var postResults = posts.Select(post => _mapper.Map<PostResultDto>(post));
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == currentUser.Id);
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
             return postResults.ToList();
         }
 
         public async Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id)
         {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
             var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id);
-            var postResults = posts.Select(post => _mapper.Map<PostResultDto>(post));
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like=await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id&&p.PostId==post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
             return postResults.ToList();
         }
 
@@ -142,22 +196,22 @@ namespace ProLink.Application.Services
         #endregion
 
         #region comments methods
-        public async Task<bool> AddCommentAsync(string postId,AddCommentDto addCommentDto)
+        public async Task<bool> AddCommentAsync(string postId, AddCommentDto addCommentDto)
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) throw new Exception("user not found");
-            var  post=await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
+            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) throw new Exception("post doesnt exist");
-            Comment comment=_mapper.Map<Comment>(addCommentDto);
+            Comment comment = _mapper.Map<Comment>(addCommentDto);
             comment.User = user;
-            comment.Post=post;
+            comment.Post = post;
             _unitOfWork.Comment.Add(comment);
-            if(_unitOfWork.Save()>0)return true;
+            if (_unitOfWork.Save() > 0) return true;
             return false;
         }
         public async Task<bool> UpdateCommentAsync(string commentId, AddCommentDto addCommentDto)
         {
-            var user= await _userHelpers.GetCurrentUserAsync();
+            var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) throw new Exception("user not found");
             var oldComment = await _unitOfWork.Comment.FindFirstAsync(p => p.Id == commentId);
             if (oldComment == null) throw new Exception("Comment doesnt exist");
@@ -187,18 +241,31 @@ namespace ProLink.Application.Services
             if (user == null) throw new Exception("user not found");
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) throw new Exception("post doesnt exist");
-            var likeExist=await _unitOfWork.Like.FindFirstAsync(l=>l.UserId == user.Id&&l.PostId==post.Id);
-            if(likeExist == null)
+            var likeExist = await _unitOfWork.Like.FindFirstAsync(l => l.UserId == user.Id && l.PostId == post.Id);
+            if (likeExist == null)
             {
                 Like like = new Like();
                 like.User = user;
                 like.Post = post;
                 like.DateLiked = DateTime.Now;
-                _unitOfWork.Like.Add(like);
-                if (_unitOfWork.Save() > 0) return true;
-                return false;
+                _unitOfWork.CreateTransaction();
+                try
+                {
+                    user.LikedPosts.Add(post);
+                    _unitOfWork.Like.Add(like);
+                    _unitOfWork.Save();
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                catch
+                {
+                    _unitOfWork.Rollback();
+                    return false;
+                }
+
+
             }
-            
+
             return false;
         }
         public async Task<bool> DeleteLikeAsync(string LikeId)
@@ -208,9 +275,22 @@ namespace ProLink.Application.Services
             var like = await _unitOfWork.Like.FindFirstAsync(l => l.Id == LikeId);
             if (like == null) throw new Exception("like doesnt exist");
             if (like.UserId != user.Id) throw new UnauthorizedAccessException("cant update some one comment");
-            _unitOfWork.Like.Remove(like);
-            if (_unitOfWork.Save() > 0) return true;
-            return false;
+
+            _unitOfWork.CreateTransaction();
+            try
+            {
+                user.LikedPosts.Remove(like.Post);
+                _unitOfWork.Save();
+                _unitOfWork.Like.Remove(like);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
+                return true;
+            }
+            catch
+            {
+                _unitOfWork.Rollback();
+                return false;
+            }
         }
         #endregion
     }

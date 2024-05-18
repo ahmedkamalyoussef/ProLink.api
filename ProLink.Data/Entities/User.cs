@@ -29,6 +29,7 @@ namespace ProLink.Data.Entities
         public virtual ICollection<FriendRequest>? ReceivedFriendRequests { get; set; }
         public virtual ICollection<Skill>? Skills { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }
+        public virtual ICollection<Post>? LikedPosts { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
 
         public virtual ICollection<Like>? Likes { get; set; }
