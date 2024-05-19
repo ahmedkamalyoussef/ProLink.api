@@ -41,7 +41,7 @@ namespace ProLink.Application.Services
             var reciever = await _userManager.FindByIdAsync(recieverId);
             if (reciever == null) throw new Exception("reciever not found");
             var messages=await _unitOfWork.Message.FindAsync(m=>(m.ReceiverId == recieverId&&m.SenderId==currentUser.Id)
-            || (m.ReceiverId == currentUser.Id && m.SenderId == recieverId),m=>m.Timestamp,OrderDirection.Ascending);
+            || (m.ReceiverId == currentUser.Id && m.SenderId == recieverId),m=>m.Timestamp,OrderDirection.Descending);
             var messageResult=messages.Select(message=>_mapper.Map<MessageResultDto>(message)).ToList();
             return messageResult;
         }

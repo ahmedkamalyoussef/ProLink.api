@@ -44,12 +44,10 @@ namespace ProLink.Application.Services
             return user;
         }
         public async Task<UserResultDto> GetUserByIdAsync(string id)
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            if (currentUser == null)
-                throw new Exception("User not found.");
-            var user = _mapper.Map<UserResultDto>(currentUser);
-            return user;
+        {   
+            var user = await _userManager.FindByIdAsync(id);
+            var userResult = _mapper.Map<UserResultDto>(user);
+            return userResult;
         }
 
         public async Task<List<UserResultDto>> GetUsersByNameAsync(string name)

@@ -52,7 +52,7 @@ namespace ProLink.Application.Services
                 Status = Status.Pending,
                 DateCreated = DateTime.Now,
                 SenderId = currentUser.Id,
-                RecieverId = user.Id,
+                RecieverId = post.UserId,
                 PostId = post.Id
             };
             _unitOfWork.JopRequest.Add(jobRequist);
@@ -155,7 +155,7 @@ namespace ProLink.Application.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            var requests = await _unitOfWork.JopRequest.FindAsync(r => r.RecieverId == user.Id);
+            var requests = await _unitOfWork.JopRequest.FindAsync(r => r.RecieverId == user.Id, n => n.DateCreated, OrderDirection.Descending);
             var result = requests.Select(request => _mapper.Map<JobRequestDto>(request)).ToList();
             return result;
         }

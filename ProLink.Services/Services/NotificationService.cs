@@ -2,6 +2,7 @@
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Consts;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
@@ -33,7 +34,7 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("user not found");
-            var notifications = await _unitOfWork.Notification.FindAsync(n => n.ReceiverId == currentUser.Id);
+            var notifications = await _unitOfWork.Notification.FindAsync(n => n.ReceiverId == currentUser.Id, n => n.Timestamp, OrderDirection.Descending);
             var notificationResult = notifications.Select(notification => _mapper.Map<NotificationResultDto>(notification)).ToList();
             return notificationResult;
         }

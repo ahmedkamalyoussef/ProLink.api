@@ -24,7 +24,8 @@ namespace ProLink.Application.Mapper
             CreateMap<User, UserResultDto>()
                 .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.ReceivedRates.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))
-                .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()));
+                .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber));
             CreateMap<AddSkillDto, Skill>();
             CreateMap<Skill, SkillDto>();
             CreateMap<Rate, RateDto>();

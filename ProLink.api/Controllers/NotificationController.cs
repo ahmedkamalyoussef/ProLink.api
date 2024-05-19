@@ -22,28 +22,28 @@ namespace ProLink.api.Controllers
 
         #region Notification
         [Authorize]
-        [HttpGet("get-all-notifications")]
+        [HttpGet("get-user-all")]
         public async Task<IActionResult> GetCurrentUserNotificationsAsync()
         {
             var result = await _notificationService.GetCurrentUserNotificationsAsync();
             return Ok(result);
         }
         [Authorize]
-        [HttpGet("get-notification-by-id")]
+        [HttpGet]
         public async Task<IActionResult> GetNotificationByIdAsync(string notificationId)
         {
             var result = await _notificationService.GetNotificationByIdAsync(notificationId);
             return Ok(result);
         }
         [Authorize]
-        [HttpDelete("delete-notification-by-id")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteNotificationByIdAsync(string notificationId)
         {
             var result = await _notificationService.DeleteNotificationByIdAsync(notificationId);
             return result ? Ok("notification has been deleted successfully.") : BadRequest("notification to delete message");
         }
         [Authorize]
-        [HttpDelete("delete-all-notifications")]
+        [HttpDelete("delete-all")]
         public async Task<IActionResult> DeleteAllNotificationAsync()
         {
             var result = await _notificationService.DeleteAllNotificationAsync();

@@ -10,5 +10,6 @@ namespace ProLink.Application.DTOs
         public DateTime DateCreated { get; set; }
         public string SenderId { get; set; }
         public string PostId { get; set; }
+        public UserResultDto Sender { get; set; }
     }
 }

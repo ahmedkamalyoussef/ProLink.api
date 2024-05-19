@@ -61,9 +61,12 @@ namespace ProLink.Application.Services
 
         public async Task<bool> DeletePostAsync(string id)
         {
+            var currentUser= await _userHelpers.GetCurrentUserAsync();
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
             string imagePath = post.PostImage;
             if (post == null) throw new Exception("post not found");
+            if (currentUser==null||currentUser.Id != post.UserId)
+                throw new Exception("not allowed to delete");
             _unitOfWork.Post.Remove(post);
             if (_unitOfWork.Save() > 0)
             {
@@ -77,7 +80,7 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetAllPostsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.GetAllAsync(p => p.DateCreated, OrderDirection.Ascending);
+            var posts = await _unitOfWork.Post.GetAllAsync(p => p.DateCreated, OrderDirection.Descending);
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
@@ -114,7 +117,7 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetPostsByTitleAsync(string title)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.Title.Contains(title));
+            var posts = await _unitOfWork.Post.FindAsync(p => p.Title.Contains(title),p=> p.DateCreated, OrderDirection.Descending);
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
@@ -132,7 +135,7 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetUserPostsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == currentUser.Id);
+            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == currentUser.Id,p=> p.DateCreated, OrderDirection.Descending);
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
@@ -150,7 +153,7 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id);
+            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id,p=> p.DateCreated, OrderDirection.Descending);
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
@@ -175,6 +178,9 @@ namespace ProLink.Application.Services
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
+            if (currentUser.Id !=post.UserId)
+                throw new Exception("not allowed to edit");
+
             _mapper.Map(postDto, post);
             string image = "";
             if (postDto.PostImage != null)

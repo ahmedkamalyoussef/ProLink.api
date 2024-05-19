@@ -44,7 +44,7 @@ namespace ProLink.Application.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            var requests = await _unitOfWork.FriendRequest.FindAsync(f => f.ReceiverId == user.Id && f.Status == Status.Pending);
+            var requests = await _unitOfWork.FriendRequest.FindAsync(f => f.ReceiverId == user.Id && f.Status == Status.Pending, n => n.DateSent, OrderDirection.Descending);
             var result = requests.Select(request => _mapper.Map<FriendRequestDto>(request)).ToList();
             return result;
         }
