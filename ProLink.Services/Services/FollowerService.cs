@@ -49,6 +49,7 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
+            if(user.Followers.Contains(currentUser)) return false;
             _unitOfWork.CreateTransaction();
             try
             {

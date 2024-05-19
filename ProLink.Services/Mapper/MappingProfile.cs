@@ -18,7 +18,6 @@ namespace ProLink.Application.Mapper
             CreateMap<Like,LikeDto >();
             CreateMap<Comment, CommentDto>();
             CreateMap<Notification, NotificationResultDto>();
-            //CreateMap<User,UserDto>();
             CreateMap<JobRequest, JobRequestDto>();
             CreateMap<FriendRequest, FriendRequestDto>();
             CreateMap<User, UserResultDto>()
@@ -26,8 +25,7 @@ namespace ProLink.Application.Mapper
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))
                 .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber));
-            CreateMap<AddSkillDto, Skill>();
-            CreateMap<Skill, SkillDto>();
+
             CreateMap<Rate, RateDto>();
             CreateMap<PostDto, Post>()
                .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));

@@ -94,17 +94,7 @@ namespace ProLink.Application.Services
         
 
         #region file handlling
-        //public async Task<bool> AddUserPictureAsync(IFormFile file)
-        //{
-        //    var user = await _userHelpers.GetCurrentUserAsync();
-        //    if (user == null) return false;
-        //    var picture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
-        //    if (picture != null)
-        //        user.ProfilePicture = picture;
-        //    _unitOfWork.User.Update(user);
-        //    if (_unitOfWork.Save() > 0) return true;
-        //    return false;
-        //}
+        
 
         public async Task<bool> DeleteUserPictureAsync()
         {

@@ -403,26 +403,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.ToTable("Rate");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
-                {
-                    b.Property<string>("SkillId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("SkillId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Skills");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -495,6 +475,9 @@ namespace ProLink.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Skill")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -720,17 +703,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Rater");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
-                {
-                    b.HasOne("ProLink.Data.Entities.User", "User")
-                        .WithMany("Skills")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", null)
@@ -784,8 +756,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("SentMessages");
 
                     b.Navigation("SentRates");
-
-                    b.Navigation("Skills");
                 });
 #pragma warning restore 612, 618
         }

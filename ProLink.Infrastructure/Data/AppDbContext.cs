@@ -9,7 +9,7 @@ namespace ProLink.Infrastructure.Data
     public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<Skill> Skills { get; set; }
+        //public DbSet<Skill> Skills { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<JobRequest> JobRequests { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
@@ -50,9 +50,7 @@ namespace ProLink.Infrastructure.Data
             #region rate
             new RateEntityTypeConfiguration().Configure(modelBuilder.Entity<Rate>());
             #endregion
-            #region skill
-            new SkillEntityTypeConfiguration().Configure(modelBuilder.Entity<Skill>());
-            #endregion
+            
             #region message
             new MessageEntityTypeConfiguration().Configure(modelBuilder.Entity<Message>());
             #endregion
