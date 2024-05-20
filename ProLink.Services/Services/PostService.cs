@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 using ProLink.Application.DTOs;
@@ -8,7 +7,6 @@ using ProLink.Application.Interfaces;
 using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
-using System.Linq;
 
 namespace ProLink.Application.Services
 {
@@ -85,6 +83,9 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
+                var request=currentUser.SentJobRequests.FirstOrDefault(j => j.PostId==post.Id);
+                if (request == null||request.Status==Status.Declined) post.IsRequestSent = false;
+                else post.IsRequestSent = true;
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -104,7 +105,9 @@ namespace ProLink.Application.Services
             if (post == null) throw new Exception("post not found");
             var postResult = _mapper.Map<PostResultDto>(post);
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-
+            var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
+            if (request == null || request.Status == Status.Declined) postResult.IsRequestSent = false;
+            else postResult.IsRequestSent = true;
             if (likedPostIds.Contains(post.Id))
             {
                 postResult.IsLiked = true;
@@ -122,6 +125,9 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
+                var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
+                if (request == null || request.Status == Status.Declined) post.IsRequestSent = false;
+                else post.IsRequestSent = true;
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -158,6 +164,9 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
+                var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
+                if (request == null || request.Status == Status.Declined) post.IsRequestSent = false;
+                else post.IsRequestSent = true;
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;

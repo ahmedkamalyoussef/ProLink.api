@@ -46,6 +46,8 @@ namespace ProLink.Application.Services
             if (user == null) return false;
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) return false;
+            var postsIds=currentUser.SentJobRequests.Select(p => p.PostId).ToList();
+            if (postsIds.Contains(post.Id)) return true;
             var jobRequist = new JobRequest
             {
                 CV = currentUser.CV,
@@ -86,7 +88,7 @@ namespace ProLink.Application.Services
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Post.Title} post",
                 Timestamp = DateTime.Now,
-                ReceiverId = user.Id
+                ReceiverId = request.SenderId
             };
             _unitOfWork.Notification.Add(notification);
             if (_unitOfWork.Save() > 0)
