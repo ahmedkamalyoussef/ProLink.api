@@ -169,9 +169,12 @@ namespace ProLink.Application.Services
                 _unitOfWork.Save();
                 _unitOfWork.FriendRequest.Update(request);
                 _unitOfWork.Save();
-                
-
                 _unitOfWork.CreateSavePoint("addfriend");
+                user.Followers.Add(currentUser);
+                currentUser.Followers.Add(user);
+                _unitOfWork.User.Update(user);
+                _unitOfWork.User.Update(currentUser);
+                _unitOfWork.Save();
 
                 var notification = new Notification
                 {
@@ -187,9 +190,10 @@ namespace ProLink.Application.Services
             {
                 _unitOfWork.RollbackToSavePoint("addfriend");
                 _unitOfWork.Commit();
+                return false;
             }
 
-            if (_unitOfWork.Save() <= 0) return false;
+            
             var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
             _mailingService.SendMail(message);
 
@@ -206,6 +210,9 @@ namespace ProLink.Application.Services
             {
                 currentUser.Friends.Add(user);
                 user.Friends.Add(currentUser);
+                user.Followers.Add(currentUser);
+                currentUser.Followers.Add(user);
+                _unitOfWork.User.Update(currentUser);
                 _unitOfWork.User.Update(user);
                 var notification = new Notification
                 {

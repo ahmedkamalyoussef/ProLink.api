@@ -44,10 +44,17 @@ namespace ProLink.Application.Services
             return user;
         }
         public async Task<UserResultDto> GetUserByIdAsync(string id)
-        {   
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
             var user = await _userManager.FindByIdAsync(id);
             var userResult = _mapper.Map<UserResultDto>(user);
-            return userResult;
+            if (user.Followers.Contains(currentUser)) userResult.IsFollowed = true;
+            else userResult.IsFollowed = false;
+
+            if (user.Friends.Contains(currentUser)) userResult.IsFriend = true;
+            else userResult.IsFriend = false;
+            var newResult = userResult;
+            return newResult;
         }
 
         public async Task<List<UserResultDto>> GetUsersByNameAsync(string name)

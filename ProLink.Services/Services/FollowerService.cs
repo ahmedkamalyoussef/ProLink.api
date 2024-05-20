@@ -49,7 +49,7 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
-            if(user.Followers.Contains(currentUser)) return false;
+            if(user.Followers.Contains(currentUser)) return true;
             _unitOfWork.CreateTransaction();
             try
             {
@@ -75,8 +75,8 @@ namespace ProLink.Application.Services
             {
                 _unitOfWork.RollbackToSavePoint("addfollower");
                 _unitOfWork.Commit();
+                return false;
             }
-            if (_unitOfWork.Save() <= 0) return false;
             var message = new MailMessage(new string[] { user.Email }, "followers",
                 $"{currentUser.FirstName} {currentUser.LastName} just started following you");
             _mailingService.SendMail(message);
