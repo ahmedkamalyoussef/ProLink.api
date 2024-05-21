@@ -12,8 +12,8 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240519115323_ed")]
-    partial class ed
+    [Migration("20240521160854_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -406,26 +406,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.ToTable("Rate");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
-                {
-                    b.Property<string>("SkillId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("SkillId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Skills");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -500,6 +480,9 @@ namespace ProLink.Infrastructure.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Skill")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -522,6 +505,22 @@ namespace ProLink.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("ProLink.Data.Entities.UserFriend", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FriendId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FriendId");
+
+                    b.ToTable("UserFriend");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -723,17 +722,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Rater");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Skill", b =>
-                {
-                    b.HasOne("ProLink.Data.Entities.User", "User")
-                        .WithMany("Skills")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", null)
@@ -745,6 +733,17 @@ namespace ProLink.Infrastructure.Migrations
                         .WithMany("Friends")
                         .HasForeignKey("FriendId")
                         .OnDelete(DeleteBehavior.NoAction);
+                });
+
+            modelBuilder.Entity("ProLink.Data.Entities.UserFriend", b =>
+                {
+                    b.HasOne("ProLink.Data.Entities.User", "Friend")
+                        .WithMany("UserFriends")
+                        .HasForeignKey("FriendId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Friend");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
@@ -788,7 +787,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.Navigation("SentRates");
 
-                    b.Navigation("Skills");
+                    b.Navigation("UserFriends");
                 });
 #pragma warning restore 612, 618
         }

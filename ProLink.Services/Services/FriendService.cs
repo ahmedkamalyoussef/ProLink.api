@@ -2,6 +2,7 @@
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
@@ -28,12 +29,21 @@ namespace ProLink.Application.Services
         #endregion
 
         #region friends
+        //public async Task<List<UserResultDto>> GetFriendsAsync()
+        //{
+        //    var currentUser = await _userHelpers.GetCurrentUserAsync();
+        //    if (currentUser == null) throw new Exception("user not found");
+        //    var friends = currentUser.Friends;
+        //    var friendsResult = friends.Select(friend => _mapper.Map<UserResultDto>(friend)).ToList();
+        //    return friendsResult;
+        //}
+
         public async Task<List<UserResultDto>> GetFriendsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("user not found");
             var friends = currentUser.Friends;
-            var friendsResult = friends.Select(friend => _mapper.Map<UserResultDto>(friend)).ToList();
+            var friendsResult =  _mapper.Map<IEnumerable< UserResultDto>>(friends).ToList();
             return friendsResult;
         }
 

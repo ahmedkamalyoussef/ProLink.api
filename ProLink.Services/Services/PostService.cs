@@ -86,6 +86,9 @@ namespace ProLink.Application.Services
                 var request=currentUser.SentJobRequests.FirstOrDefault(j => j.PostId==post.Id);
                 if (request == null||request.Status==Status.Declined) post.IsRequestSent = false;
                 else post.IsRequestSent = true;
+                //var user = _unitOfWork.User.GetById(post.User.Id);
+                //if (user.Followers.Contains(currentUser)) post.IsUserFollowed = true;
+                //else post.IsUserFollowed = false;
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -263,18 +266,18 @@ namespace ProLink.Application.Services
                 like.User = user;
                 like.Post = post;
                 like.DateLiked = DateTime.Now;
-                _unitOfWork.CreateTransaction();
+                await _unitOfWork.CreateTransactionAsync();
                 try
                 {
                     user.LikedPosts.Add(post);
                     _unitOfWork.Like.Add(like);
                     _unitOfWork.Save();
-                    _unitOfWork.Commit();
+                    await _unitOfWork.CommitAsync();
                     return true;
                 }
                 catch
                 {
-                    _unitOfWork.Rollback();
+                    await _unitOfWork.RollbackAsync();
                     return false;
                 }
 
@@ -291,19 +294,19 @@ namespace ProLink.Application.Services
             if (like == null) throw new Exception("like doesnt exist");
             if (like.UserId != user.Id) throw new UnauthorizedAccessException("cant update some one comment");
 
-            _unitOfWork.CreateTransaction();
+            await _unitOfWork.CreateTransactionAsync();
             try
             {
                 user.LikedPosts.Remove(like.Post);
                 _unitOfWork.Save();
                 _unitOfWork.Like.Remove(like);
                 _unitOfWork.Save();
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch
             {
-                _unitOfWork.Rollback();
+                await _unitOfWork.RollbackAsync();
                 return false;
             }
         }

@@ -8,6 +8,7 @@ namespace ProLink.Application.DTOs
         public string Title { get; set; }
         public bool IsLiked { get; set; }
         public bool IsRequestSent { get; set; }
+        public bool IsUserFollowed { get; set; }
         public string LikeId { get; set; }
         public string Description { get; set; }
         public string? PostImage { get; set; }

@@ -19,7 +19,7 @@ namespace ProLink.Application.Mapper
             CreateMap<Comment, CommentDto>();
             CreateMap<Notification, NotificationResultDto>();
             CreateMap<JobRequest, JobRequestDto>();
-            CreateMap<FriendRequest, FriendRequestDto>();
+            CreateMap<FriendRequest, FriendRequestDto>().ReverseMap();
             CreateMap<User, UserResultDto>()
                 .ForMember(dest=>dest.RateCount,opt=>opt.MapFrom(src=>src.ReceivedRates.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))

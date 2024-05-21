@@ -2,6 +2,7 @@
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using ProLink.Data.Entities;
+using System.Threading.Tasks;
 
 namespace ProLink.Infrastructure.GenericRepository_UOW
 {
@@ -9,62 +10,64 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
     {
         private IDbContextTransaction transaction;
 
-        private AppDbContext _context;
+        private readonly AppDbContext _context;
         public virtual IGenericRepository<User> User { get; set; }
         public virtual IGenericRepository<Post> Post { get; set; }
         public virtual IGenericRepository<FriendRequest> FriendRequest { get; set; }
-        public virtual IGenericRepository<JobRequest> JopRequest { get; set; }
+        public virtual IGenericRepository<JobRequest> JobRequest { get; set; }
         public virtual IGenericRepository<Comment> Comment { get; set; }
         public virtual IGenericRepository<Like> Like { get; set; }
-        //public virtual IGenericRepository<Skill> Skill { get; set; }
         public virtual IGenericRepository<Rate> Rate { get; set; }
         public virtual IGenericRepository<Message> Message { get; set; }
         public virtual IGenericRepository<Notification> Notification { get; set; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
             User = new GenericRepository<User>(_context);
             FriendRequest = new GenericRepository<FriendRequest>(_context);
-            JopRequest = new GenericRepository<JobRequest>(_context);
+            JobRequest = new GenericRepository<JobRequest>(_context);
             Comment = new GenericRepository<Comment>(_context);
-            Post= new GenericRepository<Post>(_context);
+            Post = new GenericRepository<Post>(_context);
             Like = new GenericRepository<Like>(_context);
             Rate = new GenericRepository<Rate>(_context);
             Message = new GenericRepository<Message>(_context);
             Notification = new GenericRepository<Notification>(_context);
         }
 
-        public void CreateTransaction()
+        public async Task CreateTransactionAsync()
         {
-            transaction = _context.Database.BeginTransaction();
+            transaction = await _context.Database.BeginTransactionAsync();
         }
 
-        public void Commit()
+        public async Task CommitAsync()
         {
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
 
-        public void CreateSavePoint(string point)
+        public async Task CreateSavePointAsync(string point)
         {
-            transaction.CreateSavepoint(point);
-        }
-        public void Rollback()
-        {
-            transaction.Rollback();
-
+            await transaction.CreateSavepointAsync(point);
         }
 
-        public void RollbackToSavePoint(string point)
+        public async Task RollbackAsync()
         {
-            transaction.RollbackToSavepoint(point);
-
+            await transaction.RollbackAsync();
         }
 
+        public async Task RollbackToSavePointAsync(string point)
+        {
+            await transaction.RollbackToSavepointAsync(point);
+        }
 
         public int Save()
         {
             return _context.SaveChanges();
         }
 
+        public async Task<int> SaveAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
     }
 }

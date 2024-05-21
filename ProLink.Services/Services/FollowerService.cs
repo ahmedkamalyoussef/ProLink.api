@@ -50,7 +50,7 @@ namespace ProLink.Application.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
             if(user.Followers.Contains(currentUser)) return true;
-            _unitOfWork.CreateTransaction();
+            await _unitOfWork.CreateTransactionAsync();
             try
             {
                 user.Followers.Add(currentUser);
@@ -58,7 +58,7 @@ namespace ProLink.Application.Services
 
 
 
-                _unitOfWork.CreateSavePoint("addfollower");
+                await _unitOfWork.CreateSavePointAsync("addfollower");
 
                 var notification = new Notification
                 {
@@ -69,12 +69,12 @@ namespace ProLink.Application.Services
                 _unitOfWork.Notification.Add(notification);
                 _unitOfWork.Save();
 
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch
             {
-                _unitOfWork.RollbackToSavePoint("addfollower");
-                _unitOfWork.Commit();
+                await _unitOfWork.RollbackToSavePointAsync("addfollower");
+                await _unitOfWork.CommitAsync();
                 return false;
             }
             var message = new MailMessage(new string[] { user.Email }, "followers",

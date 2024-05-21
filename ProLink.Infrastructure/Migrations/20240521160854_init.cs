@@ -41,6 +41,7 @@ namespace ProLink.Infrastructure.Migrations
                     FollowerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CV = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Skill = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -255,7 +256,8 @@ namespace ProLink.Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PostImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -263,6 +265,11 @@ namespace ProLink.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Posts_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Posts_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -292,19 +299,18 @@ namespace ProLink.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Skills",
+                name: "UserFriend",
                 columns: table => new
                 {
-                    SkillId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FriendId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Skills", x => x.SkillId);
+                    table.PrimaryKey("PK_UserFriend", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Skills_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_UserFriend_AspNetUsers_FriendId",
+                        column: x => x.FriendId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -516,6 +522,11 @@ namespace ProLink.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_UserId1",
+                table: "Posts",
+                column: "UserId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rate_RatedId",
                 table: "Rate",
                 column: "RatedId");
@@ -526,9 +537,9 @@ namespace ProLink.Infrastructure.Migrations
                 column: "RaterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Skills_UserId",
-                table: "Skills",
-                column: "UserId");
+                name: "IX_UserFriend_FriendId",
+                table: "UserFriend",
+                column: "FriendId");
         }
 
         /// <inheritdoc />
@@ -571,7 +582,7 @@ namespace ProLink.Infrastructure.Migrations
                 name: "Rate");
 
             migrationBuilder.DropTable(
-                name: "Skills");
+                name: "UserFriend");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

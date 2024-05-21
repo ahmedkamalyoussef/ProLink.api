@@ -57,7 +57,7 @@ namespace ProLink.Application.Services
                 RecieverId = post.UserId,
                 PostId = post.Id
             };
-            _unitOfWork.JopRequest.Add(jobRequist);
+            _unitOfWork.JobRequest.Add(jobRequist);
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {post.Title} post",
@@ -78,12 +78,12 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) return false;
-            var request = await _unitOfWork.JopRequest.FindFirstAsync(f => f.Id == jobId);
+            var request = await _unitOfWork.JobRequest.FindFirstAsync(f => f.Id == jobId);
             if (request == null || request.RecieverId != currentUser.Id) return false;
             request.Status = Status.Accepted;
             var user = await _userManager.FindByIdAsync(request.RecieverId);
             if (user == null) return false;
-            _unitOfWork.JopRequest.Update(request);
+            _unitOfWork.JobRequest.Update(request);
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Post.Title} post",
@@ -104,7 +104,7 @@ namespace ProLink.Application.Services
             if (jobId.IsNullOrEmpty())
                 throw new ArgumentException("Invalid jop ID");
 
-            var job = _unitOfWork.JopRequest.GetById(jobId);
+            var job = _unitOfWork.JobRequest.GetById(jobId);
 
             if (job == null || job.Sender != await _userHelpers.GetCurrentUserAsync())
                 return false;
@@ -113,7 +113,7 @@ namespace ProLink.Application.Services
                 return false;
 
 
-            _unitOfWork.JopRequest.Remove(job);
+            _unitOfWork.JobRequest.Remove(job);
             if (_unitOfWork.Save() > 0) return true;
             return false;
         }
@@ -123,7 +123,7 @@ namespace ProLink.Application.Services
             if (jobId.IsNullOrEmpty())
                 throw new ArgumentException("Invalid jop ID");
 
-            var job = _unitOfWork.JopRequest.GetById(jobId);
+            var job = _unitOfWork.JobRequest.GetById(jobId);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
 
             if (job == null || job.Receiver != currentUser)
@@ -132,7 +132,7 @@ namespace ProLink.Application.Services
             if (job.Status != Status.Pending)
                 return false;
             job.Status = Status.Declined;
-            _unitOfWork.JopRequest.Update(job);
+            _unitOfWork.JobRequest.Update(job);
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {job.Post.Title} post",
@@ -157,7 +157,7 @@ namespace ProLink.Application.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            var requests = await _unitOfWork.JopRequest.FindAsync(r => r.RecieverId == user.Id, n => n.DateCreated, OrderDirection.Descending);
+            var requests = await _unitOfWork.JobRequest.FindAsync(r => r.RecieverId == user.Id, n => n.DateCreated, OrderDirection.Descending);
             var result = requests.Select(request => _mapper.Map<JobRequestDto>(request)).ToList();
             return result;
         }

@@ -45,7 +45,7 @@ namespace ProLink.Application.Services
                 throw new Exception("User not found");
 
             var requests = await _unitOfWork.FriendRequest.FindAsync(f => f.ReceiverId == user.Id && f.Status == Status.Pending, n => n.DateSent, OrderDirection.Descending);
-            var result = requests.Select(request => _mapper.Map<FriendRequestDto>(request)).ToList();
+            var result = _mapper.Map<IEnumerable< FriendRequestDto>>(requests).ToList();
             return result;
         }
 
@@ -55,7 +55,7 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
-            _unitOfWork.CreateTransaction();
+            await _unitOfWork.CreateTransactionAsync();
             try
             {
                 var friendRequest = new FriendRequest
@@ -70,7 +70,7 @@ namespace ProLink.Application.Services
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
                     $"{currentUser.FirstName} {currentUser.LastName} sent you friend request");
                 _mailingService.SendMail(message);
-                _unitOfWork.CreateSavePoint("sendrequest");
+                await _unitOfWork.CreateSavePointAsync("sendrequest");
                 var notification = new Notification
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} sent you friend request",
@@ -79,11 +79,11 @@ namespace ProLink.Application.Services
                 };
                 _unitOfWork.Notification.Add(notification);
                 _unitOfWork.Save();
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch
             {
-                _unitOfWork.RollbackToSavePoint("sendrequest");
+                await _unitOfWork.RollbackToSavePointAsync("sendrequest");
             }
             return true;
         }
@@ -119,7 +119,7 @@ namespace ProLink.Application.Services
 
             if (request.Status != Status.Pending)
                 return false;
-            _unitOfWork.CreateTransaction();
+            await _unitOfWork.CreateTransactionAsync();
             try
             {
                 request.Status = Status.Declined;
@@ -127,10 +127,10 @@ namespace ProLink.Application.Services
                 if (_unitOfWork.Save() <= 0) return false;
                 var user = await _userManager.FindByIdAsync(request.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
-                    $"{user.FirstName} {user.LastName} declined your friend request");
+                    $"{currentUser.FirstName} {currentUser.LastName} declined your friend request");
                 _mailingService.SendMail(message);
 
-                _unitOfWork.CreateSavePoint("decline");
+                await _unitOfWork.CreateSavePointAsync("decline");
 
                 var notification = new Notification
                 {
@@ -140,11 +140,11 @@ namespace ProLink.Application.Services
                 };
                 _unitOfWork.Notification.Add(notification);
                 _unitOfWork.Save();
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch
             {
-                _unitOfWork.RollbackToSavePoint("decline");
+                await _unitOfWork.RollbackToSavePointAsync("decline");
             }
             return true;
         }
@@ -157,24 +157,23 @@ namespace ProLink.Application.Services
             if (request == null || request.ReceiverId != currentUser.Id) return false;
             var user = await _userManager.FindByIdAsync(request.SenderId);
             if (user == null) return false;
-            request.Status = Status.Accepted;
-            _unitOfWork.CreateTransaction();
-            try
-            {
+
+
+                request.Status = Status.Accepted;
+
+
                 currentUser.Friends.Add(user);
-                _unitOfWork.User.Update(currentUser);
-                _unitOfWork.Save();
+
                 user.Friends.Add(currentUser);
-                _unitOfWork.User.Update(user);
-                _unitOfWork.Save();
-                _unitOfWork.FriendRequest.Update(request);
-                _unitOfWork.Save();
-                _unitOfWork.CreateSavePoint("addfriend");
+
                 user.Followers.Add(currentUser);
+
                 currentUser.Followers.Add(user);
-                _unitOfWork.User.Update(user);
+
+                _unitOfWork.FriendRequest.Update(request);
                 _unitOfWork.User.Update(currentUser);
-                _unitOfWork.Save();
+                _unitOfWork.User.Update(user);
+
 
                 var notification = new Notification
                 {
@@ -183,22 +182,21 @@ namespace ProLink.Application.Services
                     ReceiverId = user.Id
                 };
                 _unitOfWork.Notification.Add(notification);
-                _unitOfWork.Save();
-                _unitOfWork.Commit();
-            }
-            catch
-            {
-                _unitOfWork.RollbackToSavePoint("addfriend");
-                _unitOfWork.Commit();
-                return false;
-            }
 
-            
+
             var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
             _mailingService.SendMail(message);
 
-            return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
+            return false;
         }
+
+
+
+
+
+
+
 
         public async Task<bool> AcceptAllFriendsAsync()
         {

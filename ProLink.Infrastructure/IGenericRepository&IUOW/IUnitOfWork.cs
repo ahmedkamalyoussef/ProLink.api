@@ -1,24 +1,30 @@
 ﻿using ProLink.Data.Entities;
+using System.Threading.Tasks;
 
 namespace ProLink.Infrastructure.IGenericRepository_IUOW
 {
     public interface IUnitOfWork
     {
-        public IGenericRepository<User> User { get; set; }
-        public IGenericRepository<Post> Post { get; set; }
-        public IGenericRepository<Like> Like { get; set; }
-        public IGenericRepository<FriendRequest> FriendRequest { get; set; }
-        public IGenericRepository<JobRequest> JopRequest { get; set; }
-        public IGenericRepository<Comment> Comment { get; set; }
-        public IGenericRepository<Rate> Rate { get; set; }
-        public IGenericRepository<Message> Message { get; set; }
-        public IGenericRepository<Notification> Notification { get; set; }
+        IGenericRepository<User> User { get; set; }
+        IGenericRepository<Post> Post { get; set; }
+        IGenericRepository<Like> Like { get; set; }
+        IGenericRepository<FriendRequest> FriendRequest { get; set; }
+        IGenericRepository<JobRequest> JobRequest { get; set; }
+        IGenericRepository<Comment> Comment { get; set; }
+        IGenericRepository<Rate> Rate { get; set; }
+        IGenericRepository<Message> Message { get; set; }
+        IGenericRepository<Notification> Notification { get; set; }
 
-        void CreateTransaction();
-        void Commit();
-        void CreateSavePoint(string point);
-        void Rollback();
-        void RollbackToSavePoint(string point);
+        // Synchronous transaction methods
+        
         int Save();
+
+        // Asynchronous transaction methods
+        Task CreateTransactionAsync();
+        Task CommitAsync();
+        Task CreateSavePointAsync(string point);
+        Task RollbackAsync();
+        Task RollbackToSavePointAsync(string point);
+        Task<int> SaveAsync();
     }
 }

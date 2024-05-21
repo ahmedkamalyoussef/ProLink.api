@@ -37,9 +37,8 @@ namespace ProLink.Data.Entities
         public virtual ICollection<Message>? SentMessages { get; set; }
         public virtual ICollection<Message>? ReceivedMessages { get; set; }
         public virtual ICollection<Notification>? Notifications { get; set; }
-        public virtual ICollection<User>? Friends { get; set; } = new List<User>();
-        public virtual ICollection<User>? Followers { get; set; } = new List<User>();
-
+        public virtual ICollection<User>? Friends { get; set; } 
+        public virtual ICollection<User>? Followers { get; set; }
 
     }
 }

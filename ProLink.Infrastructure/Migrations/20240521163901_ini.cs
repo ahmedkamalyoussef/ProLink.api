@@ -5,40 +5,39 @@
 namespace ProLink.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class eee : Migration
+    public partial class ini : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Skills");
+                name: "UserFriend");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Skills",
+                name: "UserFriend",
                 columns: table => new
                 {
-                    SkillId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FriendId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Skills", x => x.SkillId);
+                    table.PrimaryKey("PK_UserFriend", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Skills_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_UserFriend_AspNetUsers_FriendId",
+                        column: x => x.FriendId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Skills_UserId",
-                table: "Skills",
-                column: "UserId");
+                name: "IX_UserFriend_FriendId",
+                table: "UserFriend",
+                column: "FriendId");
         }
     }
 }
