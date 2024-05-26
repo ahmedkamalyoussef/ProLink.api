@@ -54,7 +54,8 @@ namespace ProLink.Infrastructure.Data
             #region message
             new MessageEntityTypeConfiguration().Configure(modelBuilder.Entity<Message>());
             #endregion
-
+            
+            
 
             SeedRoles(modelBuilder);
            

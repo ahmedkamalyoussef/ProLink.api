@@ -29,20 +29,13 @@ namespace ProLink.Application.Services
         #endregion
 
         #region friends
-        //public async Task<List<UserResultDto>> GetFriendsAsync()
-        //{
-        //    var currentUser = await _userHelpers.GetCurrentUserAsync();
-        //    if (currentUser == null) throw new Exception("user not found");
-        //    var friends = currentUser.Friends;
-        //    var friendsResult = friends.Select(friend => _mapper.Map<UserResultDto>(friend)).ToList();
-        //    return friendsResult;
-        //}
 
         public async Task<List<UserResultDto>> GetFriendsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("user not found");
-            var friends = currentUser.Friends;
+            var userFriends = await _unitOfWork.UserFriend.FindAsync(uf=>uf.UserId == currentUser.Id);
+            var friends = userFriends.Select(uf => uf.Friend);
             var friendsResult =  _mapper.Map<IEnumerable< UserResultDto>>(friends).ToList();
             return friendsResult;
         }
@@ -51,12 +44,10 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("user not found");
-            var friend = currentUser.Friends.FirstOrDefault(friend => friend.Id == friendId);
-            if (friend == null) throw new Exception("friend not found");
-            currentUser.Friends.Remove(friend);
-            _unitOfWork.User.Update(currentUser);
-            friend.Friends.Remove(currentUser);
-            _unitOfWork.User.Update(friend);
+            var userFriend = await _unitOfWork.UserFriend.FindFirstAsync(uf=>uf.FriendId == friendId);
+            if (userFriend == null) throw new Exception("friend not found");
+            _unitOfWork.UserFriend.Remove(userFriend);
+            _unitOfWork.UserFriend.Update(userFriend);
             if (_unitOfWork.Save() > 0) return true;
             return false;
         }

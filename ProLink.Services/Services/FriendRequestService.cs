@@ -160,26 +160,11 @@ namespace ProLink.Application.Services
             var user = await _userManager.FindByIdAsync(request.SenderId);
             if (user == null) return false;
             request.Status = Status.Accepted;
+            var userFriendForUser = new UserFriend { UserId = currentUser.Id, FriendId = user.Id };
+            var userFriendForFriend = new UserFriend { UserId = user.Id, FriendId = currentUser.Id };
 
-            currentUser.Friends.Add(user);
-
-            user.Friends.Add(currentUser);
-
-            user.Followers.Add(currentUser);
-
-            currentUser.Followers.Add(user);
-
-            _unitOfWork.FriendRequest.Remove(request);
-
-            _unitOfWork.User.Update(currentUser);
-
-            _unitOfWork.User.Update(user);
-
-
-
-
-
-
+            _unitOfWork.UserFriend.Add(userFriendForUser);
+            _unitOfWork.UserFriend.Add(userFriendForFriend);
 
             var notification = new Notification
             {
@@ -212,12 +197,11 @@ namespace ProLink.Application.Services
             var users = requests.Select(r => r.Sender);
             foreach (var user in users)
             {
-                currentUser.Friends.Add(user);
-                user.Friends.Add(currentUser);
-                user.Followers.Add(currentUser);
-                currentUser.Followers.Add(user);
-                _unitOfWork.User.Update(currentUser);
-                _unitOfWork.User.Update(user);
+                var userFriendForUser = new UserFriend { UserId = currentUser.Id, FriendId = user.Id };
+                var userFriendForFriend = new UserFriend { UserId = user.Id, FriendId = currentUser.Id };
+
+                _unitOfWork.UserFriend.Add(userFriendForUser);
+                _unitOfWork.UserFriend.Add(userFriendForFriend);
                 var notification = new Notification
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request ",

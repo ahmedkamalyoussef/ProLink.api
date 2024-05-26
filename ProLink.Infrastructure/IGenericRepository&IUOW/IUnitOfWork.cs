@@ -14,9 +14,11 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
         IGenericRepository<Rate> Rate { get; set; }
         IGenericRepository<Message> Message { get; set; }
         IGenericRepository<Notification> Notification { get; set; }
+         IGenericRepository<UserFriend> UserFriend { get; set; }
+
 
         // Synchronous transaction methods
-        
+
         int Save();
 
         // Asynchronous transaction methods

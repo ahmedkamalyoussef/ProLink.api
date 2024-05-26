@@ -20,6 +20,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public virtual IGenericRepository<Rate> Rate { get; set; }
         public virtual IGenericRepository<Message> Message { get; set; }
         public virtual IGenericRepository<Notification> Notification { get; set; }
+        public virtual IGenericRepository<UserFriend> UserFriend { get; set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -33,6 +34,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             Rate = new GenericRepository<Rate>(_context);
             Message = new GenericRepository<Message>(_context);
             Notification = new GenericRepository<Notification>(_context);
+            UserFriend = new GenericRepository<UserFriend>(_context);
         }
 
         public async Task CreateTransactionAsync()

@@ -52,8 +52,10 @@ namespace ProLink.Application.Services
             (f.ReceiverId == user.Id && f.SenderId == currentUser.Id));
             if (user.Followers.Contains(currentUser)) userResult.IsFollowed = true;
             else userResult.IsFollowed = false;
-
-            if (user.Friends.Contains(currentUser)&&(friendRequests==null||friendRequests.Status==Data.Consts.Status.Pending)) userResult.IsFriend = true;
+            var userFriend = await _unitOfWork.UserFriend.FindFirstAsync(uf =>
+            (uf.UserId == currentUser.Id && uf.FriendId == user.Id)
+            || (uf.UserId == user.Id && uf.FriendId == currentUser.Id));
+            if (userFriend!=null) userResult.IsFriend = true;
             else userResult.IsFriend = false;
             var newResult = userResult;
             return newResult;

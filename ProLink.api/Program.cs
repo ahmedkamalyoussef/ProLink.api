@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ProLink.Application.Mail;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

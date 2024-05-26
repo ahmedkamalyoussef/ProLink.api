@@ -9,10 +9,10 @@ namespace ProLink.Data.Configuration
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder
-               .HasMany(r => r.Friends)
-               .WithOne()
-               .HasForeignKey(r => r.FriendId)
-               .OnDelete(DeleteBehavior.NoAction);
+                .HasMany(u => u.Friends)
+                .WithOne(uf => uf.User)
+                .HasForeignKey(uf => uf.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                .HasMany(r => r.Followers)
