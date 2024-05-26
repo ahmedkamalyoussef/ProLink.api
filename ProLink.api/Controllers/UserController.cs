@@ -75,7 +75,7 @@ namespace ProLink.api.Controllers
 
         [Authorize]
         [HttpPut("Update-picture")]
-        public async Task<IActionResult> UpdateUserPictureAsync(IFormFile file)
+        public async Task<IActionResult> UpdateUserPictureAsync(/*IFormFile*/string file)
         {
             var result = await _userService.UpdateUserPictureAsync(file);
             return result ? Ok("picture has been added successfully.") : BadRequest("failed to add picture");
@@ -99,7 +99,7 @@ namespace ProLink.api.Controllers
         }
         [Authorize]
         [HttpPut("Update-CV")]
-        public async Task<IActionResult> UpdateUserCVAsync(IFormFile file)
+        public async Task<IActionResult> UpdateUserCVAsync(/*IFormFile*/string file)
         {
             var result = await _userService.UpdateUserCVAsync(file);
             return result ? Ok("CV has been added successfully.") : BadRequest("failed to add CV");
@@ -123,7 +123,7 @@ namespace ProLink.api.Controllers
         }
         [Authorize]
         [HttpPut("Update-BackImage")]
-        public async Task<IActionResult> UpdateUserBackImageAsync(IFormFile file)
+        public async Task<IActionResult> UpdateUserBackImageAsync(/*IFormFile*/string file)
         {
             var result = await _userService.UpdateUserBackImageAsync(file);
             return result ? Ok("BackImage has been added successfully.") : BadRequest("failed to add BackImage");

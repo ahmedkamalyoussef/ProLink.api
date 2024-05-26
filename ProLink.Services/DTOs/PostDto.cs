@@ -9,6 +9,6 @@ namespace ProLink.Application.DTOs
         public string Title { get; set; }
         [Required]
         public string Description { get; set; }
-        public IFormFile? PostImage { get; set; }
+        public /*IFormFile*/string? PostImage { get; set; }
     }
 }

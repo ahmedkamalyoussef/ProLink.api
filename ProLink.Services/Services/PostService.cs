@@ -33,25 +33,25 @@ namespace ProLink.Application.Services
         #region post methods
         public async Task<bool> AddPostAsync(PostDto postDto)
         {
-            var image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
+            //var image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
             var post = _mapper.Map<Post>(postDto);
-            post.PostImage = image;
+            //post.PostImage = //image;
             post.User = currentUser;
-            try
-            {
+            //try
+            //{
                 _unitOfWork.Post.Add(post);
-            }
-            catch
-            {
-                await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
-                return false;
-            }
+            //}
+            //catch
+            //{
+            //    await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
+            //    return false;
+            //}
             if (await _unitOfWork.SaveAsync() > 0)
                 return true;
-            await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
+            //await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
         }
 
@@ -61,15 +61,15 @@ namespace ProLink.Application.Services
         {
             var currentUser= await _userHelpers.GetCurrentUserAsync();
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
-            string imagePath = post.PostImage;
+            //string imagePath = post.PostImage;
             if (post == null) throw new Exception("post not found");
             if (currentUser==null||currentUser.Id != post.UserId)
                 throw new Exception("not allowed to delete");
             _unitOfWork.Post.Remove(post);
             if (await _unitOfWork.SaveAsync() > 0)
             {
-                if (!imagePath.IsNullOrEmpty())
-                    await _userHelpers.DeleteFileAsync(imagePath, ConstsFiles.Posts);
+                //if (!imagePath.IsNullOrEmpty())
+                //    await _userHelpers.DeleteFileAsync(imagePath, ConstsFiles.Posts);
                 return true;
             }
             return false;
@@ -201,7 +201,7 @@ namespace ProLink.Application.Services
         public async Task<bool> UpdatePostAsync(string id, PostDto postDto)
         {
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
-            var oldImage = post.PostImage;
+            //var oldImage = post.PostImage;
             if (post == null) throw new Exception("post not found");
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
@@ -210,20 +210,20 @@ namespace ProLink.Application.Services
                 throw new Exception("not allowed to edit");
 
             _mapper.Map(postDto, post);
-            string image = "";
-            if (postDto.PostImage != null)
-            {
-                image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
-                post.PostImage = image;
-            }
+            //string image = "";
+            //if (postDto.PostImage != null)
+            //{
+            //    image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
+            //    post.PostImage = image;
+            //}
             _unitOfWork.Post.Update(post);
             if (await _unitOfWork.SaveAsync() > 0)
             {
-                await _userHelpers.DeleteFileAsync(oldImage, ConstsFiles.Posts);
+                //await _userHelpers.DeleteFileAsync(oldImage, ConstsFiles.Posts);
                 return true;
             }
-            if (image.IsNullOrEmpty())
-                await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
+            //if (image.IsNullOrEmpty())
+            //    await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
         }
 
