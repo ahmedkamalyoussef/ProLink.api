@@ -48,7 +48,7 @@ namespace ProLink.Application.Services
             if (userFriend == null) throw new Exception("friend not found");
             _unitOfWork.UserFriend.Remove(userFriend);
             _unitOfWork.UserFriend.Update(userFriend);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         #endregion

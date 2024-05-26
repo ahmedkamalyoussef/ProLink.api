@@ -56,7 +56,7 @@ namespace ProLink.Application.Services
             var notification = await _unitOfWork.Notification.FindFirstAsync(n => n.Id == notificationId);
             if (notification.ReceiverId != currentUser.Id) throw new Exception("cant access");
             _unitOfWork.Notification.Remove(notification);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
 
@@ -66,7 +66,7 @@ namespace ProLink.Application.Services
             if (currentUser == null) throw new Exception("user not found");
             var notifications = await _unitOfWork.Notification.FindAsync(n => n.ReceiverId == currentUser.Id);
             _unitOfWork.Notification.RemoveRange(notifications);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
 

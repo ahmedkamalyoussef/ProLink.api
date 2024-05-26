@@ -50,15 +50,19 @@ namespace ProLink.Application.Services
             var userResult = _mapper.Map<UserResultDto>(user);
             var friendRequests = await _unitOfWork.FriendRequest.FindFirstAsync(f=>(f.SenderId==user.Id&&f.ReceiverId==currentUser.Id)||
             (f.ReceiverId == user.Id && f.SenderId == currentUser.Id));
-            if (user.Followers.Contains(currentUser)) userResult.IsFollowed = true;
+
+            var userfollower=_unitOfWork.UserFollower.FindFirstAsync(uf=>uf.FollowerId==currentUser.Id&&uf.UserId==user.Id);
+
+            if (userfollower!=null) userResult.IsFollowed = true;
             else userResult.IsFollowed = false;
+
             var userFriend = await _unitOfWork.UserFriend.FindFirstAsync(uf =>
             (uf.UserId == currentUser.Id && uf.FriendId == user.Id)
             || (uf.UserId == user.Id && uf.FriendId == currentUser.Id));
+
             if (userFriend!=null) userResult.IsFriend = true;
             else userResult.IsFriend = false;
-            var newResult = userResult;
-            return newResult;
+            return userResult;
         }
 
         public async Task<List<UserResultDto>> GetUsersByNameAsync(string name)
@@ -77,7 +81,7 @@ namespace ProLink.Application.Services
             {
                 currentUser = _mapper.Map(userDto, currentUser);
                 _unitOfWork.User.Update(currentUser);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
             }
             catch
             {
@@ -114,7 +118,7 @@ namespace ProLink.Application.Services
             var oldPicture = user.ProfilePicture;
             user.ProfilePicture = null;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
                 return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
             return false;
         }
@@ -127,7 +131,7 @@ namespace ProLink.Application.Services
             var oldPicture = user.ProfilePicture;
             user.ProfilePicture = newPicture;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
 
                 if (!oldPicture.IsNullOrEmpty())
@@ -148,20 +152,6 @@ namespace ProLink.Application.Services
             return user.ProfilePicture;
         }
 
-
-        //public async Task<bool> AddUserCVAsync(IFormFile file)
-        //{
-        //    var user = await _userHelpers.GetCurrentUserAsync();
-        //    if (user == null) return false;
-        //    var CV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
-        //    if (CV != null)
-        //        user.CV = CV;
-        //    _unitOfWork.User.Update(user);
-        //    if (_unitOfWork.Save() > 0) return true;
-        //    await _userHelpers.DeleteFileAsync(CV, ConstsFiles.CV);    
-        //    return false;
-        //}
-
         public async Task<bool> DeleteUserCVAsync()
         {
             var user = await _userHelpers.GetCurrentUserAsync();
@@ -169,7 +159,7 @@ namespace ProLink.Application.Services
             var oldCV = user.CV;
             user.CV = null;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
                 return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
             return false;
         }
@@ -182,7 +172,7 @@ namespace ProLink.Application.Services
             var oldCV = user.CV;
             user.CV = newCV;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
                 if (!oldCV.IsNullOrEmpty())
                     return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
@@ -212,7 +202,7 @@ namespace ProLink.Application.Services
             var oldBackImage = user.BackImage;
             user.BackImage = null;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
                 return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
             return false;
         }
@@ -225,7 +215,7 @@ namespace ProLink.Application.Services
             var oldBackImage = user.BackImage;
             user.BackImage = newBackImage;
             _unitOfWork.User.Update(user);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
                 if (!oldBackImage.IsNullOrEmpty())
                     return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);

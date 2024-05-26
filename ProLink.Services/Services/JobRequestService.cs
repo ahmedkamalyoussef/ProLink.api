@@ -65,7 +65,7 @@ namespace ProLink.Application.Services
                 ReceiverId = user.Id
             };
             _unitOfWork.Notification.Add(notification);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
 
                 var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {post.Title} post");
@@ -91,7 +91,7 @@ namespace ProLink.Application.Services
                 ReceiverId = request.SenderId
             };
             _unitOfWork.Notification.Add(notification);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
                 var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Post.Title} post");
                 _mailingService.SendMail(message);
@@ -114,7 +114,7 @@ namespace ProLink.Application.Services
 
 
             _unitOfWork.JobRequest.Remove(job);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
 
@@ -140,7 +140,7 @@ namespace ProLink.Application.Services
                 ReceiverId = job.SenderId
             };
             _unitOfWork.Notification.Add(notification);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
                 var user = await _userManager.FindByIdAsync(job.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "Jop request",

@@ -2,7 +2,6 @@
 using ProLink.Infrastructure.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using ProLink.Data.Entities;
-using System.Threading.Tasks;
 
 namespace ProLink.Infrastructure.GenericRepository_UOW
 {
@@ -21,7 +20,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public virtual IGenericRepository<Message> Message { get; set; }
         public virtual IGenericRepository<Notification> Notification { get; set; }
         public virtual IGenericRepository<UserFriend> UserFriend { get; set; }
-
+        public virtual IGenericRepository<UserFollower> UserFollower { get; set; }
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -35,6 +34,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             Message = new GenericRepository<Message>(_context);
             Notification = new GenericRepository<Notification>(_context);
             UserFriend = new GenericRepository<UserFriend>(_context);
+            UserFollower = new GenericRepository<UserFollower>(_context);
         }
 
         public async Task CreateTransactionAsync()
@@ -62,10 +62,6 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             await transaction.RollbackToSavepointAsync(point);
         }
 
-        public int Save()
-        {
-            return _context.SaveChanges();
-        }
 
         public async Task<int> SaveAsync()
         {

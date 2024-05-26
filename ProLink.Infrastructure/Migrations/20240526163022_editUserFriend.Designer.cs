@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProLink.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240526163022_editUserFriend")]
+    partial class editUserFriend
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -436,7 +439,7 @@ namespace ProLink.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FriendId")
                         .HasColumnType("nvarchar(max)");
@@ -489,6 +492,8 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FollowerId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -498,21 +503,6 @@ namespace ProLink.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("ProLink.Data.Entities.UserFollower", b =>
-                {
-                    b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("FollowerId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserFollower");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.UserFriend", b =>
@@ -729,23 +719,12 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Rater");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.UserFollower", b =>
+            modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
-                    b.HasOne("ProLink.Data.Entities.User", "Follower")
-                        .WithMany()
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProLink.Data.Entities.User", "User")
+                    b.HasOne("ProLink.Data.Entities.User", null)
                         .WithMany("Followers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Follower");
-
-                    b.Navigation("User");
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.UserFriend", b =>

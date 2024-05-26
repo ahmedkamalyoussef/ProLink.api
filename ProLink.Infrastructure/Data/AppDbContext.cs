@@ -54,8 +54,14 @@ namespace ProLink.Infrastructure.Data
             #region message
             new MessageEntityTypeConfiguration().Configure(modelBuilder.Entity<Message>());
             #endregion
-            
-            
+
+            #region UserFriend
+            new UserFriendEntityTypeConfiguration().Configure(modelBuilder.Entity<UserFriend>());
+            #endregion
+
+            #region follower
+            new FollowersEntityTypeConfiguration().Configure(modelBuilder.Entity<UserFollower>());
+            #endregion
 
             SeedRoles(modelBuilder);
            

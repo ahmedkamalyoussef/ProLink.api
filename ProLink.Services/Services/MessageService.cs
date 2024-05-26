@@ -57,7 +57,7 @@ namespace ProLink.Application.Services
             message.SenderId = currentUser.Id;
             message.ReceiverId = reciever.Id;
             _unitOfWork.Message.Add(message);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         public async Task<bool> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto)
@@ -68,7 +68,7 @@ namespace ProLink.Application.Services
             if (message == null) throw new Exception("message not found");
             _mapper.Map(sendMessageDto, message);
             _unitOfWork.Message.Update(message);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         public async Task<bool> DeleteMessageAsync(string messageId)
@@ -78,7 +78,7 @@ namespace ProLink.Application.Services
             var message = await _unitOfWork.Message.FindFirstAsync(m => m.Id == messageId);
             if (message == null) throw new Exception("message not found");
             _unitOfWork.Message.Remove(message);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
 

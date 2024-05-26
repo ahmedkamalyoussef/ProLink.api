@@ -67,7 +67,7 @@ namespace ProLink.Application.Services
                     ReceiverId = user.Id,
                 };
                 _unitOfWork.FriendRequest.Add(friendRequest);
-                if (_unitOfWork.Save() <= 0) return false;
+                if (await _unitOfWork.SaveAsync() <= 0) return false;
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
                     $"{currentUser.FirstName} {currentUser.LastName} sent you friend request");
                 _mailingService.SendMail(message);
@@ -79,7 +79,7 @@ namespace ProLink.Application.Services
                     ReceiverId = user.Id
                 };
                 _unitOfWork.Notification.Add(notification);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
                 await _unitOfWork.CommitAsync();
             }
             catch
@@ -104,7 +104,7 @@ namespace ProLink.Application.Services
 
 
             _unitOfWork.FriendRequest.Remove(friendRequest);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
 
@@ -125,7 +125,7 @@ namespace ProLink.Application.Services
             {
                 request.Status = Status.Declined;
                 _unitOfWork.FriendRequest.Update(request);
-                if (_unitOfWork.Save() <= 0) return false;
+                if (await _unitOfWork.SaveAsync() <= 0) return false;
                 var user = await _userManager.FindByIdAsync(request.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "friend request",
                     $"{currentUser.FirstName} {currentUser.LastName} declined your friend request");
@@ -140,7 +140,7 @@ namespace ProLink.Application.Services
                     ReceiverId = request.SenderId
                 };
                 _unitOfWork.Notification.Add(notification);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
                 await _unitOfWork.CommitAsync();
             }
             catch
@@ -218,7 +218,7 @@ namespace ProLink.Application.Services
                 _unitOfWork.FriendRequest.Update(request);
             }
             _unitOfWork.User.Update(currentUser);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         #endregion

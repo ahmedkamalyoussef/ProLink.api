@@ -49,7 +49,7 @@ namespace ProLink.Application.Services
                 await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
                 return false;
             }
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
                 return true;
             await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
@@ -66,7 +66,7 @@ namespace ProLink.Application.Services
             if (currentUser==null||currentUser.Id != post.UserId)
                 throw new Exception("not allowed to delete");
             _unitOfWork.Post.Remove(post);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
                 if (!imagePath.IsNullOrEmpty())
                     await _userHelpers.DeleteFileAsync(imagePath, ConstsFiles.Posts);
@@ -86,9 +86,12 @@ namespace ProLink.Application.Services
                 var request=currentUser.SentJobRequests.FirstOrDefault(j => j.PostId==post.Id);
                 if (request == null||request.Status==Status.Declined) post.IsRequestSent = false;
                 else post.IsRequestSent = true;
-                //var user = _unitOfWork.User.GetById(post.User.Id);
-                //if (user.Followers.Contains(currentUser)) post.IsUserFollowed = true;
-                //else post.IsUserFollowed = false;
+
+                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
+                if (userFollower!=null) post.IsUserFollowed = true;
+                else post.IsUserFollowed = false;
+
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -111,6 +114,7 @@ namespace ProLink.Application.Services
             var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
             if (request == null || request.Status == Status.Declined) postResult.IsRequestSent = false;
             else postResult.IsRequestSent = true;
+
             if (likedPostIds.Contains(post.Id))
             {
                 postResult.IsLiked = true;
@@ -131,6 +135,12 @@ namespace ProLink.Application.Services
                 var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
                 if (request == null || request.Status == Status.Declined) post.IsRequestSent = false;
                 else post.IsRequestSent = true;
+
+                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
+                if (userFollower != null) post.IsUserFollowed = true;
+                else post.IsUserFollowed = false;
+
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -170,6 +180,12 @@ namespace ProLink.Application.Services
                 var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
                 if (request == null || request.Status == Status.Declined) post.IsRequestSent = false;
                 else post.IsRequestSent = true;
+
+                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
+                if (userFollower != null) post.IsUserFollowed = true;
+                else post.IsUserFollowed = false;
+
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -201,7 +217,7 @@ namespace ProLink.Application.Services
                 post.PostImage = image;
             }
             _unitOfWork.Post.Update(post);
-            if (_unitOfWork.Save() > 0)
+            if (await _unitOfWork.SaveAsync() > 0)
             {
                 await _userHelpers.DeleteFileAsync(oldImage, ConstsFiles.Posts);
                 return true;
@@ -224,7 +240,7 @@ namespace ProLink.Application.Services
             comment.User = user;
             comment.Post = post;
             _unitOfWork.Comment.Add(comment);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         public async Task<bool> UpdateCommentAsync(string commentId, AddCommentDto addCommentDto)
@@ -236,7 +252,7 @@ namespace ProLink.Application.Services
             if (oldComment.UserId != user.Id) throw new UnauthorizedAccessException("cant update some one comment");
             _mapper.Map(addCommentDto, oldComment);
             _unitOfWork.Comment.Update(oldComment);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         public async Task<bool> DeleteCommentAsync(string commentId)
@@ -247,7 +263,7 @@ namespace ProLink.Application.Services
             if (comment == null) throw new Exception("Comment doesnt exist");
             if (comment.UserId != user.Id) throw new UnauthorizedAccessException("cant delete some one comment");
             _unitOfWork.Comment.Remove(comment);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
         #endregion
@@ -271,7 +287,7 @@ namespace ProLink.Application.Services
                 {
                     user.LikedPosts.Add(post);
                     _unitOfWork.Like.Add(like);
-                    _unitOfWork.Save();
+                    await _unitOfWork.SaveAsync();
                     await _unitOfWork.CommitAsync();
                     return true;
                 }
@@ -298,9 +314,9 @@ namespace ProLink.Application.Services
             try
             {
                 user.LikedPosts.Remove(like.Post);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
                 _unitOfWork.Like.Remove(like);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
                 await _unitOfWork.CommitAsync();
                 return true;
             }

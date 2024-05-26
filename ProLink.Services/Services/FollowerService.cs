@@ -49,12 +49,14 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
-            if(user.Followers.Contains(currentUser)) return true;
+            var oldUserfollower=await _unitOfWork.UserFollower.FindFirstAsync(uf=>uf.UserId == user.Id&&uf.FollowerId==currentUser.Id);
+            if(oldUserfollower!=null) return true;
+            var userFollower=new UserFollower { FollowerId = currentUser.Id ,UserId=user.Id};
             await _unitOfWork.CreateTransactionAsync();
             try
             {
-                user.Followers.Add(currentUser);
-                _unitOfWork.Save();
+                _unitOfWork.UserFollower.Add(userFollower);
+                await _unitOfWork.SaveAsync();
 
 
 
@@ -67,7 +69,7 @@ namespace ProLink.Application.Services
                     ReceiverId = user.Id
                 };
                 _unitOfWork.Notification.Add(notification);
-                _unitOfWork.Save();
+                await _unitOfWork.SaveAsync();
 
                 await _unitOfWork.CommitAsync();
             }
@@ -91,8 +93,11 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
-            user.Followers.Remove(currentUser);
-            return _unitOfWork.Save() > 0;
+            var userfollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+            uf.UserId == user.Id && uf.FollowerId == currentUser.Id);
+            if (userfollower == null) throw new Exception("you are not a follower for this user");
+            _unitOfWork.UserFollower.Remove(userfollower);
+            return await _unitOfWork.SaveAsync() > 0;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace ProLink.Application.Services
                 rate.RateValue = rateDto.RateValue;
                 _unitOfWork.Rate.Update(rate);
             }
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
 
@@ -54,7 +54,7 @@ namespace ProLink.Application.Services
             var rate = await _unitOfWork.Rate.FindFirstAsync(f => f.Id == rateId);
             if (rate == null) return false;
             _unitOfWork.Rate.Remove(rate);
-            if (_unitOfWork.Save() > 0) return true;
+            if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
     }
