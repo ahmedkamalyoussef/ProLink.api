@@ -7,6 +7,7 @@ using ProLink.Application.Interfaces;
 using ProLink.Application.Mail;
 using ProLink.Data.Consts;
 using ProLink.Data.Entities;
+using ProLink.Infrastructure.GenericRepository_UOW;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
@@ -45,7 +46,7 @@ namespace ProLink.Application.Services
                 throw new Exception("User not found");
 
             var requests = await _unitOfWork.FriendRequest.FindAsync(f => f.ReceiverId == user.Id && f.Status == Status.Pending, n => n.DateSent, OrderDirection.Descending);
-            var result = _mapper.Map<IEnumerable< FriendRequestDto>>(requests).ToList();
+            var result = _mapper.Map<IEnumerable<FriendRequestDto>>(requests).ToList();
             return result;
         }
 
@@ -151,37 +152,42 @@ namespace ProLink.Application.Services
 
         public async Task<bool> AcceptFriendAsync(string friendRequestId)
         {
+
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) return false;
             var request = await _unitOfWork.FriendRequest.FindFirstAsync(f => f.Id == friendRequestId && f.Status == Status.Pending);
             if (request == null || request.ReceiverId != currentUser.Id) return false;
             var user = await _userManager.FindByIdAsync(request.SenderId);
             if (user == null) return false;
+            request.Status = Status.Accepted;
+
+            currentUser.Friends.Add(user);
+
+            user.Friends.Add(currentUser);
+
+            user.Followers.Add(currentUser);
+
+            currentUser.Followers.Add(user);
+
+            _unitOfWork.FriendRequest.Remove(request);
+
+            _unitOfWork.User.Update(currentUser);
+
+            _unitOfWork.User.Update(user);
 
 
-                request.Status = Status.Accepted;
 
 
-                currentUser.Friends.Add(user);
-
-                user.Friends.Add(currentUser);
-
-                user.Followers.Add(currentUser);
-
-                currentUser.Followers.Add(user);
-
-                _unitOfWork.FriendRequest.Update(request);
-                _unitOfWork.User.Update(currentUser);
-                _unitOfWork.User.Update(user);
 
 
-                var notification = new Notification
-                {
-                    Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
-                    Timestamp = DateTime.Now,
-                    ReceiverId = user.Id
-                };
-                _unitOfWork.Notification.Add(notification);
+
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
+                Timestamp = DateTime.Now,
+                ReceiverId = user.Id
+            };
+            _unitOfWork.Notification.Add(notification);
 
 
             var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");
