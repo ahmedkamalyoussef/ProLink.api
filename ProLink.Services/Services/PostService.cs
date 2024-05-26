@@ -9,7 +9,7 @@ using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
-{
+{ 
     public class PostService : IPostService
     {
         #region fields
