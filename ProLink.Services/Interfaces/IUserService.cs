@@ -10,17 +10,15 @@ namespace ProLink.Application.Interfaces
         Task<List<UserResultDto>> GetUsersByNameAsync(string name);
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
         Task<bool> DeleteAccountAsync();
-        //Task<bool> AddUserPictureAsync(IFormFile file);
         Task<bool> DeleteUserPictureAsync();
-        Task<bool> UpdateUserPictureAsync(IFormFile? file);
-        //Task<bool> AddUserCVAsync(IFormFile file);
+        Task<bool> UpdateUserPictureAsync(/*IFormFile? file*/ string path);
         Task<string> GetUserPictureAsync();
         Task<bool> DeleteUserCVAsync();
-        Task<bool> UpdateUserCVAsync(IFormFile? file);
+        Task<bool> UpdateUserCVAsync(/*IFormFile? file*/ string path);
 
         Task<string> GetUserCVAsync();
         Task<bool> DeleteUserBackImageAsync();
-        Task<bool> UpdateUserBackImageAsync(IFormFile? file);
+        Task<bool> UpdateUserBackImageAsync(/*IFormFile? file*/ string path);
 
         Task<string> GetUserBackImageAsync();
        

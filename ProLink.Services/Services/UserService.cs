@@ -4,9 +4,7 @@ using ProLink.Application.Interfaces;
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
-using Microsoft.AspNetCore.Http;
 using AutoMapper;
-using Microsoft.IdentityModel.Tokens;
 using ProLink.Application.Consts;
 
 namespace ProLink.Application.Services
@@ -115,30 +113,31 @@ namespace ProLink.Application.Services
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var oldPicture = user.ProfilePicture;
+            //var oldPicture = user.ProfilePicture;
             user.ProfilePicture = null;
             _unitOfWork.User.Update(user);
             if (await _unitOfWork.SaveAsync() > 0)
-                return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
+                return true;
+                //return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
             return false;
         }
 
-        public async Task<bool> UpdateUserPictureAsync(IFormFile? file)
+        public async Task<bool> UpdateUserPictureAsync(/*IFormFile? file*/ string path)
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var newPicture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
-            var oldPicture = user.ProfilePicture;
-            user.ProfilePicture = newPicture;
+            //var newPicture = await _userHelpers.AddFileAsync(file, ConstsFiles.Profile);
+            //var oldPicture = user.ProfilePicture;
+            user.ProfilePicture = path;// newPicture;
             _unitOfWork.User.Update(user);
             if (await _unitOfWork.SaveAsync() > 0)
             {
-
-                if (!oldPicture.IsNullOrEmpty())
-                    return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
                 return true;
+                //if (!oldPicture.IsNullOrEmpty())
+                //    return await _userHelpers.DeleteFileAsync(oldPicture, ConstsFiles.Profile);
+                //return true;
             }
-            await _userHelpers.DeleteFileAsync(newPicture, ConstsFiles.Profile);
+            //await _userHelpers.DeleteFileAsync(newPicture, ConstsFiles.Profile);
             return false;
         }
 
@@ -147,8 +146,6 @@ namespace ProLink.Application.Services
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null)
                 throw new Exception("User not found");
-            else if (user.ProfilePicture.IsNullOrEmpty())
-                throw new Exception("User dont have profile picture");
             return user.ProfilePicture;
         }
 
@@ -156,29 +153,29 @@ namespace ProLink.Application.Services
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var oldCV = user.CV;
+            //var oldCV = user.CV;
             user.CV = null;
             _unitOfWork.User.Update(user);
             if (await _unitOfWork.SaveAsync() > 0)
-                return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
+                return true; //return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
             return false;
         }
 
-        public async Task<bool> UpdateUserCVAsync(IFormFile? file)
+        public async Task<bool> UpdateUserCVAsync(/*IFormFile? file*/ string path)
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var newCV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
-            var oldCV = user.CV;
-            user.CV = newCV;
+            //var newCV = await _userHelpers.AddFileAsync(file, ConstsFiles.CV);
+            //var oldCV = user.CV;
+            user.CV = path;//newCV;
             _unitOfWork.User.Update(user);
             if (await _unitOfWork.SaveAsync() > 0)
             {
-                if (!oldCV.IsNullOrEmpty())
-                    return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
+                //if (!oldCV.IsNullOrEmpty())
+                //    return await _userHelpers.DeleteFileAsync(oldCV, ConstsFiles.CV);
                 return true;
             }
-            await _userHelpers.DeleteFileAsync(newCV, ConstsFiles.CV);
+            //await _userHelpers.DeleteFileAsync(newCV, ConstsFiles.CV);
             return false;
         }
 
@@ -187,41 +184,36 @@ namespace ProLink.Application.Services
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null)
                 throw new Exception("User not found");
-            else if (user.CV.IsNullOrEmpty())
-                throw new Exception("User dont have CV");
             return user.CV;
         }
-
-
-
 
         public async Task<bool> DeleteUserBackImageAsync()
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var oldBackImage = user.BackImage;
+            //var oldBackImage = user.BackImage;
             user.BackImage = null;
             _unitOfWork.User.Update(user);
             if (await _unitOfWork.SaveAsync() > 0)
-                return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
+                return true;// return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
             return false;
         }
 
-        public async Task<bool> UpdateUserBackImageAsync(IFormFile? file)
+        public async Task<bool> UpdateUserBackImageAsync(/*IFormFile? file*/ string path)
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null) return false;
-            var newBackImage = await _userHelpers.AddFileAsync(file, ConstsFiles.BackImage);
-            var oldBackImage = user.BackImage;
-            user.BackImage = newBackImage;
+            //var newBackImage = await _userHelpers.AddFileAsync(file, ConstsFiles.BackImage);
+            //var oldBackImage = user.BackImage;
+            user.BackImage = path;// newBackImage;
             _unitOfWork.User.Update(user);
             if (await _unitOfWork.SaveAsync() > 0)
             {
-                if (!oldBackImage.IsNullOrEmpty())
-                    return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
+                //if (!oldBackImage.IsNullOrEmpty())
+                //    return await _userHelpers.DeleteFileAsync(oldBackImage, ConstsFiles.BackImage);
                 return true;
             }
-            await _userHelpers.DeleteFileAsync(newBackImage, ConstsFiles.BackImage);
+            //await _userHelpers.DeleteFileAsync(newBackImage, ConstsFiles.BackImage);
             return false;
         }
 
@@ -230,24 +222,9 @@ namespace ProLink.Application.Services
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null)
                 throw new Exception("User not found");
-            else if (user.BackImage.IsNullOrEmpty())
-                throw new Exception("User dont have BackImage");
             return user.BackImage;
         }
-
-
-
-
         #endregion
-
-        
-
-        
-
-        
-
-        
-
-        
+   
     }
 }
