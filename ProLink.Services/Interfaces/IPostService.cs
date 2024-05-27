@@ -7,6 +7,7 @@ namespace ProLink.Application.Interfaces
         Task<bool> AddPostAsync(PostDto post);
         Task<bool> UpdatePostAsync(string id, PostDto postDto);
         Task<bool> DeletePostAsync(string id);
+        Task<bool> CompleteAsync(string postId);
         Task<PostResultDto> GetPostByIdAsync(string id);
         Task<List<PostResultDto>> GetUserPostsAsync();
         Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id);

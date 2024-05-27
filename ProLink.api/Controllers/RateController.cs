@@ -22,9 +22,9 @@ namespace ProLink.api.Controllers
         #region rate actions
         [Authorize]
         [HttpPost("add")]
-        public async Task<IActionResult> AddRateAsync(string userId, RateDto rateDto)
+        public async Task<IActionResult> AddRateAsync(string postId, RateDto rateDto)
         {
-            var result = await _rateService.AddRateAsync(userId, rateDto);
+            var result = await _rateService.AddRateAsync(postId, rateDto);
             return result ? Ok("rate has been added successfully") : BadRequest("faild to add rate");
         }
 

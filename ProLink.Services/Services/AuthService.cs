@@ -167,7 +167,7 @@ namespace ProLink.Application.Services
 
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetLink = $"{_contextAccessor.HttpContext.Request.Scheme}://{_contextAccessor.HttpContext.Request.Host}/api/Account/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var resetLink = $"{_contextAccessor.HttpContext.Request.Scheme}://{_contextAccessor.HttpContext.Request.Host}/api/Authorization/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
             var message = new MailMessage(new string[] { user.Email }, "reset email link", resetLink);
             _mailingService.SendMail(message);
             return true;

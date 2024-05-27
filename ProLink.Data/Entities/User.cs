@@ -17,10 +17,10 @@ namespace ProLink.Data.Entities
         public string? FollowerId { get; set; }
         public string? ProfilePicture { get; set; }
         public string? CV { get; set; }
-        [InverseProperty("Rater")]
-        public virtual ICollection<Rate>? SentRates { get; set; }
-        [InverseProperty("Rated")]
-        public virtual ICollection<Rate>? ReceivedRates { get; set; }
+        //[InverseProperty("Rater")]
+        //public virtual ICollection<Rate>? SentRates { get; set; }
+        //[InverseProperty("Rated")]
+        //public virtual ICollection<Rate>? ReceivedRates { get; set; }
         [InverseProperty("Sender")]
         public virtual ICollection<JobRequest>? SentJobRequests { get; set; }
         [InverseProperty("Receiver")]
@@ -28,6 +28,7 @@ namespace ProLink.Data.Entities
         public virtual ICollection<FriendRequest>? SentFriendRequests { get; set; }
         public virtual ICollection<FriendRequest>? ReceivedFriendRequests { get; set; }
         public virtual List<string>? Skills { get; set; }
+        public virtual ICollection<Post>? CompletedJobs { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }
         public virtual ICollection<Post>? LikedPosts { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }

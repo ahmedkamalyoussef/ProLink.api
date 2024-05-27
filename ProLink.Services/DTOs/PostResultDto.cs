@@ -9,8 +9,9 @@ namespace ProLink.Application.DTOs
         public bool IsLiked { get; set; }
         public bool IsRequestSent { get; set; }
         public bool IsUserFollowed { get; set; }
-        public string LikeId { get; set; }
+        public bool IsAvailable { get; set; }
         public string Description { get; set; }
+        public string LikeId { get; set; }
         public string? PostImage { get; set; }
         public int CommentsCount {  get; set; }
         public int LikesCount { get; set; }

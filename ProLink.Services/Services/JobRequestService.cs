@@ -80,10 +80,19 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var request = await _unitOfWork.JobRequest.FindFirstAsync(f => f.Id == jobId);
             if (request == null || request.RecieverId != currentUser.Id) return false;
-            request.Status = Status.Accepted;
             var user = await _userManager.FindByIdAsync(request.RecieverId);
             if (user == null) return false;
+            var post = await _unitOfWork.Post.FindFirstAsync(f => f.Id == request.PostId);
+            if (post == null) return false;
+            post.FreelancerId = request.SenderId;
+            post.IsAvailable = false;
+            request.Status = Status.Accepted;
+
+
+            _unitOfWork.Post.Update(post);
             _unitOfWork.JobRequest.Update(request);
+
+
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Post.Title} post",

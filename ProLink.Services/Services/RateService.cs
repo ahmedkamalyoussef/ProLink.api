@@ -2,12 +2,13 @@
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
 {
-    public class RateService:IRateService
+    public class RateService : IRateService
     {
         #region fields
         private readonly IUnitOfWork _unitOfWork;
@@ -29,15 +30,22 @@ namespace ProLink.Application.Services
         #endregion
 
 
-        public async Task<bool> AddRateAsync(string userId, RateDto rateDto)
+        public async Task<bool> AddRateAsync(string postId, RateDto rateDto)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new UnauthorizedAccessException("unAuthorized");
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) throw new ArgumentNullException("user not found");
+            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
+            if (post == null) throw new ArgumentNullException("user not found");
+            if (post.UserId != currentUser.Id) throw new Exception("user not Authorized");
+            if (post.Status != Status.Completed) throw new Exception("the post not completed yet");
+
             var rate = await _unitOfWork.Rate.FindFirstAsync(r => r.RaterId == currentUser.Id);
             if (rate == null)
-                _unitOfWork.Rate.Add(new Rate { RatedId = userId, RaterId = currentUser.Id, RateValue = rateDto.RateValue });
+            {
+                var newRate = new Rate { RatedPostId = postId, RaterId = currentUser.Id, RateValue = rateDto.RateValue };
+                _unitOfWork.Rate.Add(newRate);
+                post.Rate=newRate;
+            }
             else
             {
                 rate.RateValue = rateDto.RateValue;

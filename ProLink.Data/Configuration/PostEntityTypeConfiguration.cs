@@ -22,6 +22,12 @@ namespace ProLink.Data.Configuration
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder
+                .HasOne(p => p.Freelancer)
+                .WithMany(c => c.CompletedJobs)
+                .HasForeignKey(c => c.FreelancerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder
                 .HasMany(c => c.Comments)
                 .WithOne(u => u.Post)
                 .HasForeignKey(c => c.PostId)

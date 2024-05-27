@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProLink.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240527184207_editrates")]
+    partial class editrates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -355,20 +358,11 @@ namespace ProLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FreelancerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
                     b.Property<string>("PostImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RateId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -382,8 +376,6 @@ namespace ProLink.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FreelancerId");
 
                     b.HasIndex("RateId");
 
@@ -489,6 +481,12 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.Property<string>("ProfilePicture")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Rate")
+                        .HasColumnType("float");
+
+                    b.Property<int>("RateCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -713,11 +711,6 @@ namespace ProLink.Infrastructure.Migrations
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
                 {
-                    b.HasOne("ProLink.Data.Entities.User", "Freelancer")
-                        .WithMany("CompletedJobs")
-                        .HasForeignKey("FreelancerId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("ProLink.Data.Entities.Rate", "Rate")
                         .WithMany()
                         .HasForeignKey("RateId");
@@ -731,8 +724,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", null)
                         .WithMany("LikedPosts")
                         .HasForeignKey("UserId1");
-
-                    b.Navigation("Freelancer");
 
                     b.Navigation("Rate");
 
@@ -808,8 +799,6 @@ namespace ProLink.Infrastructure.Migrations
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("CompletedJobs");
 
                     b.Navigation("Followers");
 

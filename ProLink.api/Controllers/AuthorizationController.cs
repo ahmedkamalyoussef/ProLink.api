@@ -22,7 +22,7 @@ namespace ProLink.api.Controllers
 
         #region registration
         [HttpPost("register")]
-        public async Task<ActionResult> RegisterAsync([FromBody] RegisterUser user)
+        public async Task<ActionResult> RegisterAsync(RegisterUser user)
         {
             if (!ModelState.IsValid)
             {
@@ -50,7 +50,7 @@ namespace ProLink.api.Controllers
 
         #region login & logout
         [HttpPost("login")]
-        public async Task<ActionResult> LoginAsync([FromBody] LoginUser loginUser)
+        public async Task<ActionResult> LoginAsync(LoginUser loginUser)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -125,7 +125,7 @@ namespace ProLink.api.Controllers
             return Ok(new { model });
         }
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPassword resetPassword)
+        public async Task<IActionResult> ResetPasswordAsync(ResetPassword resetPassword)
         {
             if (!ModelState.IsValid)
             {
@@ -147,7 +147,7 @@ namespace ProLink.api.Controllers
 
         [Authorize]
         [HttpPost("change-password")]
-        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePassword changePassword)
+        public async Task<IActionResult> ChangePasswordAsync(ChangePassword changePassword)
         {
             if (!ModelState.IsValid)
             {

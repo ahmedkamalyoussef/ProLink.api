@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.IdentityModel.Tokens;
-using ProLink.Application.Consts;
 using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Interfaces;
@@ -9,7 +7,7 @@ using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
 namespace ProLink.Application.Services
-{ 
+{
     public class PostService : IPostService
     {
         #region fields
@@ -114,7 +112,7 @@ namespace ProLink.Application.Services
             var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
             if (request == null || request.Status == Status.Declined) postResult.IsRequestSent = false;
             else postResult.IsRequestSent = true;
-
+            
             if (likedPostIds.Contains(post.Id))
             {
                 postResult.IsLiked = true;
@@ -196,7 +194,23 @@ namespace ProLink.Application.Services
             return postResults.ToList();
         }
 
-
+        public async Task<bool> CompleteAsync(string postId)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
+            if (post == null) throw new Exception("post not found");
+            post.Status= Status.Completed;
+            post.IsAvailable = false;
+            var freelancer=await _unitOfWork.User.FindFirstAsync(u=>u.Id==post.FreelancerId);
+            if (freelancer != null)
+            {
+                freelancer.CompletedJobs.Add(post);
+                _unitOfWork.User.Update(freelancer);
+            }
+            _unitOfWork.Post.Update(post);
+            if(await _unitOfWork.SaveAsync()>0) return true;
+            return false;
+        }
 
         public async Task<bool> UpdatePostAsync(string id, PostDto postDto)
         {
@@ -326,6 +340,8 @@ namespace ProLink.Application.Services
                 return false;
             }
         }
+
+        
         #endregion
     }
 }

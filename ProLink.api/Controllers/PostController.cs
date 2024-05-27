@@ -86,7 +86,7 @@ namespace ProLink.api.Controllers
             return Ok(result) ;
         }
         [Authorize]
-        [HttpGet("get-posts-By-Title")]
+        [HttpGet("get-By-Title")]
         public async Task<IActionResult> GetPostsByTitleAsync(string title)
         {
             if (!ModelState.IsValid)
@@ -96,7 +96,8 @@ namespace ProLink.api.Controllers
             var result = await _postService.GetPostsByTitleAsync(title);
             return Ok(result);
         }
-        [HttpGet("get-posts-By-user-id")]
+        [Authorize]
+        [HttpGet("get-By-user-id")]
         public async Task<IActionResult> GetUserPostsByIdAsync(string id)
         {
             if (!ModelState.IsValid)
@@ -105,6 +106,13 @@ namespace ProLink.api.Controllers
             }
             var result = await _postService.GetUserPostsByUserIdAsync(id);
             return Ok(result);
+        }
+        [Authorize]
+        [HttpPut("complete")]
+        public async Task<IActionResult> CompleteAsync(string postId)
+        {
+            var result = await _postService.CompleteAsync(postId);
+            return result?Ok("completed successfully"):BadRequest("faild completing the job");
         }
         #endregion
 
@@ -155,6 +163,7 @@ namespace ProLink.api.Controllers
             var result = await _postService.DeleteLikeAsync(likeId);
             return result ? Ok("like has been deleted successfully") : BadRequest("faild to delete like");
         }
+
         #endregion
     }
 }

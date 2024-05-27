@@ -15,9 +15,9 @@ namespace ProLink.Data.Entities
         [ForeignKey(nameof(RaterId))]
         public virtual User Rater {  get; set; }
         [Required]
-        public string RatedId { get; set; }
+        public string RatedPostId { get; set; }
         [Required]
-        [ForeignKey(nameof(RatedId))]
-        public virtual User Rated { get; set; }
+        [ForeignKey(nameof(RatedPostId))]
+        public virtual Post RatedPost { get; set; }
     }
 }

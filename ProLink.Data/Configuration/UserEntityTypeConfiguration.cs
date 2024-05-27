@@ -57,11 +57,11 @@ namespace ProLink.Data.Configuration
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder
-                .HasMany(c => c.ReceivedRates)
-                .WithOne(u => u.Rated)
-                .HasForeignKey(c => c.RatedId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder
+            //    .HasMany(c => c.ReceivedRates)
+            //    .WithOne(u => u.Rated)
+            //    .HasForeignKey(c => c.RatedId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             
 
