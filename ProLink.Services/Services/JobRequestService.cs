@@ -38,14 +38,14 @@ namespace ProLink.Application.Services
         #endregion
 
         #region  jop request
-        public async Task<bool> SendJobRequistAsync(string userId, string jobId)
+        public async Task<bool> SendJobRequistAsync(string jobId)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) return false;
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
             var Job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == jobId);
             if (Job == null) return false;
+            var user = await _userManager.FindByIdAsync(Job.UserId);
+            if (user == null) return false;
             var JobsIds=currentUser.SentJobRequests.Select(p => p.JobId).ToList();
             if (JobsIds.Contains(Job.Id)) return true;
             var jobRequist = new JobRequest

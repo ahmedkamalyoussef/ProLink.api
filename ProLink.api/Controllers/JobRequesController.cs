@@ -29,10 +29,10 @@ namespace ProLink.api.Controllers
             return Ok(result);
         }
         [Authorize]
-        [HttpPost("add-jobRequest")]
-        public async Task<IActionResult> SendjobRequestAsync(string userId, string postId)
+        [HttpPost("send")]
+        public async Task<IActionResult> SendjobRequestAsync(string jobId)
         {
-            var result = await _jobRequestService.SendJobRequistAsync(userId, postId);
+            var result = await _jobRequestService.SendJobRequistAsync(jobId);
             return result ? Ok("jobRequest has been sent successfully") : BadRequest("faild to send jobRequest");
         }
 
