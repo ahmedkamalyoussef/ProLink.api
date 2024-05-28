@@ -44,7 +44,7 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var Job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == jobId);
             if (Job == null) return false;
-            var user = await _userManager.FindByIdAsync(Job.UserId);
+            var user = await _userManager.FindByIdAsync(Job.UserId); 
             if (user == null) return false;
             var JobsIds=currentUser.SentJobRequests.Select(p => p.JobId).ToList();
             if (JobsIds.Contains(Job.Id)) return true;
