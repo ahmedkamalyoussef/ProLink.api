@@ -12,7 +12,8 @@ namespace ProLink.Infrastructure.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<JobRequest> JobRequests { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Job> Jobs { get; set; }
+        public DbSet<Post> Post { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -30,7 +31,7 @@ namespace ProLink.Infrastructure.Data
             new UserEntityTypeConfiguration().Configure(modelBuilder.Entity<User>());
             #endregion
             #region post
-            new PostEntityTypeConfiguration().Configure(modelBuilder.Entity<Post>());
+            new JobEntityTypeConfiguration().Configure(modelBuilder.Entity<Job>());
             #endregion
             #region jop request
             new JobRequestEntityTypeConfiguration().Configure(modelBuilder.Entity<JobRequest>());
@@ -62,7 +63,9 @@ namespace ProLink.Infrastructure.Data
             #region follower
             new FollowersEntityTypeConfiguration().Configure(modelBuilder.Entity<UserFollower>());
             #endregion
-
+            #region Post
+            new PostEntityTypeConfiguration().Configure(modelBuilder.Entity<Post>());
+            #endregion
             SeedRoles(modelBuilder);
            
         }

@@ -5,7 +5,7 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
     public interface IUnitOfWork
     {
         IGenericRepository<User> User { get; set; }
-        IGenericRepository<Post> Post { get; set; }
+        IGenericRepository<Job> Job { get; set; }
         IGenericRepository<Like> Like { get; set; }
         IGenericRepository<FriendRequest> FriendRequest { get; set; }
         IGenericRepository<JobRequest> JobRequest { get; set; }
@@ -15,6 +15,7 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
         IGenericRepository<Notification> Notification { get; set; }
         IGenericRepository<UserFriend> UserFriend { get; set; }
         IGenericRepository<UserFollower> UserFollower { get; set; }
+        IGenericRepository<Post> Post { get; set; }
 
 
         Task CreateTransactionAsync();

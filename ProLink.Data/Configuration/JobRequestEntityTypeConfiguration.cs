@@ -19,12 +19,6 @@ namespace ProLink.Data.Configuration
                 .WithMany(u => u.ReceivedJobRequests)
                 .HasForeignKey(c => c.RecieverId)
                 .OnDelete(DeleteBehavior.NoAction);
-
-            builder
-                .HasOne(c => c.Post)
-                .WithMany(u => u.JobRequests)
-                .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

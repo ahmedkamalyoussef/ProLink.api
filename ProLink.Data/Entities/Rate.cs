@@ -18,6 +18,6 @@ namespace ProLink.Data.Entities
         public string RatedPostId { get; set; }
         [Required]
         [ForeignKey(nameof(RatedPostId))]
-        public virtual Post RatedPost { get; set; }
+        public virtual Job RatedPost { get; set; }
     }
 }

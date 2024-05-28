@@ -5,7 +5,7 @@
 namespace ProLink.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class isAvailabl : Migration
+    public partial class @in : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

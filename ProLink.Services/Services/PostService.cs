@@ -5,6 +5,11 @@ using ProLink.Application.Interfaces;
 using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ProLink.Application.Services
 {
@@ -40,7 +45,7 @@ namespace ProLink.Application.Services
             post.User = currentUser;
             //try
             //{
-                _unitOfWork.Post.Add(post);
+            _unitOfWork.Post.Add(post);
             //}
             //catch
             //{
@@ -52,166 +57,6 @@ namespace ProLink.Application.Services
             //await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
         }
-
-
-
-        public async Task<bool> DeletePostAsync(string id)
-        {
-            var currentUser= await _userHelpers.GetCurrentUserAsync();
-            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
-            //string imagePath = post.PostImage;
-            if (post == null) throw new Exception("post not found");
-            if (currentUser==null||currentUser.Id != post.UserId)
-                throw new Exception("not allowed to delete");
-            _unitOfWork.Post.Remove(post);
-            if (await _unitOfWork.SaveAsync() > 0)
-            {
-                //if (!imagePath.IsNullOrEmpty())
-                //    await _userHelpers.DeleteFileAsync(imagePath, ConstsFiles.Posts);
-                return true;
-            }
-            return false;
-        }
-
-        public async Task<List<PostResultDto>> GetAllPostsAsync()
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.GetAllAsync(p => p.DateCreated, OrderDirection.Descending);
-            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-            foreach (var post in postResults)
-            {
-                var request=currentUser.SentJobRequests.FirstOrDefault(j => j.PostId==post.Id);
-                if (request == null||request.Status==Status.Declined) post.IsRequestSent = false;
-                else post.IsRequestSent = true;
-
-                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
-                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
-                if (userFollower!=null) post.IsUserFollowed = true;
-                else post.IsUserFollowed = false;
-
-                if (likedPostIds.Contains(post.Id))
-                {
-                    post.IsLiked = true;
-                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
-                    post.LikeId = Like.Id;
-                }
-            }
-            return postResults.ToList();
-        }
-
-
-
-        public async Task<PostResultDto> GetPostByIdAsync(string id)
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
-            if (post == null) throw new Exception("post not found");
-            var postResult = _mapper.Map<PostResultDto>(post);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-            var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
-            if (request == null || request.Status == Status.Declined) postResult.IsRequestSent = false;
-            else postResult.IsRequestSent = true;
-            
-            if (likedPostIds.Contains(post.Id))
-            {
-                postResult.IsLiked = true;
-                var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
-                postResult.LikeId = Like.Id;
-            }
-            return postResult;
-        }
-
-        public async Task<List<PostResultDto>> GetPostsByTitleAsync(string title)
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.Title.Contains(title),p=> p.DateCreated, OrderDirection.Descending);
-            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-            foreach (var post in postResults)
-            {
-                var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
-                if (request == null || request.Status == Status.Declined) post.IsRequestSent = false;
-                else post.IsRequestSent = true;
-
-                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
-                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
-                if (userFollower != null) post.IsUserFollowed = true;
-                else post.IsUserFollowed = false;
-
-                if (likedPostIds.Contains(post.Id))
-                {
-                    post.IsLiked = true;
-                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
-                    post.LikeId = Like.Id;
-                }
-            }
-            return postResults.ToList();
-        }
-
-        public async Task<List<PostResultDto>> GetUserPostsAsync()
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == currentUser.Id,p=> p.DateCreated, OrderDirection.Descending);
-            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-            foreach (var post in postResults)
-            {
-                if (likedPostIds.Contains(post.Id))
-                {
-                    post.IsLiked = true;
-                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
-                    post.LikeId = Like.Id;
-                }
-            }
-            return postResults.ToList();
-        }
-
-        public async Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id)
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id,p=> p.DateCreated, OrderDirection.Descending);
-            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-            foreach (var post in postResults)
-            {
-                var request = currentUser.SentJobRequests.FirstOrDefault(j => j.PostId == post.Id);
-                if (request == null || request.Status == Status.Declined) post.IsRequestSent = false;
-                else post.IsRequestSent = true;
-
-                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
-                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
-                if (userFollower != null) post.IsUserFollowed = true;
-                else post.IsUserFollowed = false;
-
-                if (likedPostIds.Contains(post.Id))
-                {
-                    post.IsLiked = true;
-                    var Like=await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id&&p.PostId==post.Id);
-                    post.LikeId = Like.Id;
-                }
-            }
-            return postResults.ToList();
-        }
-
-        public async Task<bool> CompleteAsync(string postId)
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
-            if (post == null) throw new Exception("post not found");
-            post.Status= Status.Completed;
-            post.IsAvailable = false;
-            var freelancer=await _unitOfWork.User.FindFirstAsync(u=>u.Id==post.FreelancerId);
-            if (freelancer != null)
-            {
-                freelancer.CompletedJobs.Add(post);
-                _unitOfWork.User.Update(freelancer);
-            }
-            _unitOfWork.Post.Update(post);
-            if(await _unitOfWork.SaveAsync()>0) return true;
-            return false;
-        }
-
         public async Task<bool> UpdatePostAsync(string id, PostDto postDto)
         {
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
@@ -220,7 +65,7 @@ namespace ProLink.Application.Services
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
-            if (currentUser.Id !=post.UserId)
+            if (currentUser.Id != post.UserId)
                 throw new Exception("not allowed to edit");
 
             _mapper.Map(postDto, post);
@@ -240,6 +85,124 @@ namespace ProLink.Application.Services
             //    await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             return false;
         }
+        public async Task<bool> DeletePostAsync(string id)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
+            //string imagePath = post.PostImage;
+            if (post == null) throw new Exception("post not found");
+            if (currentUser == null || currentUser.Id != post.UserId)
+                throw new Exception("not allowed to delete");
+            _unitOfWork.Post.Remove(post);
+            if (await _unitOfWork.SaveAsync() > 0)
+            {
+                //if (!imagePath.IsNullOrEmpty())
+                //    await _userHelpers.DeleteFileAsync(imagePath, ConstsFiles.Posts);
+                return true;
+            }
+            return false;
+        }
+        public async Task<List<PostResultDto>> GetAllPostsAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var posts = await _unitOfWork.Post.GetAllAsync(p => p.DateCreated, OrderDirection.Descending);
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
+                if (userFollower != null) post.IsUserFollowed = true;
+                else post.IsUserFollowed = false;
+
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
+            return postResults.ToList();
+        }
+        public async Task<PostResultDto> GetPostByIdAsync(string id)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
+            if (post == null) throw new Exception("post not found");
+            var postResult = _mapper.Map<PostResultDto>(post);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+
+            if (likedPostIds.Contains(post.Id))
+            {
+                postResult.IsLiked = true;
+                var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                postResult.LikeId = Like.Id;
+            }
+            return postResult;
+        }
+        public async Task<List<PostResultDto>> GetPostsByTitleAsync(string title)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var posts = await _unitOfWork.Post.FindAsync(p => p.Description.Contains(title), p => p.DateCreated, OrderDirection.Descending);
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+
+                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
+                if (userFollower != null) post.IsUserFollowed = true;
+                else post.IsUserFollowed = false;
+
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
+            return postResults.ToList();
+        }
+        public async Task<List<PostResultDto>> GetUserPostsAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == currentUser.Id, p => p.DateCreated, OrderDirection.Descending);
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
+            return postResults.ToList();
+        }
+        public async Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id)
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id, p => p.DateCreated, OrderDirection.Descending);
+            var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
+            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            foreach (var post in postResults)
+            {
+                var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
+                uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
+                if (userFollower != null) post.IsUserFollowed = true;
+                else post.IsUserFollowed = false;
+
+                if (likedPostIds.Contains(post.Id))
+                {
+                    post.IsLiked = true;
+                    var Like = await _unitOfWork.Like.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
+                    post.LikeId = Like.Id;
+                }
+            }
+            return postResults.ToList();
+        }
+
 
         #endregion
 
@@ -341,7 +304,7 @@ namespace ProLink.Application.Services
             }
         }
 
-        
+
         #endregion
     }
 }

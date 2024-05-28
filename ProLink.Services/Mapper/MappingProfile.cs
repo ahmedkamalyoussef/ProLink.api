@@ -34,6 +34,9 @@ namespace ProLink.Application.Mapper
 
             CreateMap<Rate, RateDto>();
 
+            CreateMap<JobDto, Job>()
+               .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
+
             CreateMap<PostDto, Post>()
                .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
 
@@ -43,9 +46,11 @@ namespace ProLink.Application.Mapper
             CreateMap<AddCommentDto, Comment>()
                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => DateTime.Now.ToLocalTime()));
 
+            CreateMap<Job, JobResultDto>();
+
             CreateMap<Post, PostResultDto>()
-                .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => src.Comments.Count()))
-                .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => src.Likes.Count()));
+            .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => src.Comments.Count()))
+            .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => src.Likes.Count()));
         }
         private double CalculateAverageRate(User user)
         {

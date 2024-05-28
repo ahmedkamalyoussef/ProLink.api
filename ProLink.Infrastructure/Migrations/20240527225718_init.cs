@@ -37,11 +37,11 @@ namespace ProLink.Infrastructure.Migrations
                     JopTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BackImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FriendId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    FollowerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    FriendId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FollowerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CV = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Skill = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Skills = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -60,16 +60,6 @@ namespace ProLink.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_AspNetUsers_FollowerId",
-                        column: x => x.FollowerId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_AspNetUsers_FriendId",
-                        column: x => x.FriendId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -248,52 +238,24 @@ namespace ProLink.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Posts",
+                name: "UserFollower",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PostImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    FollowerId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.PrimaryKey("PK_UserFollower", x => new { x.FollowerId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_Posts_AspNetUsers_UserId",
+                        name: "FK_UserFollower_AspNetUsers_FollowerId",
+                        column: x => x.FollowerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFollower_AspNetUsers_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Posts_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Rate",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RateValue = table.Column<double>(type: "float", nullable: false),
-                    RaterId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RatedId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rate", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Rate_AspNetUsers_RatedId",
-                        column: x => x.RatedId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Rate_AspNetUsers_RaterId",
-                        column: x => x.RaterId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -302,15 +264,21 @@ namespace ProLink.Infrastructure.Migrations
                 name: "UserFriend",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FriendId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    FriendId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserFriend", x => x.Id);
+                    table.PrimaryKey("PK_UserFriend", x => new { x.FriendId, x.UserId });
                     table.ForeignKey(
                         name: "FK_UserFriend_AspNetUsers_FriendId",
                         column: x => x.FriendId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFriend_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -333,12 +301,6 @@ namespace ProLink.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Comments_Posts_PostId",
-                        column: x => x.PostId,
-                        principalTable: "Posts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -351,7 +313,8 @@ namespace ProLink.Infrastructure.Migrations
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RecieverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PostId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    JobId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PostId = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -366,10 +329,41 @@ namespace ProLink.Infrastructure.Migrations
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Jobs",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false),
+                    PostImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RateId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FreelancerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Jobs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_JobRequests_Posts_PostId",
-                        column: x => x.PostId,
-                        principalTable: "Posts",
+                        name: "FK_Jobs_AspNetUsers_FreelancerId",
+                        column: x => x.FreelancerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Jobs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Jobs_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
 
@@ -391,9 +385,35 @@ namespace ProLink.Infrastructure.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Likes_Posts_PostId",
+                        name: "FK_Likes_Jobs_PostId",
                         column: x => x.PostId,
-                        principalTable: "Posts",
+                        principalTable: "Jobs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rate",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RateValue = table.Column<double>(type: "float", nullable: false),
+                    RaterId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RatedPostId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rate", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rate_AspNetUsers_RaterId",
+                        column: x => x.RaterId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rate_Jobs_RatedPostId",
+                        column: x => x.RatedPostId,
+                        principalTable: "Jobs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -440,16 +460,6 @@ namespace ProLink.Infrastructure.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_FollowerId",
-                table: "AspNetUsers",
-                column: "FollowerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_FriendId",
-                table: "AspNetUsers",
-                column: "FriendId");
-
-            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -477,9 +487,9 @@ namespace ProLink.Infrastructure.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JobRequests_PostId",
+                name: "IX_JobRequests_JobId",
                 table: "JobRequests",
-                column: "PostId");
+                column: "JobId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobRequests_RecieverId",
@@ -490,6 +500,26 @@ namespace ProLink.Infrastructure.Migrations
                 name: "IX_JobRequests_SenderId",
                 table: "JobRequests",
                 column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_FreelancerId",
+                table: "Jobs",
+                column: "FreelancerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_RateId",
+                table: "Jobs",
+                column: "RateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_UserId",
+                table: "Jobs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_UserId1",
+                table: "Jobs",
+                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Likes_PostId",
@@ -517,19 +547,9 @@ namespace ProLink.Infrastructure.Migrations
                 column: "ReceiverId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Posts_UserId",
-                table: "Posts",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Posts_UserId1",
-                table: "Posts",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rate_RatedId",
+                name: "IX_Rate_RatedPostId",
                 table: "Rate",
-                column: "RatedId");
+                column: "RatedPostId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rate_RaterId",
@@ -537,14 +557,61 @@ namespace ProLink.Infrastructure.Migrations
                 column: "RaterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserFriend_FriendId",
+                name: "IX_UserFollower_UserId",
+                table: "UserFollower",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFriend_UserId",
                 table: "UserFriend",
-                column: "FriendId");
+                column: "UserId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Comments_Jobs_PostId",
+                table: "Comments",
+                column: "PostId",
+                principalTable: "Jobs",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_JobRequests_Jobs_JobId",
+                table: "JobRequests",
+                column: "JobId",
+                principalTable: "Jobs",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Jobs_Rate_RateId",
+                table: "Jobs",
+                column: "RateId",
+                principalTable: "Rate",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Jobs_AspNetUsers_FreelancerId",
+                table: "Jobs");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Jobs_AspNetUsers_UserId",
+                table: "Jobs");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Jobs_AspNetUsers_UserId1",
+                table: "Jobs");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Rate_AspNetUsers_RaterId",
+                table: "Rate");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Rate_Jobs_RatedPostId",
+                table: "Rate");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -579,7 +646,7 @@ namespace ProLink.Infrastructure.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
-                name: "Rate");
+                name: "UserFollower");
 
             migrationBuilder.DropTable(
                 name: "UserFriend");
@@ -588,10 +655,13 @@ namespace ProLink.Infrastructure.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Posts");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Jobs");
+
+            migrationBuilder.DropTable(
+                name: "Rate");
         }
     }
 }

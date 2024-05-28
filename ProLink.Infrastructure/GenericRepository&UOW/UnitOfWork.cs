@@ -11,6 +11,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
 
         private readonly AppDbContext _context;
         public virtual IGenericRepository<User> User { get; set; }
+        public virtual IGenericRepository<Job> Job { get; set; }
         public virtual IGenericRepository<Post> Post { get; set; }
         public virtual IGenericRepository<FriendRequest> FriendRequest { get; set; }
         public virtual IGenericRepository<JobRequest> JobRequest { get; set; }
@@ -28,13 +29,14 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             FriendRequest = new GenericRepository<FriendRequest>(_context);
             JobRequest = new GenericRepository<JobRequest>(_context);
             Comment = new GenericRepository<Comment>(_context);
-            Post = new GenericRepository<Post>(_context);
+            Job = new GenericRepository<Job>(_context);
             Like = new GenericRepository<Like>(_context);
             Rate = new GenericRepository<Rate>(_context);
             Message = new GenericRepository<Message>(_context);
             Notification = new GenericRepository<Notification>(_context);
             UserFriend = new GenericRepository<UserFriend>(_context);
             UserFollower = new GenericRepository<UserFollower>(_context);
+            Post= new GenericRepository<Post>(_context);
         }
 
         public async Task CreateTransactionAsync()

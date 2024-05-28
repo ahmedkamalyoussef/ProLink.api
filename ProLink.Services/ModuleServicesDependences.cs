@@ -14,6 +14,7 @@ namespace ProLink.Application
         {
             service.AddAutoMapper(typeof(MappingProfile));
             service.AddTransient<IUserService,UserService >();
+            service.AddTransient<IJobService, JobService>();
             service.AddTransient<IPostService, PostService>();
             service.AddTransient<IAuthService, AuthService>();
             service.AddTransient<IFriendService, FriendService>();

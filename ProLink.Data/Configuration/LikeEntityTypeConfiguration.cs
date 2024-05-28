@@ -14,11 +14,11 @@ namespace ProLink.Data.Configuration
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder
-                .HasOne(c => c.Post)
-                .WithMany(u => u.Likes)
-                .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder
+            //    .HasOne(c => c.Post)
+            //    .WithMany(u => u.Likes)
+            //    .HasForeignKey(c => c.PostId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

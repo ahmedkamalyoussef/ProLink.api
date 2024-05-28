@@ -12,8 +12,8 @@ using ProLink.Infrastructure.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240526165834_userFollower")]
-    partial class userFollower
+    [Migration("20240528000014_in")]
+    partial class @in
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -232,6 +232,52 @@ namespace ProLink.Infrastructure.Migrations
                     b.ToTable("FriendRequests");
                 });
 
+            modelBuilder.Entity("ProLink.Data.Entities.Job", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FreelancerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PostImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RateId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FreelancerId");
+
+                    b.HasIndex("RateId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Jobs");
+                });
+
             modelBuilder.Entity("ProLink.Data.Entities.JobRequest", b =>
                 {
                     b.Property<string>("Id")
@@ -243,9 +289,13 @@ namespace ProLink.Infrastructure.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PostId")
+                    b.Property<string>("JobId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecieverId")
                         .IsRequired()
@@ -260,7 +310,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("JobId");
 
                     b.HasIndex("RecieverId");
 
@@ -361,10 +411,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Property<string>("PostImage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -378,7 +424,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId1");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Post");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Rate", b =>
@@ -389,7 +435,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.Property<double>("RateValue")
                         .HasColumnType("float");
 
-                    b.Property<string>("RatedId")
+                    b.Property<string>("RatedPostId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -399,7 +445,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RatedId");
+                    b.HasIndex("RatedPostId");
 
                     b.HasIndex("RaterId");
 
@@ -622,11 +668,35 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("ProLink.Data.Entities.Job", b =>
+                {
+                    b.HasOne("ProLink.Data.Entities.User", "Freelancer")
+                        .WithMany("CompletedJobs")
+                        .HasForeignKey("FreelancerId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ProLink.Data.Entities.Rate", "Rate")
+                        .WithMany()
+                        .HasForeignKey("RateId");
+
+                    b.HasOne("ProLink.Data.Entities.User", "User")
+                        .WithMany("Jobs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Freelancer");
+
+                    b.Navigation("Rate");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ProLink.Data.Entities.JobRequest", b =>
                 {
-                    b.HasOne("ProLink.Data.Entities.Post", "Post")
+                    b.HasOne("ProLink.Data.Entities.Job", "Job")
                         .WithMany("JobRequests")
-                        .HasForeignKey("PostId")
+                        .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -642,7 +712,7 @@ namespace ProLink.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Post");
+                    b.Navigation("Job");
 
                     b.Navigation("Receiver");
 
@@ -703,7 +773,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", null)
@@ -715,19 +785,19 @@ namespace ProLink.Infrastructure.Migrations
 
             modelBuilder.Entity("ProLink.Data.Entities.Rate", b =>
                 {
-                    b.HasOne("ProLink.Data.Entities.User", "Rated")
-                        .WithMany("ReceivedRates")
-                        .HasForeignKey("RatedId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                    b.HasOne("ProLink.Data.Entities.Job", "RatedPost")
+                        .WithMany()
+                        .HasForeignKey("RatedPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "Rater")
-                        .WithMany("SentRates")
+                        .WithMany()
                         .HasForeignKey("RaterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Rated");
+                    b.Navigation("RatedPost");
 
                     b.Navigation("Rater");
                 });
@@ -770,11 +840,14 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ProLink.Data.Entities.Job", b =>
+                {
+                    b.Navigation("JobRequests");
+                });
+
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("JobRequests");
 
                     b.Navigation("Likes");
                 });
@@ -783,9 +856,13 @@ namespace ProLink.Infrastructure.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("CompletedJobs");
+
                     b.Navigation("Followers");
 
                     b.Navigation("Friends");
+
+                    b.Navigation("Jobs");
 
                     b.Navigation("LikedPosts");
 
@@ -801,15 +878,11 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.Navigation("ReceivedMessages");
 
-                    b.Navigation("ReceivedRates");
-
                     b.Navigation("SentFriendRequests");
 
                     b.Navigation("SentJobRequests");
 
                     b.Navigation("SentMessages");
-
-                    b.Navigation("SentRates");
                 });
 #pragma warning restore 612, 618
         }
