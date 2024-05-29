@@ -77,6 +77,58 @@ namespace ProLink.Application.Services
         #endregion
 
         #region login & logout
+        //public async Task<LoginResult> LoginAsync(LoginUser loginUser)
+        //{
+        //    var user = await _userManager.FindByEmailAsync(loginUser.Email);
+        //    if (user == null)
+        //    {
+        //        return new LoginResult
+        //        {
+        //            Success = false,
+        //            Token = null,
+        //            Expiration = default,
+        //            ErrorType = LoginErrorType.UserNotFound
+        //        };
+        //    }
+
+        //    if (!await _userManager.CheckPasswordAsync(user, loginUser.Password))
+        //    {
+        //        return new LoginResult
+        //        {
+        //            Success = false,
+        //            Token = null,
+        //            Expiration = default,
+        //            ErrorType = LoginErrorType.InvalidPassword
+        //        };
+        //    }
+        //    if (!user.EmailConfirmed)
+        //    {
+        //        return new LoginResult
+        //        {
+        //            Success = false,
+        //            Token = null,
+        //            Expiration = default,
+        //            ErrorType = LoginErrorType.EmailNotComfirmed
+        //        };
+        //    }
+        //    var claims = new List<Claim>
+        //    {
+        //        new Claim(ClaimTypes.Email, user.Email),
+        //        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        //    };
+
+        //    var roles = await _userManager.GetRolesAsync(user);
+        //    foreach (var role in roles)
+        //    {
+        //        claims.Add(new Claim(ClaimTypes.Role, role));
+        //    }
+        //    var message = new MailMessage(new string[] { user.Email }, "login", "you logged in your account right now");
+        //    _mailingService.SendMail(message);
+        //    return await _userHelpers.GenerateJwtTokenAsync(claims);
+        //}
+
+
         public async Task<LoginResult> LoginAsync(LoginUser loginUser)
         {
             var user = await _userManager.FindByEmailAsync(loginUser.Email);
@@ -91,7 +143,10 @@ namespace ProLink.Application.Services
                 };
             }
 
-            if (!await _userManager.CheckPasswordAsync(user, loginUser.Password))
+            var checkPasswordTask = _userManager.CheckPasswordAsync(user, loginUser.Password);
+            //var rolesTask = _userManager.GetRolesAsync(user);
+
+            if (!await checkPasswordTask)
             {
                 return new LoginResult
                 {
@@ -101,6 +156,7 @@ namespace ProLink.Application.Services
                     ErrorType = LoginErrorType.InvalidPassword
                 };
             }
+
             if (!user.EmailConfirmed)
             {
                 return new LoginResult
@@ -111,21 +167,29 @@ namespace ProLink.Application.Services
                     ErrorType = LoginErrorType.EmailNotComfirmed
                 };
             }
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
 
-            var roles = await _userManager.GetRolesAsync(user);
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-            var message = new MailMessage(new string[] { user.Email }, "login", "you logged in your account right now");
-            _mailingService.SendMail(message);
-            return await _userHelpers.GenerateJwtTokenAsync(claims);
+            //var roles = await rolesTask;
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
+
+            //foreach (var role in roles)
+            //{
+            //    claims.Add(new Claim(ClaimTypes.Role, role));
+            //}
+
+            var tokenTask = _userHelpers.GenerateJwtTokenAsync(claims);
+
+            var message = new MailMessage(new[] { user.Email }, "login", "You logged into your account right now.");
+            _ = Task.Run(() => _mailingService.SendMail(message));
+
+            var tokenResult = await tokenTask;
+
+            return tokenResult;
         }
 
         public async Task<LogoutResult> LogoutAsync()
