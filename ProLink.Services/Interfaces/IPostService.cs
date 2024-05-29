@@ -1,4 +1,5 @@
 ﻿using ProLink.Application.DTOs;
+using ProLink.Data.Consts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace ProLink.Application.Interfaces
         Task<bool> DeleteCommentAsync(string id);
 
 
-        Task<bool> AddLikeAsync(string postId);
-        Task<bool> DeleteLikeAsync(string likeId);
+        Task<bool> AddReactAsync(string postId, ReactType type);
+        Task<bool> DeleteReactAsync(string reactId);
     }
 }

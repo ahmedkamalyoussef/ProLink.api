@@ -29,7 +29,7 @@ namespace ProLink.Data.Entities
         public virtual ICollection<Post>? Posts { get; set; }
         public virtual ICollection<Post>? LikedPosts { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
-        public virtual ICollection<Like>? Likes { get; set; }
+        public virtual ICollection<React>? Reacts { get; set; }
         public virtual ICollection<Message>? SentMessages { get; set; }
         public virtual ICollection<Message>? ReceivedMessages { get; set; }
         public virtual ICollection<Notification>? Notifications { get; set; }

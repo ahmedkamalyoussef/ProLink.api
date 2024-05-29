@@ -15,7 +15,7 @@ namespace ProLink.Data.Configuration
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder
-                .HasMany(c => c.Likes)
+                .HasMany(c => c.Reacts)
                 .WithOne(u => u.Post)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.Cascade);

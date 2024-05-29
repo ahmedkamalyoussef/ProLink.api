@@ -16,7 +16,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public virtual IGenericRepository<FriendRequest> FriendRequest { get; set; }
         public virtual IGenericRepository<JobRequest> JobRequest { get; set; }
         public virtual IGenericRepository<Comment> Comment { get; set; }
-        public virtual IGenericRepository<Like> Like { get; set; }
+        public virtual IGenericRepository<React> React { get; set; }
         public virtual IGenericRepository<Rate> Rate { get; set; }
         public virtual IGenericRepository<Message> Message { get; set; }
         public virtual IGenericRepository<Notification> Notification { get; set; }
@@ -30,7 +30,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             JobRequest = new GenericRepository<JobRequest>(_context);
             Comment = new GenericRepository<Comment>(_context);
             Job = new GenericRepository<Job>(_context);
-            Like = new GenericRepository<Like>(_context);
+            React = new GenericRepository<React>(_context);
             Rate = new GenericRepository<Rate>(_context);
             Message = new GenericRepository<Message>(_context);
             Notification = new GenericRepository<Notification>(_context);

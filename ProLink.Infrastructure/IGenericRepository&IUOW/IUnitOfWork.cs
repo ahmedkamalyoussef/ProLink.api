@@ -6,7 +6,7 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
     {
         IGenericRepository<User> User { get; set; }
         IGenericRepository<Job> Job { get; set; }
-        IGenericRepository<Like> Like { get; set; }
+        IGenericRepository<React> React { get; set; }
         IGenericRepository<FriendRequest> FriendRequest { get; set; }
         IGenericRepository<JobRequest> JobRequest { get; set; }
         IGenericRepository<Comment> Comment { get; set; }

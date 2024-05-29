@@ -18,7 +18,7 @@ namespace ProLink.Data.Entities
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
-        public virtual ICollection<Like>? Likes { get; set; }
+        public virtual ICollection<React>? Reacts { get; set; }
     }
 
 }

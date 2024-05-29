@@ -52,7 +52,7 @@ namespace ProLink.Data.Configuration
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder
-                .HasMany(c => c.Likes)
+                .HasMany(c => c.Reacts)
                 .WithOne(u => u.User)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);

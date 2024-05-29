@@ -4,13 +4,13 @@ using ProLink.Data.Entities;
 
 namespace ProLink.Data.Configuration
 {
-    public class LikeEntityTypeConfiguration : IEntityTypeConfiguration<Like>
+    public class ReactEntityTypeConfiguration : IEntityTypeConfiguration<React>
     {
-        public void Configure(EntityTypeBuilder<Like> builder)
+        public void Configure(EntityTypeBuilder<React> builder)
         {
             builder
                 .HasOne(c => c.User)
-                .WithMany(u => u.Likes)
+                .WithMany(u => u.Reacts)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 

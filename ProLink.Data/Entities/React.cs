@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using ProLink.Data.Consts;
 
 namespace ProLink.Data.Entities
 {
-    public class Like
+    public class React
     {
         [Key]
         public string Id { get; set; }= Guid.NewGuid().ToString();
-        public DateTime DateLiked { get; set; }
-        
+        public DateTime DateReacted { get; set; }
+        public ReactType Type { get; set; }
         [Required]
         public string UserId { get; set; }
         [Required]

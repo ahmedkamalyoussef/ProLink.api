@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProLink.Application.DTOs;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Consts;
 
 namespace ProLink.api.Controllers
 {
@@ -143,18 +144,18 @@ namespace ProLink.api.Controllers
         #endregion
         #region like actions
         [Authorize]
-        [HttpPost("add-like")]
-        public async Task<IActionResult> AddLikeAsync(string Postid)
+        [HttpPost("add-react")]
+        public async Task<IActionResult> AddLikeAsync(string Postid, ReactType type)
         {
 
-            var result = await _postService.AddLikeAsync(Postid);
+            var result = await _postService.AddReactAsync(Postid,type);
             return result ? Ok("Like has been added successfully") : BadRequest("faild to add like");
         }
         [Authorize]
-        [HttpDelete("delete-Like")]
+        [HttpDelete("delete-react")]
         public async Task<IActionResult> DeleteLikeAsync(string likeId)
         {
-            var result = await _postService.DeleteLikeAsync(likeId);
+            var result = await _postService.DeleteReactAsync(likeId);
             return result ? Ok("like has been deleted successfully") : BadRequest("faild to delete like");
         }
 

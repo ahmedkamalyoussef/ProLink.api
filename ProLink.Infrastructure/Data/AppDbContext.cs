@@ -15,7 +15,7 @@ namespace ProLink.Infrastructure.Data
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Post> Post { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<Like> Likes { get; set; }
+        public DbSet<React> Reacts { get; set; }
         public DbSet<Message> Messages { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -43,7 +43,7 @@ namespace ProLink.Infrastructure.Data
             new CommentEntityTypeConfiguration().Configure(modelBuilder.Entity<Comment>());
             #endregion
             #region likes
-            new LikeEntityTypeConfiguration().Configure(modelBuilder.Entity<Like>());
+            new ReactEntityTypeConfiguration().Configure(modelBuilder.Entity<React>());
             #endregion
             #region notification
             new NotificationEntityTypeConfiguration().Configure(modelBuilder.Entity<Notification>());

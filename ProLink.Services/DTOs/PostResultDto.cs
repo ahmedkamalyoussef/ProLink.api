@@ -15,10 +15,10 @@ namespace ProLink.Application.DTOs
         public string LikeId { get; set; }
         public string? PostImage { get; set; }
         public int CommentsCount { get; set; }
-        public int LikesCount { get; set; }
+        public int ReactsCount { get; set; }
         public DateTime DateCreated { get; set; }
         public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
-        public List<LikeDto> Likes { get; set; } = new List<LikeDto>();
+        public List<ReactDto> Reacts { get; set; } = new List<ReactDto>();
         public UserResultDto User { get; set; }
     }
 }

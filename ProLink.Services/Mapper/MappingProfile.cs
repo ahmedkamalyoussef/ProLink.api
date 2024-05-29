@@ -16,7 +16,7 @@ namespace ProLink.Application.Mapper
             CreateMap<UserDto, User>().ReverseMap();
 
             CreateMap<MessageResultDto, Message>().ReverseMap();
-            CreateMap<Like, LikeDto>();
+            CreateMap<React, ReactDto>();
 
             CreateMap<Comment, CommentDto>();
 
@@ -50,7 +50,7 @@ namespace ProLink.Application.Mapper
 
             CreateMap<Post, PostResultDto>()
             .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => src.Comments.Count()))
-            .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => src.Likes.Count()));
+            .ForMember(dest => dest.ReactsCount, opt => opt.MapFrom(src => src.Reacts.Count()));
         }
         private double CalculateAverageRate(User user)
         {
