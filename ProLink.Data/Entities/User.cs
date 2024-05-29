@@ -6,6 +6,8 @@ namespace ProLink.Data.Entities
 {
     public class User : IdentityUser
     {
+        public string? OTP { get; set; }
+        public DateTime OTPExpiry { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]

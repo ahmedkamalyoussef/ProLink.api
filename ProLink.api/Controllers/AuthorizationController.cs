@@ -22,33 +22,20 @@ namespace ProLink.api.Controllers
 
         #region registration
         [HttpPost("register")]
-        public async Task<ActionResult> RegisterAsync(RegisterUser user)
+        public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var result = await _authService.RegisterAsync(user);
+            var result = await _authService.RegisterAsync(registerUser);
             if (result.Succeeded)
             {
-                return Ok("Registration succeeded.");
+                return Ok("OTP sent to email");
             }
             return BadRequest(result.Errors);
         }
 
-
-        [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmailAsync([FromQuery] string email, [FromQuery] string token)
-        {
-            var success = await _authService.ConfirmEmailAsync(email, token);
-            if (success)
-                return Ok("Email confirmed successfully.");
-
-            return BadRequest("Failed to confirm email.");
-        }
+        
         #endregion
 
-        #region login & logout
+        #region login
         [HttpPost("login")]
         public async Task<ActionResult> LoginAsync(LoginUser loginUser)
         {
@@ -68,7 +55,7 @@ namespace ProLink.api.Controllers
             {
                 errorMessage = "Incorrect password.";
             }
-            else if (result.ErrorType == LoginErrorType.EmailNotComfirmed)
+            else if (result.ErrorType == LoginErrorType.EmailNotConfirmed)
             {
                 errorMessage = "Email Not Comfirmed.";
             }
@@ -80,91 +67,61 @@ namespace ProLink.api.Controllers
             ModelState.AddModelError(string.Empty, errorMessage);
             return Unauthorized(ModelState);
         }
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> LogoutAsync()
-        {
-            var result = await _authService.LogoutAsync();
-
-            if (result.Success)
-            {
-                return Ok(new { message = result.Message });
-            }
-            else
-            {
-                return BadRequest(new { error = result.Message });
-            }
-        }
         #endregion
 
         #region forget & reset & change password
+
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePassword changePassword)
+        {
+            var result = await _authService.ChangePasswordAsync(changePassword);
+            if (result.Succeeded)
+                return Ok();
+
+            return BadRequest(result.Errors);
+        }
+
         [HttpPost("forget-password")]
-        public async Task<IActionResult> ForgetPasswordAsync(string email)
+        public async Task<IActionResult> ForgetPassword(string email)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var result = await _authService.ForgetPasswordAsync(email);
+            if (result)
+                return Ok();
 
-            var isSent = await _authService.ForgetPasswordAsync(email);
-            if (isSent)
-            {
-                return Ok("Reset password email sent successfully.");
-            }
-            else
-            {
-                return NotFound("User with provided email not found.");
-            }
+            return BadRequest("User not found");
         }
 
-        [HttpGet("reset-password")]
-        public async Task<IActionResult> ResetPasswordAsync(string token, string email)
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPassword resetPassword)
         {
-            var model = new ResetPassword { Token = token, Email = email };
+            var result = await _authService.ResetPasswordAsync(resetPassword);
+            if (result.Succeeded)
+                return Ok();
 
-            return Ok(new { model });
+            return BadRequest(result.Errors);
         }
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPasswordAsync(ResetPassword resetPassword)
+        #endregion
+
+        #region OTP management
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOTP(string email)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var result = await _authService.SendOTPAsync(email);
+            if (result.Succeeded)
+                return Ok();
 
-            var resetPasswordResult = await _authService.ResetPasswordAsync(resetPassword);
-            if (!resetPasswordResult.Succeeded)
-            {
-                foreach (var error in resetPasswordResult.Errors)
-                    ModelState.AddModelError(error.Code, error.Description);
-
-                return BadRequest(ModelState);
-            }
-
-            return Ok("Password reset successfully");
-
+            return BadRequest(result.Errors);
         }
 
-        [Authorize]
-        [HttpPost("change-password")]
-        public async Task<IActionResult> ChangePasswordAsync(ChangePassword changePassword)
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOTPRequest request)
         {
-            if (!ModelState.IsValid)
+            var result = await _authService.VerifyOTPAsync(request);
+            if (result.Succeeded)
             {
-                return BadRequest(ModelState);
+                return Ok("Email confirmed successfully");
             }
-            var changePasswordResult = await _authService.ChangePasswordAsync(changePassword);
-            if (!changePasswordResult.Succeeded)
-            {
-                foreach (var error in changePasswordResult.Errors)
-                {
-                    ModelState.AddModelError(error.Code, error.Description);
-                }
-
-                return BadRequest(ModelState);
-            }
-
-            return Ok("Password changed successfully");
+            return BadRequest(result.Errors);
         }
         #endregion
     }

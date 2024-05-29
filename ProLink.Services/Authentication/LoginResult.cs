@@ -18,6 +18,6 @@ namespace ProLink.Application.Authentication
     {
         InvalidPassword,
         UserNotFound,
-        EmailNotComfirmed
+        EmailNotConfirmed
     }
 }

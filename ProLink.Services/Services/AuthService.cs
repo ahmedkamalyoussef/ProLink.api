@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using ProLink.Application.Authentication;
-using ProLink.Application.Consts;
 using ProLink.Application.Helpers;
-using ProLink.Application.Interfaces;
 using ProLink.Application.Mail;
 using ProLink.Data.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ProLink.Application.Services
 {
-    public class AuthService:IAuthService
+    public class AuthService : IAuthService
     {
         #region fields
         private readonly UserManager<User> _userManager;
@@ -47,88 +47,30 @@ namespace ProLink.Application.Services
             var userExist = await _userManager.FindByEmailAsync(registerUser.Email);
 
             if (userExist != null)
-                return IdentityResult.Failed(new IdentityError { Description = "User with this email already exists." });
+            {
+                await SendOTPAsync(userExist.Email);
+                return IdentityResult.Success;
+            }
 
             var user = _mapper.Map<User>(registerUser);
             IdentityResult result = await _userManager.CreateAsync(user, registerUser.Password);
             if (result.Succeeded)
-                await _userManager.AddToRoleAsync(user, ConstsRoles.User);
+            {
+                var otp = GenerateOTP();
+                user.OTP = otp;
+                user.OTPExpiry = DateTime.UtcNow.AddMinutes(15);
+                await _userManager.UpdateAsync(user);
 
-
-
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmationLink = $"{_contextAccessor.HttpContext.Request.Scheme}://{_contextAccessor.HttpContext.Request.Host}/api/authorization/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
-            var message = new MailMessage(new string[] { user.Email }, "Confirmation email link", confirmationLink);
-            _mailingService.SendMail(message);
+                var message = new MailMessage(new[] { user.Email }, "Your OTP for Email Confirmation", $"Your OTP is: {otp}");
+                _mailingService.SendMail(message);
+            }
             return result;
         }
 
-
-        public async Task<bool> ConfirmEmailAsync(string email, string token)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if (user == null)
-                return false;
-
-            var result = await _userManager.ConfirmEmailAsync(user, token);
-            return result.Succeeded;
-        }
+        
         #endregion
 
-        #region login & logout
-        //public async Task<LoginResult> LoginAsync(LoginUser loginUser)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(loginUser.Email);
-        //    if (user == null)
-        //    {
-        //        return new LoginResult
-        //        {
-        //            Success = false,
-        //            Token = null,
-        //            Expiration = default,
-        //            ErrorType = LoginErrorType.UserNotFound
-        //        };
-        //    }
-
-        //    if (!await _userManager.CheckPasswordAsync(user, loginUser.Password))
-        //    {
-        //        return new LoginResult
-        //        {
-        //            Success = false,
-        //            Token = null,
-        //            Expiration = default,
-        //            ErrorType = LoginErrorType.InvalidPassword
-        //        };
-        //    }
-        //    if (!user.EmailConfirmed)
-        //    {
-        //        return new LoginResult
-        //        {
-        //            Success = false,
-        //            Token = null,
-        //            Expiration = default,
-        //            ErrorType = LoginErrorType.EmailNotComfirmed
-        //        };
-        //    }
-        //    var claims = new List<Claim>
-        //    {
-        //        new Claim(ClaimTypes.Email, user.Email),
-        //        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        //    };
-
-        //    var roles = await _userManager.GetRolesAsync(user);
-        //    foreach (var role in roles)
-        //    {
-        //        claims.Add(new Claim(ClaimTypes.Role, role));
-        //    }
-        //    var message = new MailMessage(new string[] { user.Email }, "login", "you logged in your account right now");
-        //    _mailingService.SendMail(message);
-        //    return await _userHelpers.GenerateJwtTokenAsync(claims);
-        //}
-
-
+        #region login
         public async Task<LoginResult> LoginAsync(LoginUser loginUser)
         {
             var user = await _userManager.FindByEmailAsync(loginUser.Email);
@@ -143,10 +85,7 @@ namespace ProLink.Application.Services
                 };
             }
 
-            var checkPasswordTask = _userManager.CheckPasswordAsync(user, loginUser.Password);
-            //var rolesTask = _userManager.GetRolesAsync(user);
-
-            if (!await checkPasswordTask)
+            if (!await _userManager.CheckPasswordAsync(user, loginUser.Password))
             {
                 return new LoginResult
                 {
@@ -156,7 +95,6 @@ namespace ProLink.Application.Services
                     ErrorType = LoginErrorType.InvalidPassword
                 };
             }
-
             if (!user.EmailConfirmed)
             {
                 return new LoginResult
@@ -164,104 +102,128 @@ namespace ProLink.Application.Services
                     Success = false,
                     Token = null,
                     Expiration = default,
-                    ErrorType = LoginErrorType.EmailNotComfirmed
+                    ErrorType = LoginErrorType.EmailNotConfirmed
                 };
             }
-
-            //var roles = await rolesTask;
-
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
-            //foreach (var role in roles)
-            //{
-            //    claims.Add(new Claim(ClaimTypes.Role, role));
-            //}
-
-            var tokenTask = _userHelpers.GenerateJwtTokenAsync(claims);
-
-            var message = new MailMessage(new[] { user.Email }, "login", "You logged into your account right now.");
-            _ = Task.Run(() => _mailingService.SendMail(message));
-
-            var tokenResult = await tokenTask;
-
-            return tokenResult;
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+            var message = new MailMessage(new[] { user.Email }, "Login", "You logged in to your account right now.");
+            _mailingService.SendMail(message);
+            return await _userHelpers.GenerateJwtTokenAsync(claims);
         }
 
-        public async Task<LogoutResult> LogoutAsync()
-        {
-            var currentUser = await _userHelpers.GetCurrentUserAsync();
-            if (currentUser == null)
-            {
-                return new LogoutResult
-                {
-                    Success = false,
-                    Message = "User Not Found"
-                };
-            }
-            try
-            {
-                await _signInManager.SignOutAsync();
-                return new LogoutResult
-                {
-                    Success = true,
-                    Message = "User successfully logged out."
-                };
-            }
-            catch
-            {
-                return new LogoutResult
-                {
-                    Success = false,
-                    Message = "An error occurred while logging out."
-                };
-            }
-        }
         #endregion
 
-        #region forget & reset & change password
-        public async Task<bool> ForgetPasswordAsync(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
-
-
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetLink = $"{_contextAccessor.HttpContext.Request.Scheme}://{_contextAccessor.HttpContext.Request.Host}/api/Authorization/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
-            var message = new MailMessage(new string[] { user.Email }, "reset email link", resetLink);
-            _mailingService.SendMail(message);
-            return true;
-        }
-
-
-        public async Task<IdentityResult> ResetPasswordAsync(ResetPassword resetPassword)
-        {
-
-            var customer = await _userManager.FindByEmailAsync(resetPassword.Email);
-            if (customer == null)
-                return IdentityResult.Failed(new IdentityError { Description = "User not found" });
-
-
-            var result = await _userManager.ResetPasswordAsync(customer, resetPassword.Token, resetPassword.NewPassword);
-            return result;
-
-        }
-
-
+        #region Password Management
         public async Task<IdentityResult> ChangePasswordAsync(ChangePassword changePassword)
         {
             var user = await _userHelpers.GetCurrentUserAsync();
             if (user == null)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "User not found." });
-            }
+                return IdentityResult.Failed(new IdentityError { Description = "User not found" });
 
-            var result = await _userManager.ChangePasswordAsync(user, changePassword.OldPassword, changePassword.NewPassword);
+            if (user.OTP != changePassword.OTP || user.OTPExpiry < DateTime.UtcNow)
+                return IdentityResult.Failed(new IdentityError { Description = "Invalid or expired OTP" });
+
+            user.OTP = null;
+            user.OTPExpiry = DateTime.MinValue;
+
+            var result = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
+            await _userManager.UpdateAsync(user);
+
             return result;
+        }
+
+        public async Task<bool> ForgetPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return false;
+
+            await SendOTPAsync(email);
+            return true;
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(ResetPassword resetPassword)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPassword.Email);
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "User not found" });
+
+            if (user.OTP != resetPassword.OTP || user.OTPExpiry < DateTime.UtcNow)
+                return IdentityResult.Failed(new IdentityError { Description = "Invalid or expired OTP" });
+
+            user.OTP = null;
+            user.OTPExpiry = DateTime.MinValue;
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, resetPassword.NewPassword);
+            await _userManager.UpdateAsync(user);
+
+            return result;
+        }
+        #endregion
+
+        #region OTP Management
+        public async Task<IdentityResult> SendOTPAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "User not found" });
+
+            var otp = GenerateOTP();
+            user.OTP = otp;
+            user.OTPExpiry = DateTime.UtcNow.AddMinutes(15);
+            await _userManager.UpdateAsync(user);
+
+            var message = new MailMessage(new[] { user.Email }, "Your OTP", $"Your OTP is: {otp}");
+            _mailingService.SendMail(message);
+
+            return IdentityResult.Success;
+        }
+
+        public async Task<IdentityResult> VerifyOTPAsync(VerifyOTPRequest verifyOTPRequest)
+        {
+            var user = await _userManager.FindByEmailAsync(verifyOTPRequest.Email);
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "User not found" });
+
+            if (user.OTP != verifyOTPRequest.OTP || user.OTPExpiry < DateTime.UtcNow)
+                return IdentityResult.Failed(new IdentityError { Description = "Invalid or expired OTP" });
+
+            user.OTP = string.Empty;
+            user.OTPExpiry = DateTime.MinValue;
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+
+            return IdentityResult.Success;
+        }
+        #endregion
+
+        #region private methods
+        private string GenerateOTP()
+        {
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                var byteArray = new byte[6];
+                rng.GetBytes(byteArray);
+
+                var sb = new StringBuilder();
+                foreach (var byteValue in byteArray)
+                {
+                    sb.Append(byteValue % 10);
+                }
+                return sb.ToString();
+            }
         }
         #endregion
     }
