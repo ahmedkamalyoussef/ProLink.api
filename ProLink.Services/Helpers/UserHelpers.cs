@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using ProLink.Data.Entities;
-using ProLink.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

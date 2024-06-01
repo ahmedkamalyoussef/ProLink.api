@@ -25,6 +25,8 @@ namespace ProLink.Data.Configuration
                 .WithMany(u => u.Posts)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+          
+        
         }
     }
 }

@@ -16,27 +16,21 @@ namespace ProLink.Application.Services
     {
         #region fields
         private readonly UserManager<User> _userManager;
-        private readonly IHttpContextAccessor _contextAccessor;
         private readonly IMapper _mapper;
         private readonly IUserHelpers _userHelpers;
-        private readonly SignInManager<User> _signInManager;
         private readonly IMailingService _mailingService;
         #endregion
 
         #region ctor
         public AuthService(
             UserManager<User> userManager, IMapper mapper,
-            IHttpContextAccessor contextAccessor,
             IUserHelpers userHelpers,
-            SignInManager<User> signInManager,
             IMailingService mailingService
             )
         {
             _userManager = userManager;
-            _contextAccessor = contextAccessor;
             _mapper = mapper;
             _userHelpers = userHelpers;
-            _signInManager = signInManager;
             _mailingService = mailingService;
         }
         #endregion

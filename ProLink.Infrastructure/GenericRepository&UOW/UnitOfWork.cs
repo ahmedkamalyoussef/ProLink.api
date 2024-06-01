@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using ProLink.Infrastructure.Data;
+using ProLink.Data.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using ProLink.Data.Entities;
 

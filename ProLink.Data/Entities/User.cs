@@ -6,8 +6,6 @@ namespace ProLink.Data.Entities
 {
     public class User : IdentityUser
     {
-        public string? OTP { get; set; }
-        public DateTime OTPExpiry { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]
@@ -19,6 +17,8 @@ namespace ProLink.Data.Entities
         public string? FollowerId { get; set; }
         public string? ProfilePicture { get; set; }
         public string? CV { get; set; }
+        public string? OTP { get; set; }
+        public DateTime OTPExpiry { get; set; }
         [InverseProperty("Sender")]
         public virtual ICollection<JobRequest>? SentJobRequests { get; set; }
         [InverseProperty("Receiver")]

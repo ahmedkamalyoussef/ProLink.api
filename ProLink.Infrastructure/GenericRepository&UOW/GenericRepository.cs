@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using ProLink.Data.Consts;
-using ProLink.Infrastructure.Data;
+using ProLink.Data.Data;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using System.Linq.Expressions;
 

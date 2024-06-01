@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ProLink.Infrastructure.Data;
+using ProLink.Data.Data;
 
 #nullable disable
 
-namespace ProLink.Infrastructure.Migrations
+namespace ProLink.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240528002103_i")]
-    partial class i
+    [Migration("20240601185643_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -315,31 +315,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.ToTable("JobRequests");
                 });
 
-            modelBuilder.Entity("ProLink.Data.Entities.Like", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("DateLiked")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PostId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Likes");
-                });
-
             modelBuilder.Entity("ProLink.Data.Entities.Message", b =>
                 {
                     b.Property<string>("Id")
@@ -448,6 +423,34 @@ namespace ProLink.Infrastructure.Migrations
                     b.ToTable("Rate");
                 });
 
+            modelBuilder.Entity("ProLink.Data.Entities.React", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateReacted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reacts");
+                });
+
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -506,6 +509,12 @@ namespace ProLink.Infrastructure.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("OTP")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OTPExpiry")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -693,7 +702,7 @@ namespace ProLink.Infrastructure.Migrations
                     b.HasOne("ProLink.Data.Entities.Job", "Job")
                         .WithMany("JobRequests")
                         .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProLink.Data.Entities.User", "Receiver")
@@ -713,25 +722,6 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("ProLink.Data.Entities.Like", b =>
-                {
-                    b.HasOne("ProLink.Data.Entities.Post", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProLink.Data.Entities.User", "User")
-                        .WithMany("Likes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Message", b =>
@@ -798,6 +788,25 @@ namespace ProLink.Infrastructure.Migrations
                     b.Navigation("Rater");
                 });
 
+            modelBuilder.Entity("ProLink.Data.Entities.React", b =>
+                {
+                    b.HasOne("ProLink.Data.Entities.Post", "Post")
+                        .WithMany("Reacts")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProLink.Data.Entities.User", "User")
+                        .WithMany("Reacts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ProLink.Data.Entities.UserFollower", b =>
                 {
                     b.HasOne("ProLink.Data.Entities.User", "Follower")
@@ -845,7 +854,7 @@ namespace ProLink.Infrastructure.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Likes");
+                    b.Navigation("Reacts");
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
@@ -862,11 +871,11 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.Navigation("LikedPosts");
 
-                    b.Navigation("Likes");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("Reacts");
 
                     b.Navigation("ReceivedFriendRequests");
 

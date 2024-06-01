@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProLink.Data.Configuration;
 using ProLink.Data.Entities;
 
-namespace ProLink.Infrastructure.Data
+namespace ProLink.Data.Data
 {
     public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
     {

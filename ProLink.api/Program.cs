@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using ProLink.Infrastructure.Data;
+using ProLink.Data.Data;
 using ProLink.Infrastructure;
 using ProLink.Application;
 using Microsoft.AspNetCore.Identity;

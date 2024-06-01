@@ -82,6 +82,12 @@ namespace ProLink.Data.Configuration
                 .WithOne(u => u.User)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //builder
+            //    .HasMany(c => c.Jobs)
+            //    .WithOne(u => u.User)
+            //    .HasForeignKey(c => c.UserId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
