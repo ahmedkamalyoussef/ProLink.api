@@ -11,6 +11,7 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
         void Remove(T entity);
         void Update(T entity);
         void RemoveRange(IEnumerable<T> entities);
+        Task<int> Count();
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression, Expression<Func<T, object>>? orderBy = null, string? direction = null);
         Task<T> FindFirstAsync(Expression<Func<T, bool>> expression);
     }

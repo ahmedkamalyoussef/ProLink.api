@@ -6,6 +6,7 @@ using ProLink.Application.Helpers;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 using AutoMapper;
 using ProLink.Application.Consts;
+using ProLink.Data.Consts;
 
 namespace ProLink.Application.Services
 {
@@ -38,14 +39,19 @@ namespace ProLink.Application.Services
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("User not found.");
-            var user = _mapper.Map<UserResultDto>(currentUser);
-            return user;
+            var userResult = _mapper.Map<UserResultDto>(currentUser);
+
+            return userResult;
         }
         public async Task<UserResultDto> GetUserByIdAsync(string id)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             var user = await _userManager.FindByIdAsync(id);
             var userResult = _mapper.Map<UserResultDto>(user);
+
+           
+
+
             var friendRequests = await _unitOfWork.FriendRequest.FindFirstAsync(f=>(f.SenderId==user.Id&&f.ReceiverId==currentUser.Id)||
             (f.ReceiverId == user.Id && f.SenderId == currentUser.Id));
 

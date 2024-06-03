@@ -8,6 +8,25 @@ namespace ProLink.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+
+            builder
+                .HasMany(u => u.AcceptedJobs)
+                .WithOne()
+                .HasForeignKey(j => j.FreelancerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasMany(u => u.CompletedJobs)
+                .WithOne()
+                .HasForeignKey(j => j.FreelancerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasMany(u => u.RefusedJobs)
+                .WithOne()
+                .HasForeignKey(j => j.FreelancerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder
                 .HasMany(u => u.Friends)
                 .WithOne(uf => uf.User)

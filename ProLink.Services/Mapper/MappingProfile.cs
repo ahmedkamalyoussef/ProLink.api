@@ -15,7 +15,6 @@ namespace ProLink.Application.Mapper
 
             CreateMap<UserDto, User>().ReverseMap();
             CreateMap<UserPostResultDTO, User>().ReverseMap();
-
             CreateMap<MessageResultDto, Message>().ReverseMap();
             CreateMap<React, ReactDto>();
 
@@ -29,6 +28,8 @@ namespace ProLink.Application.Mapper
 
             CreateMap<User, UserResultDto>()
                 .ForMember(dest => dest.CompletedJobsCount, opt => opt.MapFrom(src => src.CompletedJobs.Count()))
+                .ForMember(dest => dest.RefusedJobsCount, opt => opt.MapFrom(src => src.RefusedJobs.Count()))
+                .ForMember(dest => dest.AcceptedJobsCount, opt => opt.MapFrom(src => src.AcceptedJobs.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))
                 .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber));
@@ -63,8 +64,8 @@ namespace ProLink.Application.Mapper
             double totalRate = 0;
             foreach (var job in user.CompletedJobs)
             {
-                if(job.Rate!=null)
-                totalRate += job.Rate.RateValue;
+                if (job.Rate != null)
+                    totalRate += job.Rate.RateValue;
             }
 
             return totalRate / user.CompletedJobs.Count;

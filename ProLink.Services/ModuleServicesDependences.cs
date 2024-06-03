@@ -24,6 +24,7 @@ namespace ProLink.Application
             service.AddTransient<IMessageService, MessageService>();
             service.AddTransient<IJobRequestService, JobRequestService>();
             service.AddTransient<INotificationService, NotificationService>();
+            service.AddTransient<IStatisticsService, StatisticsService>();
             service.AddTransient<IUserHelpers, UserHelpers >();
             service.AddScoped<IMailingService, MailingService>();
             service.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

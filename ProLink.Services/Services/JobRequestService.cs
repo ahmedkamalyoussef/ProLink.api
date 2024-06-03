@@ -80,16 +80,17 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var request = await _unitOfWork.JobRequest.FindFirstAsync(f => f.Id == jobId);
             if (request == null || request.RecieverId != currentUser.Id) return false;
-            var user = await _userManager.FindByIdAsync(request.RecieverId);
+            var user = await _userManager.FindByIdAsync(request.SenderId);
             if (user == null) return false;
-            var Job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == request.JobId);
-            if (Job == null) return false;
-            Job.FreelancerId = request.SenderId;
-            Job.IsAvailable = false;
+            var job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == request.JobId);
+            if (job == null) return false;
+            job.FreelancerId = request.SenderId;
+            user.AcceptedJobs.Add(job);
+            job.IsAvailable = false;
             request.Status = Status.Accepted;
 
 
-            _unitOfWork.Job.Update(Job);
+            _unitOfWork.Job.Update(job);
             _unitOfWork.JobRequest.Update(request);
 
 
@@ -132,28 +133,33 @@ namespace ProLink.Application.Services
             if (jobId.IsNullOrEmpty())
                 throw new ArgumentException("Invalid jop ID");
 
-            var job = _unitOfWork.JobRequest.GetById(jobId);
+            var jobRequest = _unitOfWork.JobRequest.GetById(jobId);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
 
-            if (job == null || job.Receiver != currentUser)
+            if (jobRequest == null || jobRequest.Receiver != currentUser)
                 return false;
 
-            if (job.Status != Status.Pending)
+            if (jobRequest.Status != Status.Pending)
                 return false;
-            job.Status = Status.Declined;
-            _unitOfWork.JobRequest.Update(job);
+
+            var job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == jobRequest.JobId);
+            var sender = await _userManager.FindByIdAsync(jobRequest.SenderId);
+
+            jobRequest.Status = Status.Declined;
+            sender.RefusedJobs.Add(job);
+            _unitOfWork.JobRequest.Update(jobRequest);
             var notification = new Notification
             {
-                Content = $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {job.Job.Title} post",
+                Content = $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {jobRequest.Job.Title} post",
                 Timestamp = DateTime.Now,
-                ReceiverId = job.SenderId
+                ReceiverId = jobRequest.SenderId
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)
             {
-                var user = await _userManager.FindByIdAsync(job.SenderId);
+                var user = await _userManager.FindByIdAsync(jobRequest.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "Jop request",
-                    $"{user.FirstName} {user.LastName} declined your jop request on {job.Job.Title} post");
+                    $"{user.FirstName} {user.LastName} declined your jop request on {jobRequest.Job.Title} post");
                 _mailingService.SendMail(message);
                 return true;
             }

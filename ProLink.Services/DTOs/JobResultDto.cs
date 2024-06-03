@@ -1,5 +1,4 @@
 ﻿using ProLink.Data.Consts;
-using ProLink.Data.Entities;
 
 namespace ProLink.Application.DTOs
 {
@@ -12,7 +11,7 @@ namespace ProLink.Application.DTOs
         public string Description { get; set; }
         public string? PostImage { get; set; }
         public Status Status { get; set; }
-        public UserResultDto User { get; set; }
+        public UserPostResultDTO User { get; set; }
 
     }
 }
