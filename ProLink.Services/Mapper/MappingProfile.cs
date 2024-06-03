@@ -14,6 +14,7 @@ namespace ProLink.Application.Mapper
                    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => new MailAddress(src.Email).User));
 
             CreateMap<UserDto, User>().ReverseMap();
+            CreateMap<UserPostResultDTO, User>().ReverseMap();
 
             CreateMap<MessageResultDto, Message>().ReverseMap();
             CreateMap<React, ReactDto>();

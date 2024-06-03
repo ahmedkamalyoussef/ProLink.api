@@ -7,6 +7,6 @@ namespace ProLink.Application.DTOs
         public string Id { get; set; } 
         public DateTime DateReacted { get; set; }
         public ReactType Type { get; set; }
-        public UserResultDto User { get; set; }
+        public UserPostResultDTO User { get; set; }
     }
 }
