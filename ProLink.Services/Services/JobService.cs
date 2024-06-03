@@ -47,6 +47,18 @@ namespace ProLink.Application.Services
             //    await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             //    return false;
             //}
+
+            foreach (var follower in currentUser.Followers)
+            {
+                var notification = new Notification
+                {
+                    Content = $"{currentUser.FirstName} {currentUser.LastName} just posted a job for {Job.Title}",
+                    Timestamp = DateTime.Now,
+                    ReceiverId = follower.FollowerId
+                };
+                _unitOfWork.Notification.Add(notification);
+            }
+
             if (await _unitOfWork.SaveAsync() > 0)
                 return true;
             //await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
