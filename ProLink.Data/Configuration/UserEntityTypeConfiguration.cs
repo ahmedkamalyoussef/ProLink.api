@@ -13,19 +13,19 @@ namespace ProLink.Data.Configuration
                 .HasMany(u => u.AcceptedJobs)
                 .WithOne()
                 .HasForeignKey(j => j.FreelancerId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(u => u.CompletedJobs)
                 .WithOne()
                 .HasForeignKey(j => j.FreelancerId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(u => u.RefusedJobs)
                 .WithOne()
                 .HasForeignKey(j => j.FreelancerId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(u => u.Friends)
@@ -44,37 +44,37 @@ namespace ProLink.Data.Configuration
                .HasMany(r => r.SentJobRequests)
                .WithOne(p => p.Sender)
                .HasForeignKey(r => r.SenderId)
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.NoAction);
 
             builder
                .HasMany(r => r.ReceivedJobRequests)
                .WithOne(p => p.Receiver)
                .HasForeignKey(r => r.RecieverId)
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.NoAction);
 
             builder
                .HasMany(r => r.SentFriendRequests)
                .WithOne(p => p.Sender)
                .HasForeignKey(r => r.SenderId)
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.NoAction);
 
             builder
                .HasMany(r => r.ReceivedFriendRequests)
                .WithOne(p => p.Receiver)
                .HasForeignKey(r => r.ReceiverId)
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(c => c.Comments)
                 .WithOne(u => u.User)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(c => c.Reacts)
                 .WithOne(u => u.User)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             
 
@@ -82,25 +82,25 @@ namespace ProLink.Data.Configuration
                 .HasMany(c => c.Notifications)
                 .WithOne(u => u.Receiver)
                 .HasForeignKey(c => c.ReceiverId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(c => c.SentMessages)
                 .WithOne(u => u.Sender)
                 .HasForeignKey(c => c.SenderId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(c => c.ReceivedMessages)
                 .WithOne(u => u.Receiver)
                 .HasForeignKey(c => c.ReceiverId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(c => c.Posts)
                 .WithOne(u => u.User)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             //builder
             //    .HasMany(c => c.Jobs)

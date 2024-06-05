@@ -17,7 +17,15 @@ namespace ProLink.api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStatisticsAsync()
         {
-            var result = await _statisticsService.Statistics();
+            var result = await _statisticsService.StatisticsAsync();
+            return Ok(result);
+        }
+
+
+        [HttpGet("user-jobs")]
+        public async Task<IActionResult> GetUserJobsStatisticsAsync(string userId)
+        {
+            var result = await _statisticsService.UserJobsStatisticsAsync(userId);
             return Ok(result);
         }
     }

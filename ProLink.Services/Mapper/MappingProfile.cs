@@ -27,9 +27,9 @@ namespace ProLink.Application.Mapper
             CreateMap<FriendRequest, FriendRequestDto>().ReverseMap();
 
             CreateMap<User, UserResultDto>()
-                .ForMember(dest => dest.CompletedJobsCount, opt => opt.MapFrom(src => src.CompletedJobs.Count()))
-                .ForMember(dest => dest.RefusedJobsCount, opt => opt.MapFrom(src => src.RefusedJobs.Count()))
-                .ForMember(dest => dest.AcceptedJobsCount, opt => opt.MapFrom(src => src.AcceptedJobs.Count()))
+                //.ForMember(dest => dest.CompletedJobsCount, opt => opt.MapFrom(src => src.CompletedJobs.Count()))
+                //.ForMember(dest => dest.RefusedJobsCount, opt => opt.MapFrom(src => src.RefusedJobs.Count()))
+                //.ForMember(dest => dest.AcceptedJobsCount, opt => opt.MapFrom(src => src.AcceptedJobs.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))
                 .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber));
