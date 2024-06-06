@@ -39,8 +39,8 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("user not found");
-            var followers = currentUser.Followers;
-            var followersResult = followers.Select(follower => _mapper.Map<UserResultDto>(follower)).ToList();
+            var followers = currentUser.Followers.Select(f=>f.Follower);
+            var followersResult = _mapper.Map<IEnumerable<UserResultDto>>(followers).ToList();
             return followersResult;
         }
         public async Task<bool> FollowAsync(string userId)
