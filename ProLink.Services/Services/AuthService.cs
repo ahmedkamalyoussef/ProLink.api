@@ -42,8 +42,13 @@ namespace ProLink.Application.Services
 
             if (userExist != null)
             {
-                await SendOTPAsync(userExist.Email);
-                return IdentityResult.Success;
+                if(userExist.EmailConfirmed)
+                {
+                    await SendOTPAsync(userExist.Email);
+                    return IdentityResult.Success;
+                }
+                throw new Exception("user already exist");
+                
             }
 
             var user = _mapper.Map<User>(registerUser);
