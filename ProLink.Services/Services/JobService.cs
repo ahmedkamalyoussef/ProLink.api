@@ -54,7 +54,8 @@ namespace ProLink.Application.Services
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} just posted a job for {Job.Title}",
                     Timestamp = DateTime.Now,
-                    ReceiverId = follower.FollowerId
+                    ReceiverId = follower.FollowerId,
+                    SenderId=currentUser.Id
                 };
                 _unitOfWork.Notification.Add(notification);
             }

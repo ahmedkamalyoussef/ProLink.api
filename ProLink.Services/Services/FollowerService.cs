@@ -66,7 +66,8 @@ namespace ProLink.Application.Services
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} just started following you",
                     Timestamp = DateTime.Now,
-                    ReceiverId = user.Id
+                    ReceiverId = user.Id,
+                    SenderId = currentUser.Id
                 };
                 _unitOfWork.Notification.Add(notification);
                 await _unitOfWork.SaveAsync();

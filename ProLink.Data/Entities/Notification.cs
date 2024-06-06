@@ -15,5 +15,9 @@ namespace ProLink.Data.Entities
         [ForeignKey("ReceiverId")]
         public virtual User Receiver { get; set; }
 
+        public string? SenderId { get; set; }
+        [ForeignKey("SenderId")]
+        public virtual User? Sender { get; set; }
+
     }
 }

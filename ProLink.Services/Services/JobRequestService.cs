@@ -62,7 +62,8 @@ namespace ProLink.Application.Services
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {Job.Title} post",
                 Timestamp = DateTime.Now,
-                ReceiverId = user.Id
+                ReceiverId = user.Id,
+                SenderId=currentUser.Id
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)
@@ -92,13 +93,14 @@ namespace ProLink.Application.Services
 
             _unitOfWork.Job.Update(job);
             _unitOfWork.JobRequest.Update(request);
-
+            _unitOfWork.User.Update(user);
 
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Job.Title} post",
                 Timestamp = DateTime.Now,
-                ReceiverId = request.SenderId
+                ReceiverId = request.SenderId,
+                SenderId=currentUser.Id
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)
@@ -152,14 +154,15 @@ namespace ProLink.Application.Services
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {jobRequest.Job.Title} post",
                 Timestamp = DateTime.Now,
-                ReceiverId = jobRequest.SenderId
+                ReceiverId = jobRequest.SenderId,
+                SenderId = currentUser.Id
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)
             {
                 var user = await _userManager.FindByIdAsync(jobRequest.SenderId);
                 var message = new MailMessage(new string[] { user.Email }, "Jop request",
-                    $"{user.FirstName} {user.LastName} declined your jop request on {jobRequest.Job.Title} post");
+                    $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {jobRequest.Job.Title} post");
                 _mailingService.SendMail(message);
                 return true;
             }

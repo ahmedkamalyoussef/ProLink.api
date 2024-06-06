@@ -53,7 +53,8 @@ namespace ProLink.Application.Services
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} just add a post",
                     Timestamp = DateTime.Now,
-                    ReceiverId = follower.FollowerId
+                    ReceiverId = follower.FollowerId,
+                    SenderId = currentUser.Id
                 };
                 _unitOfWork.Notification.Add(notification);
             }
@@ -214,14 +215,23 @@ namespace ProLink.Application.Services
         #region comments methods
         public async Task<bool> AddCommentAsync(string postId, AddCommentDto addCommentDto)
         {
-            var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null) throw new Exception("user not found");
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) throw new Exception("post doesnt exist");
             Comment comment = _mapper.Map<Comment>(addCommentDto);
-            comment.User = user;
+            comment.User = currentUser;
             comment.Post = post;
             _unitOfWork.Comment.Add(comment);
+
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} commented on your post",
+                Timestamp = DateTime.Now,
+                ReceiverId = post.UserId,
+                SenderId = currentUser.Id
+            };
+            _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
@@ -253,24 +263,34 @@ namespace ProLink.Application.Services
         #region like methods
         public async Task<bool> AddReactAsync(string postId,ReactType type)
         {
-            var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null) throw new Exception("user not found");
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) throw new Exception("post doesnt exist");
-            var reactExist = await _unitOfWork.React.FindFirstAsync(l => l.UserId == user.Id && l.PostId == post.Id);
+            var reactExist = await _unitOfWork.React.FindFirstAsync(l => l.UserId == currentUser.Id && l.PostId == post.Id);
             if (reactExist == null)
             {
                 React react = new React();
-                react.User = user;
+                react.User = currentUser;
                 react.Post = post;
                 react.Type = type;
                 react.DateReacted = DateTime.Now;
                 await _unitOfWork.CreateTransactionAsync();
                 try
                 {
-                    user.LikedPosts.Add(post);
+                    currentUser.LikedPosts.Add(post);
                     _unitOfWork.React.Add(react);
                     await _unitOfWork.SaveAsync();
+
+                    var notification = new Notification
+                    {
+                        Content = $"{currentUser.FirstName} {currentUser.LastName} reacted with your post",
+                        Timestamp = DateTime.Now,
+                        ReceiverId = post.UserId,
+                        SenderId = currentUser.Id
+                    };
+                    _unitOfWork.Notification.Add(notification);
+
                     await _unitOfWork.CommitAsync();
                     return true;
                 }

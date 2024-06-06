@@ -76,7 +76,8 @@ namespace ProLink.Application.Services
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} sent you friend request",
                     Timestamp = DateTime.Now,
-                    ReceiverId = user.Id
+                    ReceiverId = user.Id,
+                    SenderId = currentUser.Id
                 };
                 _unitOfWork.Notification.Add(notification);
                 await _unitOfWork.SaveAsync();
@@ -137,7 +138,8 @@ namespace ProLink.Application.Services
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} declined you friend request ",
                     Timestamp = DateTime.Now,
-                    ReceiverId = request.SenderId
+                    ReceiverId = request.SenderId,
+                    SenderId = currentUser.Id
                 };
                 _unitOfWork.Notification.Add(notification);
                 await _unitOfWork.SaveAsync();
@@ -170,7 +172,8 @@ namespace ProLink.Application.Services
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
                 Timestamp = DateTime.Now,
-                ReceiverId = user.Id
+                ReceiverId = user.Id,
+                SenderId = currentUser.Id
             };
             _unitOfWork.Notification.Add(notification);
 
@@ -206,7 +209,8 @@ namespace ProLink.Application.Services
                 {
                     Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request ",
                     Timestamp = DateTime.Now,
-                    ReceiverId = user.Id
+                    ReceiverId = user.Id,
+                    SenderId = currentUser.Id
                 };
                 _unitOfWork.Notification.Add(notification);
                 var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");

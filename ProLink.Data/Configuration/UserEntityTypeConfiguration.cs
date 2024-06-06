@@ -85,6 +85,12 @@ namespace ProLink.Data.Configuration
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder
+                .HasMany(c => c.SentNotifications)
+                .WithOne(u => u.Sender)
+                .HasForeignKey(c => c.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder
                 .HasMany(c => c.SentMessages)
                 .WithOne(u => u.Sender)
                 .HasForeignKey(c => c.SenderId)
