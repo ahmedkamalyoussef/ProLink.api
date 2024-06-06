@@ -25,6 +25,7 @@ namespace ProLink.Application.Mapper
             CreateMap<JobRequest, JobRequestDto>();
 
             CreateMap<FriendRequest, FriendRequestDto>().ReverseMap();
+            CreateMap<User, UserInfoResultDto>();
 
             CreateMap<User, UserResultDto>()
                 //.ForMember(dest => dest.CompletedJobsCount, opt => opt.MapFrom(src => src.CompletedJobs.Count()))

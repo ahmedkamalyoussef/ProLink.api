@@ -43,6 +43,17 @@ namespace ProLink.Application.Services
 
             return userResult;
         }
+
+        public async Task<UserInfoResultDto> GetUserInfoAsync()
+        {
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null)
+                throw new Exception("User not found.");
+            var userResult = _mapper.Map<UserInfoResultDto>(currentUser);
+
+            return userResult;
+        }
+
         public async Task<UserResultDto> GetUserByIdAsync(string id)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
@@ -230,7 +241,9 @@ namespace ProLink.Application.Services
                 throw new Exception("User not found");
             return user.BackImage;
         }
+
+        
         #endregion
-   
+
     }
 }

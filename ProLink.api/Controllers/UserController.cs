@@ -30,6 +30,14 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
+        [HttpGet("user-info")]
+        public async Task<IActionResult> GetUserInfoToUpdateAsync()
+        {
+            var result = await _userService.GetUserInfoAsync();
+            return result != null ? Ok(result) : BadRequest(" user not found.");
+        }
+
+        [Authorize]
         [HttpGet("get-by-id")]
         public async Task<IActionResult> GetUserByIDAsync(string id)
         {
