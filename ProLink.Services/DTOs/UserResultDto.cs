@@ -18,7 +18,7 @@ namespace ProLink.Application.DTOs
         public double? Rate { get; set; }
         public string? ProfilePicture { get; set; }
         public string? BackImage { get; set; }
-        public List<string>? Skill { get; set; }
+        public List<string>? Skills { get; set; }
         
 
 

@@ -7,7 +7,7 @@
         public string? JopTitle { get; set; }
         public string? Description { get; set; }
         public string? PhoneNumber { get; set; }
-        public List<string>? Skill { get; set; }
+        public List<string>? Skills { get; set; }
 
     }
 }
