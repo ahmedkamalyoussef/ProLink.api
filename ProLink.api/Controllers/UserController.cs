@@ -94,6 +94,7 @@ namespace ProLink.api.Controllers
         {
             var result = await _userService.DeleteUserPictureAsync();
             return result ? Ok("picture has been deleted successfully.") : BadRequest("failed to delete picture");
+
         }
 
 
