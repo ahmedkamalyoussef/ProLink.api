@@ -51,6 +51,7 @@ namespace ProLink.Application.Services
             if (user == null) return false;
             var oldUserfollower=await _unitOfWork.UserFollower.FindFirstAsync(uf=>uf.UserId == user.Id&&uf.FollowerId==currentUser.Id);
             if(oldUserfollower!=null) return true;
+
             var userFollower=new UserFollower { FollowerId = currentUser.Id ,UserId=user.Id};
             await _unitOfWork.CreateTransactionAsync();
             try
