@@ -46,9 +46,9 @@ namespace ProLink.api.Controllers
 
         [Authorize]
         [HttpDelete("delete-jobRequest")]
-        public async Task<IActionResult> DeletejobRequestAsync(string requestId)
+        public async Task<IActionResult> DeletejobRequestAsync(string jobId)
         {
-            var result = await _jobRequestService.DeletePendingJobRequestAsync(requestId);
+            var result = await _jobRequestService.DeletePendingJobRequestAsync(jobId);
             return result ? Ok("jobRequest has been deleted successfully") : BadRequest("faild to delete jobRequest");
         }
 

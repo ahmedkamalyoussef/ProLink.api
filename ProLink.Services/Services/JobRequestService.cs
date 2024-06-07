@@ -111,12 +111,14 @@ namespace ProLink.Application.Services
         }
         public async Task<bool> DeletePendingJobRequestAsync(string jobId)
         {
+            var currentUser= await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) return false;
             if (jobId.IsNullOrEmpty())
                 throw new ArgumentException("Invalid jop ID");
 
-            var job = _unitOfWork.JobRequest.GetById(jobId);
+            var job =await _unitOfWork.JobRequest.FindFirstAsync(jr=>jr.JobId== jobId && jr.SenderId==currentUser.Id);
 
-            if (job == null || job.Sender != await _userHelpers.GetCurrentUserAsync())
+            if (job == null || job.Sender != currentUser)
                 return false;
 
             if (job.Status != Status.Pending)
@@ -177,6 +179,8 @@ namespace ProLink.Application.Services
             var result = requests.Select(request => _mapper.Map<JobRequestDto>(request)).ToList();
             return result;
         }
+
+
 
 
         #endregion
