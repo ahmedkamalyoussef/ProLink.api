@@ -9,11 +9,7 @@ namespace ProLink.Data.Configuration
         public void Configure(EntityTypeBuilder<User> builder)
         {
 
-            builder
-                .HasMany(u => u.AcceptedJobs)
-                .WithOne()
-                .HasForeignKey(j => j.FreelancerId)
-                .OnDelete(DeleteBehavior.NoAction);
+
 
             builder
                 .HasMany(u => u.CompletedJobs)

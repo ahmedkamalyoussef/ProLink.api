@@ -36,10 +36,8 @@ namespace ProLink.Application.Services
             if (user == null) throw new Exception("user not found");
             UserJobsStatisticsDto userJobsStatisticsDto = new UserJobsStatisticsDto
             {
-                AcceptedJobs = _mapper.Map<IEnumerable<JobResultDto>>(user.AcceptedJobs).ToList(),
                 CompletedJobs = _mapper.Map<IEnumerable<JobResultDto>>(user.CompletedJobs).ToList(),
                 RefusedJobs = _mapper.Map<IEnumerable<JobResultDto>>(user.RefusedJobs).ToList(),
-                AcceptedJobsCount = user.AcceptedJobs.Count(),
                 CompletedJobsCount = user.CompletedJobs.Count(),
                 RefusedJobsCount = user.RefusedJobs.Count()
             };

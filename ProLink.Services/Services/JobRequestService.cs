@@ -86,14 +86,12 @@ namespace ProLink.Application.Services
             var job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == request.JobId);
             if (job == null) return false;
             job.FreelancerId = request.SenderId;
-            user.AcceptedJobs.Add(job);
             job.IsAvailable = false;
             request.Status = Status.Accepted;
 
 
             _unitOfWork.Job.Update(job);
             _unitOfWork.JobRequest.Update(request);
-            _unitOfWork.User.Update(user);
 
             var notification = new Notification
             {
