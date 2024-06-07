@@ -56,6 +56,8 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
+            var request=await _unitOfWork.FriendRequest.FindFirstAsync(f=>f.ReceiverId == userId);
+            if (request != null) return true;
             await _unitOfWork.CreateTransactionAsync();
             try
             {

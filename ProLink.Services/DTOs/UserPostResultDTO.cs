@@ -1,4 +1,6 @@
-﻿namespace ProLink.Application.DTOs
+﻿using ProLink.Data.Entities;
+
+namespace ProLink.Application.DTOs
 {
     public class UserPostResultDTO
     {
@@ -7,5 +9,6 @@
         public string LastName { get; set; }
         public string? JopTitle { get; set; }
         public string? ProfilePicture { get; set; }
+
     }
 }
