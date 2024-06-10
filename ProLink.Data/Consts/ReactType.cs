@@ -5,6 +5,8 @@
         Like,
         DisLike,
         Love,
-        Laugh
+        HAHA,
+        WOW,
+        Angry
     }
 }

@@ -17,6 +17,7 @@ namespace ProLink.Application.DTOs
         public int CommentsCount { get; set; }
         public int ReactsCount { get; set; }
         public DateTime DateCreated { get; set; }
+        public ReactDto React { get; set; }
         public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
         public List<ReactDto> Reacts { get; set; } = new List<ReactDto>();
         public UserPostResultDTO User { get; set; }

@@ -116,6 +116,8 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
+                var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
+                post.React=_mapper.Map<ReactDto>(react);
                 var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
                 uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
                 if (userFollower != null) post.IsUserFollowed = true;
@@ -127,6 +129,7 @@ namespace ProLink.Application.Services
                     var Like = await _unitOfWork.React.FindFirstAsync(p => p.UserId == currentUser.Id && p.PostId == post.Id);
                     post.LikeId = Like.Id;
                 }
+
             }
             return postResults.ToList();
         }
@@ -137,7 +140,8 @@ namespace ProLink.Application.Services
             if (post == null) throw new Exception("post not found");
             var postResult = _mapper.Map<PostResultDto>(post);
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
-
+            var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
+            postResult.React = _mapper.Map<ReactDto>(react);
             if (likedPostIds.Contains(post.Id))
             {
                 postResult.IsLiked = true;
@@ -154,7 +158,8 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
-
+                var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
+                post.React = _mapper.Map<ReactDto>(react);
                 var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
                 uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
                 if (userFollower != null) post.IsUserFollowed = true;
@@ -177,6 +182,8 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
+                var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
+                post.React = _mapper.Map<ReactDto>(react);
                 if (likedPostIds.Contains(post.Id))
                 {
                     post.IsLiked = true;
@@ -194,6 +201,8 @@ namespace ProLink.Application.Services
             var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
             foreach (var post in postResults)
             {
+                var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
+                post.React = _mapper.Map<ReactDto>(react);
                 var userFollower = await _unitOfWork.UserFollower.FindFirstAsync(uf =>
                 uf.FollowerId == currentUser.Id && uf.UserId == post.User.Id);
                 if (userFollower != null) post.IsUserFollowed = true;
@@ -267,8 +276,16 @@ namespace ProLink.Application.Services
             if (currentUser == null) throw new Exception("user not found");
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == postId);
             if (post == null) throw new Exception("post doesnt exist");
-            var reactExist = await _unitOfWork.React.FindFirstAsync(l => l.UserId == currentUser.Id && l.PostId == post.Id);
-            if (reactExist == null)
+            var reactExist = await _unitOfWork.React.FindFirstAsync(l => l.UserId == currentUser.Id && l.PostId == postId);
+            if (reactExist != null)
+            {
+                reactExist.DateReacted = DateTime.Now;
+                reactExist.Type = type;
+                _unitOfWork.React.Update(reactExist);
+                if(await _unitOfWork.SaveAsync()>0)return true;
+                return false;
+            }
+            else
             {
                 React react = new React();
                 react.User = currentUser;
