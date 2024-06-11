@@ -66,7 +66,7 @@ namespace ProLink.Application.Services
             var friendRequests = await _unitOfWork.FriendRequest.FindFirstAsync(f=>(f.SenderId==user.Id&&f.ReceiverId==currentUser.Id)||
             (f.ReceiverId == user.Id && f.SenderId == currentUser.Id));
 
-            var userfollower=_unitOfWork.UserFollower.FindFirstAsync(uf=>uf.FollowerId==currentUser.Id&&uf.UserId==user.Id);
+            var userfollower=await _unitOfWork.UserFollower.FindFirstAsync(uf=>uf.FollowerId==currentUser.Id&&uf.UserId==user.Id);
 
             if (userfollower!=null) userResult.IsFollowed = true;
             else userResult.IsFollowed = false;
