@@ -118,8 +118,8 @@ namespace ProLink.Application.Services
                     authModel.RefreshToken = refreshToken.Token;
                     authModel.RefreshTokenExpiration = refreshToken.ExpiresOn;
                 }
-                //var message = new MailMessage(new[] { user.Email }, "Login", "You logged in to your account right now.");
-                //_mailingService.SendMail(message);
+                var message = new MailMessage(new[] { user.Email }, "Login", "You logged in to your account right now.");
+                _mailingService.SendMail(message);
                 return authModel;
             }
             catch (Exception ex)
