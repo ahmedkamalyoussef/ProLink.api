@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ProLink.Application.Mail;
+using ProLink.api;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,6 +18,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 #region Connection String
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -126,7 +129,7 @@ builder.Services.AddCors(options =>
 #endregion
 
 var app = builder.Build();
-
+app.UseMiddleware<PerformanceMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
