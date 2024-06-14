@@ -7,7 +7,7 @@ namespace ProLink.Application.Interfaces
     {
         Task<UserResultDto> GetCurrentUserInfoAsync();
         Task<UserResultDto> GetUserByIdAsync(string id);
-        Task<List<UserResultDto>> GetUsersByNameAsync(string name);
+        Task<List<UserResultDto>> GetUsersByNameOrTitleAsync(string cratirea);
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
         Task<bool> DeleteAccountAsync();
         Task<bool> DeleteUserPictureAsync();

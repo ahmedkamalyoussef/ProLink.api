@@ -83,9 +83,9 @@ namespace ProLink.Application.Services
             return userResult;
         }
 
-        public async Task<List<UserResultDto>> GetUsersByNameAsync(string name)
+        public async Task<List<UserResultDto>> GetUsersByNameOrTitleAsync(string cratirea)
         {
-            var users = await _unitOfWork.User.FindAsync(u => u.FirstName.Contains(name) || u.LastName.Contains(name));
+            var users = await _unitOfWork.User.FindAsync(u => u.FirstName.Contains(cratirea) || u.LastName.Contains(cratirea)||u.JopTitle.Contains(cratirea));
             var usersResult = users.Select(user => _mapper.Map<UserResultDto>(user));
             return usersResult.ToList();
         }

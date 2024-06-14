@@ -38,21 +38,21 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpGet("get-by-id")]
+        [HttpGet("by-id")]
         public async Task<IActionResult> GetUserByIDAsync(string id)
         {
             var result = await _userService.GetUserByIdAsync(id);
             return result != null ? Ok(result) : BadRequest("user not found.");
         }
         [Authorize]
-        [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetUserNameAsync(string name)
+        [HttpGet("by-name-or-title")]
+        public async Task<IActionResult> GetUserByNameOrTitleAsync(string name)
         {
-            var result = await _userService.GetUsersByNameAsync(name);
+            var result = await _userService.GetUsersByNameOrTitleAsync(name);
             return Ok(result);
         }
         [Authorize]
-        [HttpPut("update-info")]
+        [HttpPut("info")]
         public async Task<IActionResult> UpdateUserInfoAsync(UserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -64,7 +64,7 @@ namespace ProLink.api.Controllers
                     BadRequest("Failed to update user information.");
         }
 
-        [HttpDelete("delete-account")]
+        [HttpDelete("account")]
         public async Task<IActionResult> DeleteAccountAsync()
         {
             var success = await _userService.DeleteAccountAsync();
