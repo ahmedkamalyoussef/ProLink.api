@@ -92,15 +92,16 @@ namespace ProLink.Application.Services
             return true;
         }
 
-        public async Task<bool> DeletePendingFriendAsync(string friendRequestId)
+        public async Task<bool> DeletePendingFriendAsync(string userId)
         {
-            if (friendRequestId.IsNullOrEmpty())
+            if (userId.IsNullOrEmpty())
                 throw new ArgumentException("Invalid friend Request ID");
-
-            var friendRequest = _unitOfWork.FriendRequest.GetById(friendRequestId);
-
-            if (friendRequest == null || friendRequest.Sender != await _userHelpers.GetCurrentUserAsync())
-                return false;
+            var currentuser=await _userHelpers.GetCurrentUserAsync();
+            if (currentuser == null) throw new Exception("current user not found");
+            var user = _unitOfWork.User.GetById(userId);
+            var friendRequest=await _unitOfWork.FriendRequest.FindFirstAsync(fr=>fr.SenderId==currentuser.Id&&fr.ReceiverId==userId);
+            if (friendRequest == null)
+                throw new Exception("friend request not found");
 
             if (friendRequest.Status != Status.Pending)
                 return false;

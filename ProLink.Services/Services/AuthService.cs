@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using ProLink.Application.Authentication;
+using ProLink.Application.DTOs;
 using ProLink.Application.Helpers;
 using ProLink.Application.Mail;
 using ProLink.Data.Entities;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -19,19 +19,26 @@ namespace ProLink.Application.Services
         private readonly IMapper _mapper;
         private readonly IUserHelpers _userHelpers;
         private readonly IMailingService _mailingService;
+        private SignInManager<User> _signInManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         #endregion
 
         #region ctor
         public AuthService(
             UserManager<User> userManager, IMapper mapper,
             IUserHelpers userHelpers,
-            IMailingService mailingService
+            IMailingService mailingService,
+            SignInManager<User> signInManager,
+            IHttpContextAccessor httpContextAccessor
             )
         {
             _userManager = userManager;
             _mapper = mapper;
             _userHelpers = userHelpers;
             _mailingService = mailingService;
+            _signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
         }
         #endregion
 
@@ -70,59 +77,119 @@ namespace ProLink.Application.Services
         #endregion
 
         #region login
-        public async Task<LoginResult> LoginAsync(LoginUser loginUser)
+        public async Task<AuthDTO> LoginAsync(LoginUser loginUser)
         {
-            var user = await _userManager.FindByEmailAsync(loginUser.Email);
-            if (user == null)
+            var authModel = new AuthDTO();
+            try
             {
-                return new LoginResult
-                {
-                    Success = false,
-                    Token = null,
-                    Expiration = default,
-                    ErrorType = LoginErrorType.UserNotFound
-                };
-            }
+                var user = await _userManager.FindByEmailAsync(loginUser.Email);
+                if (user == null)
+                    return new AuthDTO { Message = "user not found" };
 
-            if (!await _userManager.CheckPasswordAsync(user, loginUser.Password))
-            {
-                return new LoginResult
+                if (!await _userManager.CheckPasswordAsync(user, loginUser.Password))
+                    return new AuthDTO { Message = "Invalid password" };
+                if (!user.EmailConfirmed)
                 {
-                    Success = false,
-                    Token = null,
-                    Expiration = default,
-                    ErrorType = LoginErrorType.InvalidPassword
-                };
-            }
-            if (!user.EmailConfirmed)
-            {
-                return new LoginResult
-                {
-                    Success = false,
-                    Token = null,
-                    Expiration = default,
-                    ErrorType = LoginErrorType.EmailNotConfirmed
-                };
-            }
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+                    return new AuthDTO { Message = "user not confirmed" };
+                }
 
-            var roles = await _userManager.GetRolesAsync(user);
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                var token = await _userHelpers.GenerateJwtTokenAsync(user);
+                var roles = await _userManager.GetRolesAsync(user);
+
+                authModel.Message = $"Welcome Back, {user.FirstName}";
+                authModel.UserName = user.UserName;
+                authModel.Email = user.Email;
+                authModel.Token = new JwtSecurityTokenHandler().WriteToken(token);
+                authModel.IsAuthenticated = true; //ExpiresOn = token.ValidTo,
+                authModel.Roles = roles.ToList();
+
+
+                if (user.RefreshTokens.Any(a => a.IsActive))
+                {
+                    var ActiveRefreshToken = user.RefreshTokens.First(a => a.IsActive);
+                    authModel.RefreshToken = ActiveRefreshToken.Token;
+                    authModel.RefreshTokenExpiration = ActiveRefreshToken.ExpiresOn;
+                }
+                else
+                {
+                    var refreshToken = GenerateRefreshToken();
+                    user.RefreshTokens.Add(refreshToken);
+                    await _userManager.UpdateAsync(user);
+                    authModel.RefreshToken = refreshToken.Token;
+                    authModel.RefreshTokenExpiration = refreshToken.ExpiresOn;
+                }
+                //var message = new MailMessage(new[] { user.Email }, "Login", "You logged in to your account right now.");
+                //_mailingService.SendMail(message);
+                return authModel;
             }
-            var message = new MailMessage(new[] { user.Email }, "Login", "You logged in to your account right now.");
-            _mailingService.SendMail(message);
-            return await _userHelpers.GenerateJwtTokenAsync(claims);
+            catch (Exception ex)
+            {
+                return new AuthDTO { Message = "Invalid Authentication", Errors = new List<string> { ex.Message } };
+            }
         }
 
         #endregion
+        #region logout
+        public async Task<string> LogoutAsync()
+        {
+            if (await _userHelpers.GetCurrentUserAsync() == null)
+            {
+                return "User Not Found";
+            }
+            await _signInManager.SignOutAsync();
 
+            return "User Logged Out Successfully";
+        }
+        #endregion
+        #region Refresh Token
+        public async Task<AuthDTO> RefreshTokenAsync(string Token)
+        {
+            var user = _userManager.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == Token));
+            if (user == null)
+            {
+                return new AuthDTO { Message = "Invalid Token" };
+            }
+            var refreshToken = user.RefreshTokens.Single(x => x.Token == Token);
+            if (!refreshToken.IsActive)
+            {
+                return new AuthDTO { Message = "InActive Token" };
+            }
+            refreshToken.RevokedOn = DateTime.UtcNow;
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshTokens.Add(newRefreshToken);
+            await _userManager.UpdateAsync(user);
+            var jwtToken = await _userHelpers.GenerateJwtTokenAsync(user);
+            return new AuthDTO
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                RefreshToken = newRefreshToken.Token,
+                RefreshTokenExpiration = newRefreshToken.ExpiresOn,
+                IsAuthenticated = true,
+                UserName = user.UserName,
+                Email = user.Email,
+                Roles = await _userManager.GetRolesAsync(user) as List<string>,
+            };
+        }
+        #endregion
+
+        #region Revoke Token
+        public async Task<bool> RevokeTokenAsync(string Token)
+        {
+            var user = _userManager.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == Token));
+            if (user == null)
+            {
+                return false;
+            }
+            var refreshToken = user.RefreshTokens.Single(x => x.Token == Token);
+            if (!refreshToken.IsActive)
+            {
+                return false;
+            }
+            refreshToken.RevokedOn = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+            return true;
+        }
+        #endregion
         #region Password Management
         public async Task<IdentityResult> ChangePasswordAsync(ChangePassword changePassword)
         {
@@ -223,6 +290,19 @@ namespace ProLink.Application.Services
                 }
                 return sb.ToString();
             }
+        }
+
+        private RefreshToken GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return new RefreshToken()
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddMinutes(15),
+                CreatedOn = DateTime.UtcNow,
+            };
         }
         #endregion
     }

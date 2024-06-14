@@ -7,6 +7,7 @@ namespace ProLink.Application.DTOs
         public string Id { get; set; }
         public bool IsFollowed { get; set; }
         public bool IsFriend { get; set; }
+        public bool IsFriendRequestSent { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

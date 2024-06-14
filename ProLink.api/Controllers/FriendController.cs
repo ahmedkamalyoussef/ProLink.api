@@ -29,11 +29,11 @@ namespace ProLink.api.Controllers
         }
 
         [Authorize]
-        [HttpPut("delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteFriendAsync(string friendId)
         {
             var result = await _friendService.DeleteFriendAsync(friendId);
-            return result ? Ok("friend has been deleted successfully") : BadRequest("faild to delete friendRequest");
+            return result ? Ok("friend has been deleted successfully") : BadRequest("faild to delete friend");
         }
         #endregion
     }

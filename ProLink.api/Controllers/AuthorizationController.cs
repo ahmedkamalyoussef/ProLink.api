@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProLink.Application.Authentication;
-using ProLink.Application.Interfaces;
 
 namespace ProLink.api.Controllers
 {
@@ -29,6 +28,7 @@ namespace ProLink.api.Controllers
             {
                 return Ok("OTP sent to email");
             }
+
             return BadRequest(result.Errors);
         }
 
@@ -40,32 +40,78 @@ namespace ProLink.api.Controllers
         public async Task<ActionResult> LoginAsync(LoginUser loginUser)
         {
             if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
-
+            }
             var result = await _authService.LoginAsync(loginUser);
-            if (result.Success)
+            if (!result.IsAuthenticated)
+            {
+                return BadRequest(result);
+            }
+            if (!string.IsNullOrEmpty(result.RefreshToken))
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            return Ok(result);
+        }
+        #endregion
+
+        #region LogOut
+        [HttpPost("LogOut")]
+        [Authorize]
+        public async Task<IActionResult> LogOut()
+        {
+            var result = await _authService.LogoutAsync();
+            if (result == "User Logged Out Successfully")
                 return Ok(result);
+            return BadRequest(result);
+        }
+        #endregion
 
-            string errorMessage;
-            if (result.ErrorType == LoginErrorType.UserNotFound)
+        #region Refresh Token
+        [HttpGet("refresh-token")]
+        public async Task<IActionResult> RefreshTokenAsync()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
             {
-                errorMessage = "User not found.";
+                return BadRequest("Invalid Token");
             }
-            else if (result.ErrorType == LoginErrorType.InvalidPassword)
+            var result = await _authService.RefreshTokenAsync(refreshToken);
+            if (!result.IsAuthenticated)
             {
-                errorMessage = "Incorrect password.";
+                return BadRequest(result);
             }
-            else if (result.ErrorType == LoginErrorType.EmailNotConfirmed)
-            {
-                errorMessage = "Email Not Comfirmed.";
-            }
-            else
-            {
-                errorMessage = "Invalid login attempt.";
-            }
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            return Ok(result);
+        }
+        #endregion
 
-            ModelState.AddModelError(string.Empty, errorMessage);
-            return Unauthorized(ModelState);
+        #region Revoke Token
+        [HttpPost("revoke-token")]
+        public async Task<IActionResult> RevokeTokenAsync(string? Token)
+        {
+            Token = Token ?? Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(Token))
+            {
+                return BadRequest("Token is Required");
+            }
+            var result = await _authService.RevokeTokenAsync(Token);
+            if (result)
+            {
+                return Ok("Token Revoked Successfully");
+            }
+            return BadRequest("Token Not Revoked");
+        }
+        #endregion
+
+        #region Set Refresh Token In Cookie
+        private void SetRefreshTokenInCookie(string Token, DateTime expires)
+        {
+            var CoockieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = expires.ToLocalTime(),
+            };
+            Response.Cookies.Append("refreshToken", Token, CoockieOptions);
         }
         #endregion
 

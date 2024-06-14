@@ -30,10 +30,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 //reset password
 builder.Services.Configure<DataProtectionTokenProviderOptions>
-    (options => options.TokenLifespan = TimeSpan.FromHours(1));
-
-#endregion
-#region Firebase
+    (options => options.TokenLifespan = TimeSpan.FromMinutes(1));
 
 #endregion
 #region Add Authentication
@@ -57,7 +54,8 @@ builder.Services.AddAuthentication(options =>
             ValidateLifetime = true,
             ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
             ValidAudience = builder.Configuration["JWT:ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
+            ClockSkew = TimeSpan.Zero
         };
     });
 #endregion
@@ -71,6 +69,7 @@ builder.Services.AddInfrastructureServices().
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("Mailing"));
 builder.Services.Configure<IdentityOptions>(opts=>opts.SignIn.RequireConfirmedEmail=true);
 #endregion
+
 #region swagger
 builder.Services.AddSwaggerGen(c =>
 {
@@ -112,6 +111,7 @@ builder.Services.AddSwaggerGen(swagger =>
                 });
 });
 #endregion
+
 #region Cors policy
 builder.Services.AddCors(options =>
 {
@@ -124,6 +124,7 @@ builder.Services.AddCors(options =>
     });
 });
 #endregion
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -8,7 +8,7 @@ namespace ProLink.Application.Interfaces
         Task<bool> SendFriendAsync(string userId);
         Task<bool> AcceptFriendAsync(string friendRequestId);
         Task<bool> AcceptAllFriendsAsync();
-        Task<bool> DeletePendingFriendAsync(string friendRequestId);
+        Task<bool> DeletePendingFriendAsync(string userId);
         Task<bool> DeclinePendingFriendAsync(string friendRequestId);
     }
 }

@@ -40,12 +40,26 @@ namespace ProLink.Application.Helpers
             return await _userManager.GetUserAsync(currentUser);
         }
 
-        public async Task<LoginResult> GenerateJwtTokenAsync(IEnumerable<Claim> claims)
+        public async Task<JwtSecurityToken> GenerateJwtTokenAsync(User user)
         {
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Secret"]));
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var tokenExpiration = DateTime.Now.AddDays(1);
+            var tokenExpiration = DateTime.Now.AddMinutes(1);
             var token = new JwtSecurityToken(
                 issuer: _config["JWT:ValidIssuer"],
                 audience: _config["JWT:ValidAudience"],
@@ -53,15 +67,7 @@ namespace ProLink.Application.Helpers
                 expires: tokenExpiration,
                 signingCredentials: signingCredentials
             );
-
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return new LoginResult
-            {
-                Success = true,
-                Token = tokenString,
-                Expiration = token.ValidTo
-            };
+            return token;
         }
         #endregion
 

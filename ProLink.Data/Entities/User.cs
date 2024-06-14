@@ -41,5 +41,8 @@ namespace ProLink.Data.Entities
         public virtual ICollection<UserFollower>? Followers { get; set; }
         public virtual ICollection<UserFriend>? Friends { get; set; }
 
+
+        public List<RefreshToken>? RefreshTokens { get; set; }
+
     }
 }
