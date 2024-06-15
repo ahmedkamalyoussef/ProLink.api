@@ -26,17 +26,13 @@ namespace ProLink.Data.Entities
         public virtual ICollection<FriendRequest>? SentFriendRequests { get; set; }
         public virtual ICollection<FriendRequest>? ReceivedFriendRequests { get; set; }
         public virtual List<string>? Skills { get; set; }
-        public virtual ICollection<Job>? CompletedJobs { get; set; }=new List<Job>();
-        public virtual ICollection<Job>? RefusedJobs { get; set; } = new List<Job>();
-        public virtual ICollection<Job>? Jobs { get; set; }
+        public virtual ICollection<UserJobType>? Jobs { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }
         public virtual ICollection<Post>? LikedPosts { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
         public virtual ICollection<React>? Reacts { get; set; }
         public virtual ICollection<Message>? SentMessages { get; set; }
         public virtual ICollection<Message>? ReceivedMessages { get; set; }
-        public virtual ICollection<Notification>? SentNotifications { get; set; }
-
         public virtual ICollection<Notification>? Notifications { get; set; }
         public virtual ICollection<UserFollower>? Followers { get; set; }
         public virtual ICollection<UserFriend>? Friends { get; set; }

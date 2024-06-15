@@ -93,15 +93,15 @@ namespace ProLink.Application.Services
                     return new AuthDTO { Message = "user not confirmed" };
                 }
 
-                var token = await _userHelpers.GenerateJwtTokenAsync(user);
-                var roles = await _userManager.GetRolesAsync(user);
+                 
 
                 authModel.Message = $"Welcome Back, {user.FirstName}";
                 authModel.UserName = user.UserName;
                 authModel.Email = user.Email;
-                authModel.Token = new JwtSecurityTokenHandler().WriteToken(token);
-                authModel.IsAuthenticated = true; //ExpiresOn = token.ValidTo,
-                authModel.Roles = roles.ToList();
+                authModel.Token =await _userHelpers.GenerateJwtTokenAsync(user);
+
+                authModel.IsAuthenticated = true;
+                authModel.Roles = [.. (await _userManager.GetRolesAsync(user))];
 
 
                 if (user.RefreshTokens.Any(a => a.IsActive))
@@ -118,8 +118,6 @@ namespace ProLink.Application.Services
                     authModel.RefreshToken = refreshToken.Token;
                     authModel.RefreshTokenExpiration = refreshToken.ExpiresOn;
                 }
-                var message = new MailMessage(new[] { user.Email }, "Login", "You logged in to your account right now.");
-                _mailingService.SendMail(message);
                 return authModel;
             }
             catch (Exception ex)
@@ -129,6 +127,7 @@ namespace ProLink.Application.Services
         }
 
         #endregion
+
         #region logout
         public async Task<string> LogoutAsync()
         {
@@ -137,10 +136,11 @@ namespace ProLink.Application.Services
                 return "User Not Found";
             }
             await _signInManager.SignOutAsync();
-
+            
             return "User Logged Out Successfully";
         }
         #endregion
+
         #region Refresh Token
         public async Task<AuthDTO> RefreshTokenAsync(string Token)
         {
@@ -161,7 +161,7 @@ namespace ProLink.Application.Services
             var jwtToken = await _userHelpers.GenerateJwtTokenAsync(user);
             return new AuthDTO
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                Token = jwtToken,
                 RefreshToken = newRefreshToken.Token,
                 RefreshTokenExpiration = newRefreshToken.ExpiresOn,
                 IsAuthenticated = true,
@@ -190,6 +190,7 @@ namespace ProLink.Application.Services
             return true;
         }
         #endregion
+
         #region Password Management
         public async Task<IdentityResult> ChangePasswordAsync(ChangePassword changePassword)
         {
@@ -300,7 +301,7 @@ namespace ProLink.Application.Services
             return new RefreshToken()
             {
                 Token = Convert.ToBase64String(randomNumber),
-                ExpiresOn = DateTime.UtcNow.AddMinutes(15),
+                ExpiresOn = DateTime.UtcNow.AddSeconds(20),
                 CreatedOn = DateTime.UtcNow,
             };
         }

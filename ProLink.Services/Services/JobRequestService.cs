@@ -42,34 +42,36 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) return false;
-            var Job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == jobId);
-            if (Job == null) return false;
-            var user = await _userManager.FindByIdAsync(Job.UserId); 
+            var job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == jobId);
+            if (job == null) return false;
+            var user = await _userManager.FindByIdAsync(job.UserJobType.Where(j => j.JobType == JobType.Posted).FirstOrDefault(j => j.JobId == job.Id).UserId); 
             if (user == null) return false;
             var JobsIds=currentUser.SentJobRequests.Select(p => p.JobId).ToList();
-            if (JobsIds.Contains(Job.Id)) return true;
+            if (JobsIds.Contains(job.Id)) return true;
             var jobRequist = new JobRequest
             {
                 CV = currentUser.CV,
                 Status = Status.Pending,
                 DateCreated = DateTime.Now,
                 SenderId = currentUser.Id,
-                RecieverId = Job.UserId,
-                JobId = Job.Id
+                RecieverId = job.UserJobType.Where(j => j.JobType == JobType.Posted).FirstOrDefault(j => j.JobId == job.Id).UserId,
+                JobId = job.Id
             };
             _unitOfWork.JobRequest.Add(jobRequist);
             var notification = new Notification
             {
-                Content = $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {Job.Title} post",
+                Content = $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {job.Title} post",
                 Timestamp = DateTime.Now,
                 ReceiverId = user.Id,
-                SenderId=currentUser.Id
+                AboutUserId = currentUser.Id,
+                Type = NotificationType.JobRequest,
+                IsRead = false
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)
             {
 
-                var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {Job.Title} post");
+                var message = new MailMessage(new string[] { user.Email }, "Jop request", $"{currentUser.FirstName} {currentUser.LastName} sent you jop request on {job.Title} post");
                 _mailingService.SendMail(message);
                 return true;
             }
@@ -98,7 +100,9 @@ namespace ProLink.Application.Services
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your jop request on {request.Job.Title} post",
                 Timestamp = DateTime.Now,
                 ReceiverId = request.SenderId,
-                SenderId=currentUser.Id
+                AboutUserId = currentUser.Id,
+                Type = NotificationType.JobRequest,
+                IsRead = false
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)
@@ -138,7 +142,7 @@ namespace ProLink.Application.Services
             var jobRequest = _unitOfWork.JobRequest.GetById(jobId);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
 
-            if (jobRequest == null || jobRequest.Receiver != currentUser)
+            if (jobRequest == null || jobRequest.Receiver != currentUser||jobRequest.Sender==null)
                 return false;
 
             if (jobRequest.Status != Status.Pending)
@@ -146,16 +150,24 @@ namespace ProLink.Application.Services
 
             var job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == jobRequest.JobId);
             var sender = await _userManager.FindByIdAsync(jobRequest.SenderId);
-
+            
             jobRequest.Status = Status.Declined;
-            sender.RefusedJobs.Add(job);
+            var completedJob = new UserJobType
+            {
+                UserId = jobRequest.SenderId,
+                JobId = job.Id,
+                JobType = JobType.Refused
+            };
+            sender.Jobs.Add(completedJob);
             _unitOfWork.JobRequest.Update(jobRequest);
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} declined your jop request on {jobRequest.Job.Title} post",
                 Timestamp = DateTime.Now,
                 ReceiverId = jobRequest.SenderId,
-                SenderId = currentUser.Id
+                AboutUserId = currentUser.Id,
+                Type = NotificationType.Job,
+                IsRead = false
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0)

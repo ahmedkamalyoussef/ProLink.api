@@ -79,7 +79,9 @@ namespace ProLink.Application.Services
                     Content = $"{currentUser.FirstName} {currentUser.LastName} sent you friend request",
                     Timestamp = DateTime.Now,
                     ReceiverId = user.Id,
-                    SenderId = currentUser.Id
+                    AboutUserId = currentUser.Id,
+                    Type = NotificationType.FriendRequest,
+                    IsRead = false
                 };
                 _unitOfWork.Notification.Add(notification);
                 await _unitOfWork.SaveAsync();
@@ -124,9 +126,7 @@ namespace ProLink.Application.Services
 
             if (request.Status != Status.Pending)
                 return false;
-            await _unitOfWork.CreateTransactionAsync();
-            try
-            {
+
                 request.Status = Status.Declined;
                 _unitOfWork.FriendRequest.Update(request);
                 if (await _unitOfWork.SaveAsync() <= 0) return false;
@@ -135,24 +135,9 @@ namespace ProLink.Application.Services
                     $"{currentUser.FirstName} {currentUser.LastName} declined your friend request");
                 _mailingService.SendMail(message);
 
-                await _unitOfWork.CreateSavePointAsync("decline");
+                
 
-                var notification = new Notification
-                {
-                    Content = $"{currentUser.FirstName} {currentUser.LastName} declined you friend request ",
-                    Timestamp = DateTime.Now,
-                    ReceiverId = request.SenderId,
-                    SenderId = currentUser.Id
-                };
-                _unitOfWork.Notification.Add(notification);
-                await _unitOfWork.SaveAsync();
-                await _unitOfWork.CommitAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackToSavePointAsync("decline");
-            }
-            return true;
+            return await _unitOfWork.SaveAsync()>0;
         }
 
         public async Task<bool> AcceptFriendAsync(string friendRequestId)
@@ -176,7 +161,9 @@ namespace ProLink.Application.Services
                 Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request",
                 Timestamp = DateTime.Now,
                 ReceiverId = user.Id,
-                SenderId = currentUser.Id
+                AboutUserId = currentUser.Id,
+                Type = NotificationType.FriendRequest,
+                IsRead = false
             };
             _unitOfWork.Notification.Add(notification);
 
@@ -213,7 +200,9 @@ namespace ProLink.Application.Services
                     Content = $"{currentUser.FirstName} {currentUser.LastName} accepted your friend request ",
                     Timestamp = DateTime.Now,
                     ReceiverId = user.Id,
-                    SenderId = currentUser.Id
+                    AboutUserId = currentUser.Id,
+                    Type = NotificationType.FriendRequest,
+                    IsRead = false
                 };
                 _unitOfWork.Notification.Add(notification);
                 var message = new MailMessage(new string[] { user.Email }, "friend request", $"{currentUser.FirstName} {currentUser.LastName} accept your friend request");

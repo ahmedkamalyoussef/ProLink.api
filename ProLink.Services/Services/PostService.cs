@@ -54,7 +54,9 @@ namespace ProLink.Application.Services
                     Content = $"{currentUser.FirstName} {currentUser.LastName} just add a post",
                     Timestamp = DateTime.Now,
                     ReceiverId = follower.FollowerId,
-                    SenderId = currentUser.Id
+                    AboutUserId = currentUser.Id,
+                    Type=NotificationType.Post,
+                    IsRead=false
                 };
                 _unitOfWork.Notification.Add(notification);
             }
@@ -238,7 +240,9 @@ namespace ProLink.Application.Services
                 Content = $"{currentUser.FirstName} {currentUser.LastName} commented on your post",
                 Timestamp = DateTime.Now,
                 ReceiverId = post.UserId,
-                SenderId = currentUser.Id
+                AboutUserId = currentUser.Id,
+                Type=NotificationType.Comment,
+                IsRead=false
             };
             _unitOfWork.Notification.Add(notification);
             if (await _unitOfWork.SaveAsync() > 0) return true;
@@ -304,7 +308,9 @@ namespace ProLink.Application.Services
                         Content = $"{currentUser.FirstName} {currentUser.LastName} reacted with your post",
                         Timestamp = DateTime.Now,
                         ReceiverId = post.UserId,
-                        SenderId = currentUser.Id
+                        AboutUserId = currentUser.Id,
+                        Type=NotificationType.React,
+                        IsRead = false
                     };
                     _unitOfWork.Notification.Add(notification);
 

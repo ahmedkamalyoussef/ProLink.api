@@ -14,11 +14,11 @@ namespace ProLink.Data.Configuration
                 .HasForeignKey(c => c.ReceiverId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder
-                .HasOne(c => c.Sender)
-                .WithMany(u => u.SentNotifications)
-                .HasForeignKey(c => c.SenderId)
-                .OnDelete(DeleteBehavior.NoAction);
+            //builder
+            //    .HasOne(c => c.Sender)
+            //    .WithMany(u => u.SentNotifications)
+            //    .HasForeignKey(c => c.SenderId)
+            //    .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

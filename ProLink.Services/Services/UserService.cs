@@ -115,12 +115,9 @@ namespace ProLink.Application.Services
             {
                 return false;
             }
-            await _userHelpers.DeleteFileAsync(user.ProfilePicture, ConstsFiles.Profile);
-            var result = await _userManager.DeleteAsync(user);
-            return result.Succeeded;
+             _unitOfWork.User.Remove(user);
+            return await _unitOfWork.SaveAsync() > 0;
         }
-
-       
 
         #endregion
 

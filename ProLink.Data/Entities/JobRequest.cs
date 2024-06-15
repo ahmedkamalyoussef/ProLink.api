@@ -6,7 +6,6 @@ namespace ProLink.Data.Entities
 {
     public class JobRequest
     {
-        [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public string? CV { get; set; }
@@ -15,22 +14,16 @@ namespace ProLink.Data.Entities
 
         public DateTime DateCreated { get; set; }
 
-        [Required]
         public string SenderId { get; set; }
 
-        [ForeignKey("SenderId")]
         public virtual User Sender { get; set; }
 
-        [Required]
         public string RecieverId { get; set; }
 
-        [ForeignKey("RecieverId")]
         public virtual User Receiver { get; set; }
 
-        [Required]
         public string JobId { get; set; }
 
-        [ForeignKey("JobId")]
         public virtual Job Job { get; set; }
     }
 

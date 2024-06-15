@@ -57,6 +57,18 @@ namespace ProLink.Application.Services
             message.SenderId = currentUser.Id;
             message.ReceiverId = reciever.Id;
             _unitOfWork.Message.Add(message);
+
+            var notification = new Notification
+            {
+                Content = $"{currentUser.FirstName} {currentUser.LastName} sent you a message",
+                Timestamp = DateTime.Now,
+                ReceiverId = recieverId,
+                AboutUserId = currentUser.Id,
+                Type = NotificationType.Message,
+                IsRead = false
+            };
+            _unitOfWork.Notification.Add(notification);
+
             if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }

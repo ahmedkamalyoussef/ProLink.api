@@ -129,7 +129,6 @@ builder.Services.AddCors(options =>
 #endregion
 
 var app = builder.Build();
-app.UseMiddleware<PerformanceMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -142,6 +141,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<PerformanceMiddleware>();
 app.MapControllers();
 app.UseCors("CorsPolicy");
 app.Run();

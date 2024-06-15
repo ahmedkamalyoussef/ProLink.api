@@ -40,7 +40,7 @@ namespace ProLink.Application.Helpers
             return await _userManager.GetUserAsync(currentUser);
         }
 
-        public async Task<JwtSecurityToken> GenerateJwtTokenAsync(User user)
+        public async Task<string> GenerateJwtTokenAsync(User user)
         {
 
             var claims = new List<Claim>
@@ -59,7 +59,7 @@ namespace ProLink.Application.Helpers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Secret"]));
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var tokenExpiration = DateTime.Now.AddMinutes(1);
+            var tokenExpiration = DateTime.Now.AddMinutes(15);
             var token = new JwtSecurityToken(
                 issuer: _config["JWT:ValidIssuer"],
                 audience: _config["JWT:ValidAudience"],
@@ -67,7 +67,7 @@ namespace ProLink.Application.Helpers
                 expires: tokenExpiration,
                 signingCredentials: signingCredentials
             );
-            return token;
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
         #endregion
 

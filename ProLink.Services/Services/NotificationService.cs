@@ -34,10 +34,40 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new Exception("user not found");
-            var notifications = await _unitOfWork.Notification.FindAsync(n => n.ReceiverId == currentUser.Id, n => n.Timestamp, OrderDirection.Descending);
-            var notificationResult = notifications.Select(notification => _mapper.Map<NotificationResultDto>(notification)).ToList();
-            return notificationResult;
+
+            var notifications = await _unitOfWork.Notification
+                .FindAsync(n => n.ReceiverId == currentUser.Id, n => n.Timestamp, OrderDirection.Descending);
+
+            // Collect all AboutUserIds to fetch them in a single query
+            var aboutUserIds = notifications
+                .Where(n => n.AboutUserId != null)
+                .Select(n => n.AboutUserId)
+                .Distinct()
+                .ToList();
+
+            // Fetch all related users in a single query
+            var aboutUsers = await _unitOfWork.User
+                .FindAsync(u => aboutUserIds.Contains(u.Id));
+
+            // Create a dictionary for quick lookup
+            var aboutUserDictionary = aboutUsers.ToDictionary(u => u.Id);
+
+            // Map notifications to result DTOs
+            var notificationResultList = notifications.Select(notification =>
+            {
+                var notificationResult = _mapper.Map<NotificationResultDto>(notification);
+
+                if (notification.AboutUserId != null && aboutUserDictionary.TryGetValue(notification.AboutUserId, out var aboutUser))
+                {
+                    notificationResult.Sender = _mapper.Map<UserPostResultDTO>(aboutUser);
+                }
+
+                return notificationResult;
+            }).ToList();
+
+            return notificationResultList;
         }
+
 
         public async Task<NotificationResultDto> GetNotificationByIdAsync(string notificationId)
         {
@@ -46,6 +76,9 @@ namespace ProLink.Application.Services
             var notification = await _unitOfWork.Notification.FindFirstAsync(n => n.Id == notificationId);
             if (notification.ReceiverId != currentUser.Id) throw new Exception("cant access");
             var notificationResult = _mapper.Map<NotificationResultDto>(notification);
+            if(notification.AboutUserId != null) 
+                notificationResult.Sender=_mapper.Map<UserPostResultDTO>
+                    ( await _unitOfWork.Notification.FindFirstAsync(n=>n.AboutUserId==notification.AboutUserId));
             return notificationResult;
         }
 

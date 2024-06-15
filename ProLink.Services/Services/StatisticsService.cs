@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using ProLink.Application.DTOs;
 using ProLink.Application.Interfaces;
+using ProLink.Data.Consts;
 using ProLink.Data.Entities;
 using ProLink.Infrastructure.IGenericRepository_IUOW;
 
@@ -34,12 +35,14 @@ namespace ProLink.Application.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) throw new Exception("user not found");
+            var completedJobs = user.Jobs.Where(j => j.JobType==JobType.Completed).Select(j=>j.Job);
+            var refusedJobs = user.Jobs.Where(j => j.JobType == JobType.Completed).Select(j => j.Job);
             UserJobsStatisticsDto userJobsStatisticsDto = new UserJobsStatisticsDto
             {
-                CompletedJobs = _mapper.Map<IEnumerable<JobResultDto>>(user.CompletedJobs).ToList(),
-                RefusedJobs = _mapper.Map<IEnumerable<JobResultDto>>(user.RefusedJobs).ToList(),
-                CompletedJobsCount = user.CompletedJobs.Count(),
-                RefusedJobsCount = user.RefusedJobs.Count()
+                CompletedJobs = _mapper.Map<IEnumerable<JobResultDto>>(completedJobs).ToList(),
+                RefusedJobs = _mapper.Map<IEnumerable<JobResultDto>>(refusedJobs).ToList(),
+                CompletedJobsCount = completedJobs.Count(),
+                RefusedJobsCount = refusedJobs.Count()
             };
             return userJobsStatisticsDto;
         }
