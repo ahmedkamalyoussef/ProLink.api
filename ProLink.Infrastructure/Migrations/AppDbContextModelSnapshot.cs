@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProLink.Data.Data;
 
 #nullable disable
 
-namespace ProLink.Data.Migrations
+namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240615033841_jobs-updateg")]
-    partial class jobsupdateg
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -596,6 +593,8 @@ namespace ProLink.Data.Migrations
 
                     b.HasKey("JobId", "UserId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("UserJobTypes");
                 });
 
@@ -892,8 +891,8 @@ namespace ProLink.Data.Migrations
 
                     b.HasOne("ProLink.Data.Entities.User", "User")
                         .WithMany("Jobs")
-                        .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Job");

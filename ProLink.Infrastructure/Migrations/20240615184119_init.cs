@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace ProLink.Data.Migrations
+namespace ProLink.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class jobsupdateg : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -432,10 +432,11 @@ namespace ProLink.Data.Migrations
                 {
                     table.PrimaryKey("PK_UserJobTypes", x => new { x.JobId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_UserJobTypes_AspNetUsers_JobId",
-                        column: x => x.JobId,
+                        name: "FK_UserJobTypes_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserJobTypes_Jobs_JobId",
                         column: x => x.JobId,
@@ -638,6 +639,11 @@ namespace ProLink.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserFriend_UserId",
                 table: "UserFriend",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserJobTypes_UserId",
+                table: "UserJobTypes",
                 column: "UserId");
         }
 

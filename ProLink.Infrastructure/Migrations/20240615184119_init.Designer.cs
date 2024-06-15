@@ -9,11 +9,11 @@ using ProLink.Data.Data;
 
 #nullable disable
 
-namespace ProLink.Data.Migrations
+namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240615034954_jobs-upda")]
-    partial class jobsupda
+    [Migration("20240615184119_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
