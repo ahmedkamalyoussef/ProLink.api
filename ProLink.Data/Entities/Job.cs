@@ -22,7 +22,7 @@ namespace ProLink.Data.Entities
         public string? FreelancerId { get; set; }
 
         public virtual User? Freelancer { get; set; }
-        public virtual ICollection<UserJobType>? UserJobType { get; set; }
+        public virtual ICollection<UserJobType> UserJobType { get; set; }
 
         public virtual ICollection<JobRequest>? JobRequests { get; set; }
     }

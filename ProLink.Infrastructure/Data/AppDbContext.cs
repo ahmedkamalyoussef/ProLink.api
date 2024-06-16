@@ -18,6 +18,7 @@ namespace ProLink.Data.Data
         public DbSet<React> Reacts { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<UserJobType> UserJobTypes { get; set; }
+        public DbSet<UserPostType> UserPostTypes { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
@@ -31,24 +32,31 @@ namespace ProLink.Data.Data
             #region user
             new UserEntityTypeConfiguration().Configure(modelBuilder.Entity<User>());
             #endregion
+
             #region post
             new JobEntityTypeConfiguration().Configure(modelBuilder.Entity<Job>());
             #endregion
+
             #region jop request
             new JobRequestEntityTypeConfiguration().Configure(modelBuilder.Entity<JobRequest>());
             #endregion
+
             #region friend request
             new FriendRequestEntityTypeConfiguration().Configure(modelBuilder.Entity<FriendRequest>());
             #endregion
+
             #region comment
             new CommentEntityTypeConfiguration().Configure(modelBuilder.Entity<Comment>());
             #endregion
+
             #region likes
             new ReactEntityTypeConfiguration().Configure(modelBuilder.Entity<React>());
             #endregion
+
             #region notification
             new NotificationEntityTypeConfiguration().Configure(modelBuilder.Entity<Notification>());
             #endregion
+
             #region rate
             new RateEntityTypeConfiguration().Configure(modelBuilder.Entity<Rate>());
             #endregion
@@ -60,12 +68,19 @@ namespace ProLink.Data.Data
             #region UserFriend
             new UserFriendEntityTypeConfiguration().Configure(modelBuilder.Entity<UserFriend>());
             #endregion
+
             #region UserJobType
             new UserJobTypeEntityTypeConfiguration().Configure(modelBuilder.Entity<UserJobType>());
             #endregion
+
+            #region UserPostType
+            new UserPostTypeEntityTypeConfiguration().Configure(modelBuilder.Entity<UserPostType>());
+            #endregion
+
             #region follower
             new FollowersEntityTypeConfiguration().Configure(modelBuilder.Entity<UserFollower>());
             #endregion
+
             #region Post
             new PostEntityTypeConfiguration().Configure(modelBuilder.Entity<Post>());
             #endregion

@@ -37,17 +37,30 @@ namespace ProLink.Application.Services
                 throw new Exception("user not found.");
             var post = _mapper.Map<Post>(postDto);
             //post.PostImage = //image;
-            post.User = currentUser;
+            //post.UserPostTypes.Add(new UserPostType
+            //{
+            //    PostId=po
+            //});
+            _unitOfWork.Post.Add(post);
+            if (await _unitOfWork.SaveAsync() <= 0)
+                return false;
+            var userPostType = new UserPostType
+            {
+                PostId = post.Id,
+                UserId = currentUser.Id,
+                Type = PostType.Owned
+            };
+            _unitOfWork.UserPostType.Add(userPostType);
             //try
             //{
-            _unitOfWork.Post.Add(post);
+
             //}
             //catch
             //{
             //    await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             //    return false;
             //}
-            foreach(var follower in currentUser.Followers)
+            foreach (var follower in currentUser.Followers)
             {
                 var notification = new Notification
                 {
@@ -73,7 +86,7 @@ namespace ProLink.Application.Services
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
-            if (currentUser.Id != post.UserId)
+            if (currentUser.Id != post.UserPostTypes.FirstOrDefault(up=>up.PostId==post.Id).UserId)
                 throw new Exception("not allowed to edit");
 
             _mapper.Map(postDto, post);
@@ -99,7 +112,7 @@ namespace ProLink.Application.Services
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
             //string imagePath = post.PostImage;
             if (post == null) throw new Exception("post not found");
-            if (currentUser == null || currentUser.Id != post.UserId)
+            if (currentUser == null || currentUser.Id != post.UserPostTypes.FirstOrDefault(up => up.PostId == post.Id).UserId)
                 throw new Exception("not allowed to delete");
             _unitOfWork.Post.Remove(post);
             if (await _unitOfWork.SaveAsync() > 0)
@@ -113,9 +126,10 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetAllPostsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.GetAllAsync(p => p.DateCreated, OrderDirection.Descending);
+            var userposts = await _unitOfWork.UserPostType.GetAllAsync();
+            var posts = userposts.Select(p => p.Post).DistinctBy(up => up.Id).OrderBy(p=>p.DateCreated).OrderDescending();
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            var likedPostIds = currentUser.UserPostTypes.Where(up => up.Type == PostType.Liked).Select(p => p.PostId);
             foreach (var post in postResults)
             {
                 var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
@@ -141,7 +155,7 @@ namespace ProLink.Application.Services
             var post = await _unitOfWork.Post.FindFirstAsync(p => p.Id == id);
             if (post == null) throw new Exception("post not found");
             var postResult = _mapper.Map<PostResultDto>(post);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            var likedPostIds = currentUser.UserPostTypes.Where(up => up.Type == PostType.Liked).Select(p => p.PostId);
             var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
             postResult.React = _mapper.Map<ReactDto>(react);
             if (likedPostIds.Contains(post.Id))
@@ -155,9 +169,10 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetPostsByTitleAsync(string title)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.Description.Contains(title), p => p.DateCreated, OrderDirection.Descending);
+            var userposts = await _unitOfWork.UserPostType.GetAllAsync(p => p.Post.Description.Contains(title));
+            var posts = userposts.Select(p => p.Post).DistinctBy(up => up.Id).OrderBy(p => p.DateCreated).OrderDescending();
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            var likedPostIds = currentUser.UserPostTypes.Where(up => up.Type == PostType.Liked).Select(p => p.PostId);
             foreach (var post in postResults)
             {
                 var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
@@ -179,9 +194,10 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetUserPostsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == currentUser.Id, p => p.DateCreated, OrderDirection.Descending);
+            var userPosts = await _unitOfWork.UserPostType.FindAsync(p => p.UserId == currentUser.Id && p.Type == PostType.Owned);
+            var posts = userPosts.Select(p => p.Post).OrderBy(p => p.DateCreated).OrderDescending();
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            var likedPostIds = currentUser.UserPostTypes.Where(up => up.Type == PostType.Liked).Select(p => p.PostId);
             foreach (var post in postResults)
             {
                 var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
@@ -198,9 +214,12 @@ namespace ProLink.Application.Services
         public async Task<List<PostResultDto>> GetUserPostsByUserIdAsync(string id)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var posts = await _unitOfWork.Post.FindAsync(p => p.UserId == id, p => p.DateCreated, OrderDirection.Descending);
+
+            var userposts = await _unitOfWork.UserPostType.FindAsync(p => p.UserId == id && p.Type == PostType.Owned);
+            var posts = userposts.Select(p => p.Post).DistinctBy(up => up.Id).OrderBy(p => p.DateCreated).OrderDescending();
+
             var postResults = _mapper.Map<IEnumerable<PostResultDto>>(posts);
-            var likedPostIds = currentUser.LikedPosts.Select(p => p.Id);
+            var likedPostIds = currentUser.UserPostTypes.Where(up => up.Type == PostType.Liked).Select(p => p.PostId);
             foreach (var post in postResults)
             {
                 var react = await _unitOfWork.React.FindFirstAsync(r => r.PostId == post.Id && r.UserId == currentUser.Id);
@@ -219,7 +238,7 @@ namespace ProLink.Application.Services
             }
             return postResults.ToList();
         }
-
+            
 
         #endregion
 
@@ -239,7 +258,7 @@ namespace ProLink.Application.Services
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} commented on your post",
                 Timestamp = DateTime.Now,
-                ReceiverId = post.UserId,
+                ReceiverId = post.UserPostTypes.FirstOrDefault(p=>p.Type==PostType.Owned).UserId,
                 AboutUserId = currentUser.Id,
                 Type=NotificationType.Comment,
                 IsRead=false
@@ -286,28 +305,36 @@ namespace ProLink.Application.Services
                 reactExist.DateReacted = DateTime.Now;
                 reactExist.Type = type;
                 _unitOfWork.React.Update(reactExist);
-                if(await _unitOfWork.SaveAsync()>0)return true;
+                if (await _unitOfWork.SaveAsync() > 0) return true;
                 return false;
             }
             else
             {
-                React react = new React();
-                react.User = currentUser;
-                react.Post = post;
-                react.Type = type;
-                react.DateReacted = DateTime.Now;
+                React react = new React
+                {
+                    User = currentUser,
+                    Post = post,
+                    Type = type,
+                    DateReacted = DateTime.Now
+                };
+                var userPost = new UserPostType
+                {
+                    PostId = post.Id,
+                    UserId = currentUser.Id,
+                    Type = PostType.Liked
+                };
                 await _unitOfWork.CreateTransactionAsync();
                 try
                 {
-                    currentUser.LikedPosts.Add(post);
                     _unitOfWork.React.Add(react);
+                    _unitOfWork.UserPostType.Add(userPost);
                     await _unitOfWork.SaveAsync();
 
                     var notification = new Notification
                     {
                         Content = $"{currentUser.FirstName} {currentUser.LastName} reacted with your post",
                         Timestamp = DateTime.Now,
-                        ReceiverId = post.UserId,
+                        ReceiverId = post.UserPostTypes.FirstOrDefault(p => p.Type == PostType.Owned).UserId,
                         AboutUserId = currentUser.Id,
                         Type=NotificationType.React,
                         IsRead = false
@@ -322,24 +349,26 @@ namespace ProLink.Application.Services
                     await _unitOfWork.RollbackAsync();
                     return false;
                 }
-
-
             }
-
-            return false;
         }
         public async Task<bool> DeleteReactAsync(string reactId)
         {
-            var user = await _userHelpers.GetCurrentUserAsync();
-            if (user == null) throw new Exception("user not found");
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            if (currentUser == null) throw new Exception("user not found");
             var like = await _unitOfWork.React.FindFirstAsync(l => l.Id == reactId);
             if (like == null) throw new Exception("like doesnt exist");
-            if (like.UserId != user.Id) throw new UnauthorizedAccessException("cant update some one comment");
+            if (like.UserId != currentUser.Id) throw new UnauthorizedAccessException("cant update some one comment");
 
             await _unitOfWork.CreateTransactionAsync();
             try
             {
-                user.LikedPosts.Remove(like.Post);
+                var postToRemove = currentUser.UserPostTypes.FirstOrDefault(up => up.Post == like.Post);
+                if (postToRemove != null)
+                {
+                    currentUser.UserPostTypes.Remove(postToRemove);
+                }
+
+                //user.LikedPosts.Remove(like.Post);
                 await _unitOfWork.SaveAsync();
                 _unitOfWork.React.Remove(like);
                 await _unitOfWork.SaveAsync();

@@ -54,6 +54,7 @@ namespace ProLink.Application.Mapper
 
             CreateMap<Post, PostResultDto>()
             .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => src.Comments.Count()))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.UserPostTypes.FirstOrDefault(up=>up.Type==PostType.Owned&&up.PostId==src.Id).User))
             .ForMember(dest => dest.ReactsCount, opt => opt.MapFrom(src => src.Reacts.Count()));
         }
         private double CalculateAverageRate(User user)

@@ -23,6 +23,8 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
         public virtual IGenericRepository<UserFriend> UserFriend { get; set; }
         public virtual IGenericRepository<UserFollower> UserFollower { get; set; }
         public virtual IGenericRepository<UserJobType> UserJobType { get; set; }
+        public IGenericRepository<UserPostType> UserPostType { get; set; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -39,6 +41,7 @@ namespace ProLink.Infrastructure.GenericRepository_UOW
             UserFollower = new GenericRepository<UserFollower>(_context);
             Post= new GenericRepository<Post>(_context);
             UserJobType= new GenericRepository<UserJobType>(_context);
+            UserPostType= new GenericRepository<UserPostType>(_context);
         }
 
         public async Task CreateTransactionAsync()
