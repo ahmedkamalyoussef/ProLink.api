@@ -19,14 +19,11 @@ namespace ProLink.Data.Configuration
                 .WithOne(u => u.Post)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             builder
-                .HasMany(p => p.UserPostTypes)
-                .WithOne(p => p.Post)
-                .HasForeignKey(p => p.PostId)
+                .HasOne(c => c.User)
+                .WithMany(u => u.Posts)
+                .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-
         }
     }
 }

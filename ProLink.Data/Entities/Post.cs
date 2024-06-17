@@ -8,7 +8,8 @@ namespace ProLink.Data.Entities
         public string Description { get; set; }
         public string? PostImage { get; set; }
         public DateTime DateCreated { get; set; }
-        public virtual ICollection<UserPostType> UserPostTypes { get; set; }
+        public string UserId { get; set; }
+        public virtual User User { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
         public virtual ICollection<React>? Reacts { get; set; }
     }

@@ -30,8 +30,6 @@ namespace ProLink.Application.Mapper
                 .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()));
 
             CreateMap<User, UserResultDto>()
-                //.ForMember(dest => dest.CompletedJobsCount, opt => opt.MapFrom(src => src.CompletedJobs.Count()))
-                //.ForMember(dest => dest.RefusedJobsCount, opt => opt.MapFrom(src => src.RefusedJobs.Count()))
                 .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => CalculateAverageRate(src)))
                 .ForMember(dest => dest.FollowersCount, opt => opt.MapFrom(src => src.Followers.Count()))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber));
@@ -54,7 +52,6 @@ namespace ProLink.Application.Mapper
 
             CreateMap<Post, PostResultDto>()
             .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => src.Comments.Count()))
-            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.UserPostTypes.FirstOrDefault(up=>up.Type==PostType.Owned&&up.PostId==src.Id).User))
             .ForMember(dest => dest.ReactsCount, opt => opt.MapFrom(src => src.Reacts.Count()));
         }
         private double CalculateAverageRate(User user)

@@ -18,7 +18,7 @@ namespace ProLink.Data.Data
         public DbSet<React> Reacts { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<UserJobType> UserJobTypes { get; set; }
-        public DbSet<UserPostType> UserPostTypes { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
@@ -71,10 +71,6 @@ namespace ProLink.Data.Data
 
             #region UserJobType
             new UserJobTypeEntityTypeConfiguration().Configure(modelBuilder.Entity<UserJobType>());
-            #endregion
-
-            #region UserPostType
-            new UserPostTypeEntityTypeConfiguration().Configure(modelBuilder.Entity<UserPostType>());
             #endregion
 
             #region follower
