@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProLink.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class epetrpuy : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -206,7 +206,9 @@ namespace ProLink.Infrastructure.Migrations
                     PostImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FreelancerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    RateId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FreelancerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -216,6 +218,12 @@ namespace ProLink.Infrastructure.Migrations
                         column: x => x.FreelancerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Jobs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -262,7 +270,8 @@ namespace ProLink.Infrastructure.Migrations
                         name: "FK_Notifications_AspNetUsers_ReceiverId",
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -273,8 +282,7 @@ namespace ProLink.Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PostImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,11 +293,6 @@ namespace ProLink.Infrastructure.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Post_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -370,17 +373,11 @@ namespace ProLink.Infrastructure.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RecieverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     JobId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_JobRequests", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_JobRequests_AspNetUsers_RecieverId",
-                        column: x => x.RecieverId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_JobRequests_AspNetUsers_SenderId",
                         column: x => x.SenderId,
@@ -416,33 +413,7 @@ namespace ProLink.Infrastructure.Migrations
                         name: "FK_Rate_Jobs_RatedJobId",
                         column: x => x.RatedJobId,
                         principalTable: "Jobs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserJobTypes",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    JobId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    JobType = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserJobTypes", x => new { x.JobId, x.UserId });
-                    table.ForeignKey(
-                        name: "FK_UserJobTypes_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserJobTypes_Jobs_JobId",
-                        column: x => x.JobId,
-                        principalTable: "Jobs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -571,11 +542,6 @@ namespace ProLink.Infrastructure.Migrations
                 column: "JobId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JobRequests_RecieverId",
-                table: "JobRequests",
-                column: "RecieverId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_JobRequests_SenderId",
                 table: "JobRequests",
                 column: "SenderId");
@@ -584,6 +550,11 @@ namespace ProLink.Infrastructure.Migrations
                 name: "IX_Jobs_FreelancerId",
                 table: "Jobs",
                 column: "FreelancerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_UserId",
+                table: "Jobs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_ReceiverId",
@@ -604,11 +575,6 @@ namespace ProLink.Infrastructure.Migrations
                 name: "IX_Post_UserId",
                 table: "Post",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Post_UserId1",
-                table: "Post",
-                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rate_RatedJobId",
@@ -639,11 +605,6 @@ namespace ProLink.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserFriend_UserId",
                 table: "UserFriend",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserJobTypes_UserId",
-                table: "UserJobTypes",
                 column: "UserId");
         }
 
@@ -696,16 +657,13 @@ namespace ProLink.Infrastructure.Migrations
                 name: "UserFriend");
 
             migrationBuilder.DropTable(
-                name: "UserJobTypes");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Post");
+                name: "Jobs");
 
             migrationBuilder.DropTable(
-                name: "Jobs");
+                name: "Post");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

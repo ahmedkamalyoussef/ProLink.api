@@ -44,9 +44,9 @@ namespace ProLink.Application.Services
             if (currentUser == null) return false;
             var job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == jobId);
             if (job == null) return false;
-            var user = await _userManager.FindByIdAsync(job.UserJobType.Where(j => j.JobType == JobType.Posted).FirstOrDefault(j => j.JobId == job.Id).UserId); 
+            var user = await _userManager.FindByIdAsync(job.UserId);
             if (user == null) return false;
-            var JobsIds=currentUser.SentJobRequests.Select(p => p.JobId).ToList();
+            var JobsIds = currentUser.SentJobRequests.Select(p => p.JobId).ToList();
             if (JobsIds.Contains(job.Id)) return true;
             var jobRequist = new JobRequest
             {
@@ -54,7 +54,6 @@ namespace ProLink.Application.Services
                 Status = Status.Pending,
                 DateCreated = DateTime.Now,
                 SenderId = currentUser.Id,
-                RecieverId = job.UserJobType.Where(j => j.JobType == JobType.Posted).FirstOrDefault(j => j.JobId == job.Id).UserId,
                 JobId = job.Id
             };
             _unitOfWork.JobRequest.Add(jobRequist);
@@ -82,7 +81,7 @@ namespace ProLink.Application.Services
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) return false;
             var request = await _unitOfWork.JobRequest.FindFirstAsync(f => f.Id == jobId);
-            if (request == null || request.RecieverId != currentUser.Id) return false;
+            if (request == null) return false;
             var user = await _userManager.FindByIdAsync(request.SenderId);
             if (user == null) return false;
             var job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == request.JobId);
@@ -142,7 +141,7 @@ namespace ProLink.Application.Services
             var jobRequest = _unitOfWork.JobRequest.GetById(jobId);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
 
-            if (jobRequest == null || jobRequest.Receiver != currentUser||jobRequest.Sender==null)
+            if (jobRequest == null)
                 return false;
 
             if (jobRequest.Status != Status.Pending)
@@ -150,15 +149,8 @@ namespace ProLink.Application.Services
 
             var job = await _unitOfWork.Job.FindFirstAsync(f => f.Id == jobRequest.JobId);
             var sender = await _userManager.FindByIdAsync(jobRequest.SenderId);
-            
+
             jobRequest.Status = Status.Declined;
-            var completedJob = new UserJobType
-            {
-                UserId = jobRequest.SenderId,
-                JobId = job.Id,
-                JobType = JobType.Refused
-            };
-            sender.Jobs.Add(completedJob);
             _unitOfWork.JobRequest.Update(jobRequest);
             var notification = new Notification
             {
@@ -187,7 +179,12 @@ namespace ProLink.Application.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            var requests = await _unitOfWork.JobRequest.FindAsync(r => r.RecieverId == user.Id, n => n.DateCreated, OrderDirection.Descending);
+            var jobs=user.Jobs;
+
+            var requests = jobs.SelectMany(job => job.JobRequests)
+                             .OrderByDescending(request => request.DateCreated)
+                             .ToList();
+
             var result = requests.Select(request => _mapper.Map<JobRequestDto>(request)).ToList();
             return result;
         }

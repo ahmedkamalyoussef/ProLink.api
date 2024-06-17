@@ -34,17 +34,17 @@ namespace ProLink.Application.Services
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null) throw new UnauthorizedAccessException("unAuthorized");
-            var job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == postId);
-            if (job == null) throw new ArgumentNullException("user not found");
-            if (job.UserJobType.FirstOrDefault(j => j.JobId == job.Id).UserId != currentUser.Id) throw new Exception("user not Authorized");
-            if (job.Status != Status.Completed) throw new Exception("the post not completed yet");
+            var Job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == postId);
+            if (Job == null) throw new ArgumentNullException("user not found");
+            if (Job.UserId != currentUser.Id) throw new Exception("user not Authorized");
+            if (Job.Status != Status.Completed) throw new Exception("the post not completed yet");
 
             var rate = await _unitOfWork.Rate.FindFirstAsync(r => r.RaterId == currentUser.Id);
             if (rate == null)
             {
                 var newRate = new Rate { RatedJobId = postId, RaterId = currentUser.Id, RateValue = rateDto.RateValue };
                 _unitOfWork.Rate.Add(newRate);
-                job.Rate=newRate;
+                Job.Rate = newRate;
             }
             else
             {

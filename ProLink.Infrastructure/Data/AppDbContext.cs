@@ -17,7 +17,6 @@ namespace ProLink.Data.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<React> Reacts { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<UserJobType> UserJobTypes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -67,10 +66,6 @@ namespace ProLink.Data.Data
 
             #region UserFriend
             new UserFriendEntityTypeConfiguration().Configure(modelBuilder.Entity<UserFriend>());
-            #endregion
-
-            #region UserJobType
-            new UserJobTypeEntityTypeConfiguration().Configure(modelBuilder.Entity<UserJobType>());
             #endregion
 
             #region follower

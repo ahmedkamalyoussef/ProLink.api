@@ -29,32 +29,25 @@ namespace ProLink.Application.Services
         #endregion
 
         #region post methods
-        public async Task<bool> AddJobAsync(JobDto JobDto)
+        public async Task<bool> AddJobAsync(JobDto jobDto)
         {
             //var image = await _userHelpers.AddFileAsync(postDto.PostImage, ConstsFiles.Posts);
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
-            var job = _mapper.Map<Job>(JobDto);
-            _unitOfWork.Job.Add(job);
-            if (await _unitOfWork.SaveAsync() <= 0)
-                return false;
+            var job = _mapper.Map<Job>(jobDto);
             //post.PostImage = //image;
-            var userJobType = new UserJobType
-            {
-                JobId = job.Id,
-                UserId = currentUser.Id,
-                JobType=JobType.Posted
-            };
+            job.User = currentUser;
             //try
             //{
-            _unitOfWork.UserJobType.Add(userJobType);
+            _unitOfWork.Job.Add(job);
             //}
             //catch
             //{
             //    await _userHelpers.DeleteFileAsync(image, ConstsFiles.Posts);
             //    return false;
             //}
+
 
             foreach (var follower in currentUser.Followers)
             {
@@ -80,14 +73,13 @@ namespace ProLink.Application.Services
 
         public async Task<bool> DeleteJobAsync(string id)
         {
-            var currentUser= await _userHelpers.GetCurrentUserAsync();
-            var job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == id);
+            var currentUser = await _userHelpers.GetCurrentUserAsync();
+            var post = await _unitOfWork.Job.FindFirstAsync(p => p.Id == id);
             //string imagePath = post.PostImage;
-            if (job == null) throw new Exception("job not found");
-            if (currentUser==null||currentUser.Id != job.UserJobType.Where(j => j.JobType == JobType.Posted)
-                .FirstOrDefault(j => j.JobId == job.Id).UserId)
+            if (post == null) throw new Exception("job not found");
+            if (currentUser == null || currentUser.Id != post.UserId)
                 throw new Exception("not allowed to delete");
-            _unitOfWork.Job.Remove(job);
+            _unitOfWork.Job.Remove(post);
             if (await _unitOfWork.SaveAsync() > 0)
             {
                 //if (!imagePath.IsNullOrEmpty())
@@ -144,19 +136,16 @@ namespace ProLink.Application.Services
         public async Task<List<JobResultDto>> GetUserJobsAsync()
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var userJobTypes = await _unitOfWork.UserJobType.FindAsync(j => j.UserId == currentUser.Id&&j.JobType==JobType.Posted);
-            var Jobs = userJobTypes.Select(j => j.Job).OrderBy(j=>j.DateCreated).OrderDescending();
+            var Jobs = await _unitOfWork.Job.FindAsync(p => p.UserId == currentUser.Id, p => p.DateCreated, OrderDirection.Descending);
             var JobResults = _mapper.Map<IEnumerable<JobResultDto>>(Jobs);
-            
+
             return JobResults.ToList();
         }
 
         public async Task<List<JobResultDto>> GetUserJobsByUserIdAsync(string id)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            var userJobTypes = await _unitOfWork.UserJobType.FindAsync(j => j.UserId == id && j.JobType == JobType.Posted);
-
-            var Jobs = userJobTypes.Select(j => j.Job).OrderBy(j => j.DateCreated).OrderDescending();
+            var Jobs = await _unitOfWork.Job.FindAsync(p => p.UserId == id, p => p.DateCreated, OrderDirection.Descending);
             var JobResults = _mapper.Map<IEnumerable<JobResultDto>>(Jobs);
             foreach (var Job in JobResults)
             {
@@ -177,14 +166,10 @@ namespace ProLink.Application.Services
             var freelancer=await _unitOfWork.User.FindFirstAsync(u=>u.Id==job.FreelancerId);
             if (freelancer != null)
             {
-                var completedJob = new UserJobType
-                {
-                    UserId = freelancer.Id,
-                    JobId = job.Id,
-                    JobType=JobType.Completed
-                };
-                freelancer.Jobs.Add(completedJob);
-                _unitOfWork.User.Update(freelancer);
+                var jobRequest = await _unitOfWork.JobRequest.FindFirstAsync(j => j.SenderId == freelancer.Id && j.JobId == JobId);
+                jobRequest.Status= Status.Completed;
+                _unitOfWork.JobRequest.Update(jobRequest);
+            _unitOfWork.Job.Update(job);
                 var notification = new Notification
                 {
                     Content = $"you have completed the job of {job.Title}",
@@ -196,7 +181,6 @@ namespace ProLink.Application.Services
                 };
                 _unitOfWork.Notification.Add(notification);
             }
-            _unitOfWork.Job.Update(job);
 
             if(await _unitOfWork.SaveAsync()>0) return true;
             return false;
@@ -204,15 +188,14 @@ namespace ProLink.Application.Services
 
         public async Task<bool> UpdateJobAsync(string id, JobDto JobDto)
         {
-            var userJobType = await _unitOfWork.UserJobType.FindFirstAsync(j => j.JobId == id&&j.JobType==JobType.Posted);
-            var job = userJobType.Job;
+            var job = await _unitOfWork.Job.FindFirstAsync(p => p.Id == id); 
 
             //var oldImage = post.PostImage;
             if (job == null) throw new Exception("job not found");
             var currentUser = await _userHelpers.GetCurrentUserAsync();
             if (currentUser == null)
                 throw new Exception("user not found.");
-            if (currentUser.Id !=userJobType.UserId)
+            if (currentUser.Id !=job.UserId)
                 throw new Exception("not allowed to edit");
 
             _mapper.Map(JobDto, job);

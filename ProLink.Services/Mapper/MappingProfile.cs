@@ -56,7 +56,7 @@ namespace ProLink.Application.Mapper
         }
         private double CalculateAverageRate(User user)
         {
-            var completedJobs = user.Jobs.Where(j => j.JobType == JobType.Completed).Select(j => j.Job);
+            var completedJobs = user.SentJobRequests.Where(j => j.Status == Status.Completed).Select(j => j.Job);
             if (completedJobs == null || completedJobs.Count() == 0)
             {
                 return 0;

@@ -18,10 +18,6 @@ namespace ProLink.Data.Entities
 
         public virtual User Sender { get; set; }
 
-        public string RecieverId { get; set; }
-
-        public virtual User Receiver { get; set; }
-
         public string JobId { get; set; }
 
         public virtual Job Job { get; set; }

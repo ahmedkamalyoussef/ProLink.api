@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using ProLink.Data.Consts;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,12 +21,10 @@ namespace ProLink.Data.Entities
         public DateTime OTPExpiry { get; set; }
         [InverseProperty("Sender")]
         public virtual ICollection<JobRequest>? SentJobRequests { get; set; }
-        [InverseProperty("Receiver")]
-        public virtual ICollection<JobRequest>? ReceivedJobRequests { get; set; }
         public virtual ICollection<FriendRequest>? SentFriendRequests { get; set; }
         public virtual ICollection<FriendRequest>? ReceivedFriendRequests { get; set; }
         public virtual List<string>? Skills { get; set; }
-        public virtual ICollection<UserJobType>? Jobs { get; set; }
+        public virtual ICollection<Job>? Jobs { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
         public virtual ICollection<React>? Reacts { get; set; }

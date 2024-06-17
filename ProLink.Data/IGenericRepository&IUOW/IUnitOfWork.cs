@@ -16,8 +16,6 @@ namespace ProLink.Infrastructure.IGenericRepository_IUOW
         IGenericRepository<UserFriend> UserFriend { get; set; }
         IGenericRepository<UserFollower> UserFollower { get; set; }
         IGenericRepository<Post> Post { get; set; }
-        IGenericRepository<UserJobType> UserJobType { get; set; }
-        IGenericRepository<UserPostType> UserPostType { get; set; }
         Task CreateTransactionAsync();
         Task CommitAsync();
         Task CreateSavePointAsync(string point);

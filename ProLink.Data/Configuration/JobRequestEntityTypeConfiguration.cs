@@ -9,16 +9,16 @@ namespace ProLink.Data.Configuration
         public void Configure(EntityTypeBuilder<JobRequest> builder)
         {
             builder
-                .HasOne(c => c.Sender)
+                .HasOne(jr => jr.Sender)
                 .WithMany(u => u.SentJobRequests)
-                .HasForeignKey(c => c.SenderId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(jr => jr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction); // No action on Sender
 
             builder
-                .HasOne(c => c.Receiver)
-                .WithMany(u => u.ReceivedJobRequests)
-                .HasForeignKey(c => c.RecieverId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasOne(jr => jr.Job)
+                .WithMany(j => j.JobRequests)
+                .HasForeignKey(jr => jr.JobId)
+                .OnDelete(DeleteBehavior.Cascade); // No action on Job
         }
     }
 }

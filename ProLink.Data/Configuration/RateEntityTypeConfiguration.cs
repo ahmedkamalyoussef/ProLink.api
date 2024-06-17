@@ -29,7 +29,7 @@ namespace ProLink.Data.Configuration
                 .HasOne(r => r.RatedJob)
                 .WithOne(j => j.Rate)
                 .HasForeignKey<Rate>(r => r.RatedJobId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

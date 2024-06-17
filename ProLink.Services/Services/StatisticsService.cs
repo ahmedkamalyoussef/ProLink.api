@@ -35,8 +35,8 @@ namespace ProLink.Application.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) throw new Exception("user not found");
-            var completedJobs = user.Jobs.Where(j => j.JobType==JobType.Completed).Select(j=>j.Job);
-            var refusedJobs = user.Jobs.Where(j => j.JobType == JobType.Refused).Select(j => j.Job);
+            var completedJobs = user.SentJobRequests.Where(j => j.Status==Status.Completed).Select(j=>j.Job);
+            var refusedJobs = user.SentJobRequests.Where(j => j.Status == Status.Declined).Select(j => j.Job);
             UserJobsStatisticsDto userJobsStatisticsDto = new UserJobsStatisticsDto
             {
                 CompletedJobs = _mapper.Map<IEnumerable<JobResultDto>>(completedJobs).ToList(),

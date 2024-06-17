@@ -301,7 +301,7 @@ namespace ProLink.Application.Services
             return new RefreshToken()
             {
                 Token = Convert.ToBase64String(randomNumber),
-                ExpiresOn = DateTime.UtcNow.AddSeconds(20),
+                ExpiresOn = DateTime.UtcNow.AddMinutes(20),
                 CreatedOn = DateTime.UtcNow,
             };
         }
