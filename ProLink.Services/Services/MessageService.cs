@@ -46,23 +46,28 @@ namespace ProLink.Application.Services
             return messageResult;
         }
 
-
-        public async Task<bool> SendMessageAsync(string recieverId, SendMessageDto sendMessageDto)
+        public async Task<MessageResultDto> GetMessageByIdAsync(string messageId)
+        {
+            var message = await _unitOfWork.Message.FindFirstAsync(m => m.Id == messageId);
+            if (message == null) throw new Exception("Message not found");
+            return _mapper.Map<MessageResultDto>(message);
+        }
+        public async Task<bool> SendMessageAsync(string receiverId, SendMessageDto sendMessageDto)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            if (currentUser == null) throw new Exception("current user not found");
-            var reciever = await _userManager.FindByIdAsync(recieverId);
-            if (reciever == null) throw new Exception("reciever not found");
+            if (currentUser == null) throw new Exception("Current user not found");
+            var receiver = await _unitOfWork.User.FindFirstAsync(u => u.Id == receiverId);
+            if (receiver == null) throw new Exception("Receiver not found");
             var message = _mapper.Map<Message>(sendMessageDto);
             message.SenderId = currentUser.Id;
-            message.ReceiverId = reciever.Id;
+            message.ReceiverId = receiver.Id;
             _unitOfWork.Message.Add(message);
 
             var notification = new Notification
             {
                 Content = $"{currentUser.FirstName} {currentUser.LastName} sent you a message",
                 Timestamp = DateTime.Now,
-                ReceiverId = recieverId,
+                ReceiverId = receiverId,
                 AboutUserId = currentUser.Id,
                 Type = NotificationType.Message,
                 IsRead = false
@@ -72,23 +77,25 @@ namespace ProLink.Application.Services
             if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
+
         public async Task<bool> UpdateMessageAsync(string messageId, SendMessageDto sendMessageDto)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            if (currentUser == null) throw new Exception("current user not found");
+            if (currentUser == null) throw new Exception("Current user not found");
             var message = await _unitOfWork.Message.FindFirstAsync(m => m.Id == messageId);
-            if (message == null) throw new Exception("message not found");
+            if (message == null) throw new Exception("Message not found");
             _mapper.Map(sendMessageDto, message);
             _unitOfWork.Message.Update(message);
             if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;
         }
+
         public async Task<bool> DeleteMessageAsync(string messageId)
         {
             var currentUser = await _userHelpers.GetCurrentUserAsync();
-            if (currentUser == null) throw new Exception("current user not found");
+            if (currentUser == null) throw new Exception("Current user not found");
             var message = await _unitOfWork.Message.FindFirstAsync(m => m.Id == messageId);
-            if (message == null) throw new Exception("message not found");
+            if (message == null) throw new Exception("Message not found");
             _unitOfWork.Message.Remove(message);
             if (await _unitOfWork.SaveAsync() > 0) return true;
             return false;

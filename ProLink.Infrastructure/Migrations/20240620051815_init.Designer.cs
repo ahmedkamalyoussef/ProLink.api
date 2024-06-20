@@ -12,8 +12,8 @@ using ProLink.Data.Data;
 namespace ProLink.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240617034851_epetrpuy")]
-    partial class epetrpuy
+    [Migration("20240620051815_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

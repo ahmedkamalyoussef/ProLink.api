@@ -198,7 +198,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.FriendRequest", b =>
@@ -226,7 +226,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("FriendRequests");
+                    b.ToTable("FriendRequests", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Job", b =>
@@ -270,7 +270,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Jobs", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.JobRequest", b =>
@@ -301,7 +301,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("JobRequests");
+                    b.ToTable("JobRequests", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Message", b =>
@@ -330,7 +330,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Notification", b =>
@@ -362,7 +362,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("ReceiverId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Post", b =>
@@ -388,7 +388,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Post");
+                    b.ToTable("Post", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.Rate", b =>
@@ -414,7 +414,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("RaterId");
 
-                    b.ToTable("Rate");
+                    b.ToTable("Rate", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.React", b =>
@@ -442,7 +442,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reacts");
+                    b.ToTable("Reacts", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
@@ -560,7 +560,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserFollower");
+                    b.ToTable("UserFollower", (string)null);
                 });
 
             modelBuilder.Entity("ProLink.Data.Entities.UserFriend", b =>
@@ -575,7 +575,7 @@ namespace ProLink.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserFriend");
+                    b.ToTable("UserFriend", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -785,7 +785,7 @@ namespace ProLink.Infrastructure.Migrations
 
             modelBuilder.Entity("ProLink.Data.Entities.User", b =>
                 {
-                    b.OwnsMany("ProLink.Data.Entities.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("ProLink.Data.Entities.User.RefreshTokens#ProLink.Data.Entities.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<string>("UserId")
                                 .HasColumnType("nvarchar(450)");
@@ -811,7 +811,7 @@ namespace ProLink.Infrastructure.Migrations
 
                             b1.HasKey("UserId", "Id");
 
-                            b1.ToTable("RefreshToken");
+                            b1.ToTable("RefreshToken", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");

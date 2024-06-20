@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ProLink.Application.Mail;
 using ProLink.api;
+using ProLink.Application.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,7 +19,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddSignalR();
 
 #region Connection String
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -120,10 +121,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.AllowAnyOrigin()
+        builder.WithOrigins("http://localhost:3000")
                .AllowAnyMethod()
-               .AllowAnyHeader();
-
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
 #endregion
@@ -141,7 +142,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseCors("CorsPolicy");
 app.UseMiddleware<PerformanceMiddleware>();
 app.MapControllers();
-app.UseCors("CorsPolicy");
+app.MapHub<ChatHub>("/chatHub");
 app.Run();
